@@ -92,7 +92,7 @@ jobs:
         shell: bash
         run: ls -lh dist/*.exe
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: LuwanTerm-windows
           path: |
