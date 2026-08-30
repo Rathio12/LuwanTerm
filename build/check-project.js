@@ -12,8 +12,9 @@ const { execFileSync } = require('child_process');
 const root = path.join(__dirname, '..');
 let failures = 0;
 
+// Both go to stdout so the report reads in order in a CI log.
 const fail = (message) => {
-  console.error(`  FAIL  ${message}`);
+  console.log(`  FAIL  ${message}`);
   failures += 1;
 };
 const pass = (message) => console.log(`  ok    ${message}`);
@@ -46,11 +47,17 @@ function checkSyntax() {
 /**
  * Every script and stylesheet the HTML references must exist. Forgetting to add
  * a <script> tag for a new renderer module breaks the app silently.
+ *
+ * References into node_modules are only checked when dependencies are actually
+ * installed, so this runs without `npm ci`. That they are *shipped* is covered
+ * by checkPackagedFiles, which needs nothing installed.
  */
 function checkHtmlReferences() {
   console.log('html references');
+  const hasModules = fs.existsSync(path.join(root, 'node_modules'));
   const pages = ['src/renderer/index.html', 'src/renderer/splash.html'];
   let count = 0;
+  let skipped = 0;
 
   for (const page of pages) {
     const file = path.join(root, page);
@@ -64,13 +71,21 @@ function checkHtmlReferences() {
 
     for (const ref of refs) {
       if (/^https?:/.test(ref)) continue;
+      if (ref.includes('node_modules/') && !hasModules) {
+        skipped += 1;
+        continue;
+      }
       count += 1;
       if (!fs.existsSync(path.resolve(dir, ref))) {
         fail(`${page} references missing file: ${ref}`);
       }
     }
   }
-  pass(`${count} script and stylesheet references resolve`);
+
+  pass(
+    `${count} script and stylesheet references resolve` +
+      (skipped ? ` (${skipped} into node_modules skipped, not installed)` : '')
+  );
 }
 
 /**
