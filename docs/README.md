@@ -21,6 +21,14 @@ Start here. Each guide stands on its own — read the one you need.
 | [Building](building.md) | Installer and portable builds, the icon, build config |
 | [Code signing](signing.md) | Why Windows warns, and what genuinely fixes it |
 
+## The project
+
+| File | What's in it |
+| --- | --- |
+| [Security](../SECURITY.md) | What is protected, what is not, and how to report a problem |
+| [Contributing](../CONTRIBUTING.md) | Setup, the checks, and the house style |
+| [Changelog](../CHANGELOG.md) | What changed in each release |
+
 ## Changing it
 
 | Guide | What's in it |

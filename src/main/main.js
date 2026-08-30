@@ -2,10 +2,12 @@
 
 const { app, BrowserWindow, ipcMain } = require('electron');
 
-const { createWindow, createSplash } = require('./window');
+const { createWindow, createSplash, createUpdatePrompt } = require('./window');
 const { SessionManager } = require('./ssh/manager');
 const { registerAll } = require('./ipc');
 const settings = require('./store/settings');
+const hosts = require('./store/hosts');
+const keys = require('./store/keys');
 const discord = require('./discord');
 const config = require('./config');
 const updater = require('./updater');
@@ -25,10 +27,9 @@ if (!app.requestSingleInstanceLock()) {
     mainWindow.focus();
   });
 
-  app.whenReady().then(() => {
+  app.whenReady().then(async () => {
     registerAll(manager, { onSettingsChanged: applyDiscord });
     manager.onChange = updatePresence;
-    applyDiscord();
 
     const splash = createSplash();
     const splashShownAt = Date.now();
@@ -51,14 +52,18 @@ if (!app.requestSingleInstanceLock()) {
       }, remaining);
     };
 
-    updater.start((state) => {
+    updater.attach((state) => {
       if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('update:state', state);
     });
 
-    ipcMain.once('app:ready', reveal);
+    const rendererReady = new Promise((resolve) => {
+      ipcMain.once('app:ready', resolve);
+      mainWindow.webContents.once('did-fail-load', resolve);
+      setTimeout(resolve, SPLASH_TIMEOUT_MS);
+    });
 
-    mainWindow.webContents.once('did-fail-load', reveal);
-    setTimeout(reveal, SPLASH_TIMEOUT_MS);
+    const updating = await runBootSequence(splash, rendererReady);
+    if (!updating) reveal();
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length !== 0) return;
@@ -67,6 +72,90 @@ if (!app.requestSingleInstanceLock()) {
       manager.attach(mainWindow.webContents);
     });
   });
+}
+
+/** Tells the splash window what is happening. */
+function splashState(splash, state) {
+  if (splash && !splash.isDestroyed()) splash.webContents.send('splash:state', state);
+}
+
+/**
+ * Asks, on the splash, whether to install a waiting update. Defaults to "not
+ * now" if nobody answers, so an unattended machine still finishes booting.
+ */
+function askToUpdate(splash, update) {
+  return new Promise((resolve) => {
+    const prompt = createUpdatePrompt(splash);
+    let done = false;
+
+    const settle = (accepted) => {
+      if (done) return;
+      done = true;
+      ipcMain.removeListener('update:answer', onAnswer);
+      if (!prompt.isDestroyed()) prompt.destroy();
+      resolve(accepted);
+    };
+
+    const onAnswer = (_event, accepted) => settle(accepted);
+    ipcMain.on('update:answer', onAnswer);
+
+    prompt.on('closed', () => settle(false));
+
+    prompt.webContents.once('did-finish-load', () => {
+      prompt.webContents.send('update:offer', { version: update.version, current: update.current });
+    });
+  });
+}
+
+/**
+ * The work that actually happens behind the loading screen: settings migration,
+ * stored data, Discord, and the update check.
+ *
+ * @returns {Promise<boolean>} true when an update is being installed, in which
+ *   case the main window is never shown
+ */
+async function runBootSequence(splash, rendererReady) {
+  const step = (percent, status, detail) => splashState(splash, { percent, status, detail });
+
+  step(12, 'Loading configuration');
+  const current = settings.get();
+
+  step(28, 'Restoring your hosts and keys');
+  try {
+    hosts.list();
+    keys.list();
+  } catch (err) {
+    console.error('[boot] stored data could not be read:', err.message);
+  }
+
+  step(44, 'Connecting to Discord');
+  applyDiscord(current);
+
+  step(60, 'Checking for updates');
+  const update = await updater.check({ userAsked: false });
+
+  if (update && update.canInstall) {
+    step(70, `Version ${update.version} is available`, 'Waiting for your answer');
+    if (await askToUpdate(splash, update)) {
+      step(0, `Downloading ${update.version}`, 'This can take a moment');
+      try {
+        await updater.download((percent) => step(percent, `Downloading ${update.version}`, `${percent}%`));
+        step(100, 'Restarting to finish the update');
+        updater.install();
+        return true;
+      } catch (err) {
+        step(70, 'Update failed, carrying on', err.message.slice(0, 60));
+      }
+    }
+  } else if (update) {
+    step(70, `Version ${update.version} is available`, 'Portable builds cannot self-update');
+  }
+
+  step(82, 'Starting the interface');
+  await rendererReady;
+
+  step(100, 'Ready');
+  return false;
 }
 
 /**

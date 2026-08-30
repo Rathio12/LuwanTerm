@@ -38,6 +38,7 @@ contextBridge.exposeInMainWorld('term', {
   updates: {
     check: () => call('updates:check'),
     state: () => call('updates:state'),
+    download: () => call('updates:download'),
     install: () => call('updates:install'),
     onState: (cb) => subscribe('update:state', cb),
   },

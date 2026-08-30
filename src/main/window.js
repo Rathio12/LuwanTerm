@@ -11,8 +11,8 @@ const DEV = process.argv.includes('--dev');
  */
 function createSplash() {
   const splash = new BrowserWindow({
-    width: 360,
-    height: 210,
+    width: 380,
+    height: 260,
     frame: false,
     resizable: false,
     movable: true,
@@ -21,12 +21,50 @@ function createSplash() {
     skipTaskbar: true,
     alwaysOnTop: true,
     backgroundColor: '#0a0b12',
-    webPreferences: { nodeIntegration: false, contextIsolation: true, sandbox: true },
+    webPreferences: {
+      preload: path.join(__dirname, 'splash-preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
   });
 
   splash.once('ready-to-show', () => splash.show());
   splash.loadFile(path.join(__dirname, '..', 'renderer', 'splash.html'));
   return splash;
+}
+
+/**
+ * The update offer, as its own window so it reads as a decision rather than
+ * another line of loading text. Boot waits on the answer.
+ */
+function createUpdatePrompt(parent) {
+  const prompt = new BrowserWindow({
+    width: 440,
+    height: 290,
+    frame: false,
+    resizable: false,
+    center: true,
+    show: false,
+    skipTaskbar: true,
+    alwaysOnTop: true,
+    backgroundColor: '#0f111a',
+    parent: parent && !parent.isDestroyed() ? parent : undefined,
+    modal: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'update-preload.js'),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
+    },
+  });
+
+  prompt.once('ready-to-show', () => {
+    prompt.show();
+    prompt.focus();
+  });
+  prompt.loadFile(path.join(__dirname, '..', 'renderer', 'update.html'));
+  return prompt;
 }
 
 function createWindow() {
@@ -75,4 +113,4 @@ function createWindow() {
   return win;
 }
 
-module.exports = { createWindow, createSplash };
+module.exports = { createWindow, createSplash, createUpdatePrompt };

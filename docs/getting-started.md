@@ -77,15 +77,28 @@ Images are read from wherever they live and inlined into the window, so the file
 is never copied. Keep it under 8 MB. If the file later moves or is deleted, the
 background quietly falls back to the default.
 
+## Starting up
+
+The loading screen is doing real work, not counting to three. It migrates your
+settings, reads your hosts and keys, connects to Discord if that is on, and asks
+GitHub whether there is a newer release — reporting each step as it goes.
+
+If there is an update, **a window asks before anything is downloaded** and
+startup waits for your answer. Closing that window counts as "not now", so it
+can never sit waiting forever without somebody acting.
+
+The check gives up after seven seconds. A slow or unreachable network delays
+launch by a few seconds rather than blocking it, and failure is silent —
+being offline is not something worth interrupting you about.
+
 ## Updates
 
-LuwanTerm checks GitHub for a newer release shortly after startup, downloads it
-in the background, and offers to restart. **Settings → Updates** shows the
-current state and has a manual check.
+Accepting an update downloads it and restarts. Your hosts, keys, snippets and
+settings are kept; see [building](../docs/building.md#installing-over-an-existing-copy).
 
-The automatic check never reports an error, so an offline machine is not nagged;
-a check you asked for tells you what happened. Portable builds cannot replace
-themselves and will say so rather than pretending to update.
+**Settings → Updates** shows the current state and has a manual check, which
+does report errors, unlike the one at startup. Portable builds cannot replace
+themselves and say so rather than pretending to update.
 
 ## Keyboard shortcuts
 

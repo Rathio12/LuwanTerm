@@ -1,0 +1,72 @@
+name: Bug report
+description: Something does not work the way it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please do not report security problems here — see
+        [SECURITY.md](https://github.com/Rathio12/LuwanTerm/blob/main/SECURITY.md).
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: And what you expected instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to reproduce it
+      placeholder: |
+        1. Open Settings
+        2. ...
+        3. It does X instead of Y
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: LuwanTerm version
+      description: Shown in the titlebar and under Settings, About.
+      placeholder: "1.2.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install
+    attributes:
+      label: How did you install it
+      options:
+        - Installer
+        - Portable exe
+        - Built from source
+    validations:
+      required: true
+
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: "Windows 11 24H2"
+
+  - type: textarea
+    id: server
+    attributes:
+      label: The server, if relevant
+      description: >
+        What is it running, and how do you authenticate? Never paste a private
+        key, a password, or a real host name you would rather not share.
+      placeholder: "Ubuntu 24.04, OpenSSH 9.6, ed25519 key with a passphrase"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Anything from the console
+      description: >
+        `npm run dev` prints renderer errors. Check for credentials before
+        pasting.
+      render: text

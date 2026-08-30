@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'self'" />
+  <title>Update available</title>
+  <style>
+    :root { --accent: #7c5cff; --ink: #eef0f8; --ink-mute: #a5abc4; --ink-faint: #6d7392; }
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; margin: 0; overflow: hidden; user-select: none; }
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(80% 70% at 15% 0%, rgba(124, 92, 255, 0.26), transparent 70%),
+        linear-gradient(160deg, #12141d, #0a0b12);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      -webkit-app-region: drag;
+    }
+
+    .card { display: grid; justify-items: center; gap: 12px; padding: 24px 30px; text-align: center; }
+
+    .mark {
+      display: grid; place-items: center;
+      width: 46px; height: 46px; border-radius: 14px;
+      background: linear-gradient(140deg, var(--accent), #4b7cff);
+      box-shadow: 0 8px 24px rgba(124, 92, 255, 0.4);
+    }
+    .mark svg { width: 22px; height: 22px; fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+    h1 { font-size: 15px; font-weight: 600; margin: 0; }
+    .versions { font-size: 12px; color: var(--ink-mute); }
+    .versions b { color: var(--ink); font-weight: 600; }
+    .note { font-size: 11px; color: var(--ink-faint); line-height: 1.55; max-width: 34ch; }
+
+    .buttons { display: flex; gap: 8px; margin-top: 4px; -webkit-app-region: no-drag; }
+    button {
+      font: inherit; font-size: 12px; font-weight: 550;
+      padding: 8px 16px; border-radius: 10px; border: 1px solid transparent;
+      cursor: pointer; color: var(--ink);
+      transition: filter 130ms ease, background 130ms ease;
+    }
+    .primary { background: linear-gradient(140deg, var(--accent), #5b6cff); box-shadow: 0 5px 18px rgba(124, 92, 255, 0.35); }
+    .primary:hover { filter: brightness(1.09); }
+    .ghost { background: rgba(255, 255, 255, 0.075); border-color: rgba(255, 255, 255, 0.09); color: var(--ink-mute); }
+    .ghost:hover { color: var(--ink); background: rgba(255, 255, 255, 0.1); }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="mark"><svg viewBox="0 0 24 24"><path d="M12 19V5M6 11l6-6 6 6"/></svg></span>
+    <h1>An update is available</h1>
+    <div class="versions" id="versions"></div>
+    <p class="note">Updating downloads the new version and restarts LuwanTerm. Your hosts, keys and settings are kept.</p>
+    <div class="buttons">
+      <button class="ghost" id="later">Not now</button>
+      <button class="primary" id="update" autofocus>Update and restart</button>
+    </div>
+  </div>
+  <script src="update.js"></script>
+</body>
+</html>

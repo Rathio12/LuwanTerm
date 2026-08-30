@@ -38,6 +38,13 @@ Or grab a build:
 npm run dist     # installer + portable exe in dist/
 ```
 
+## Contributing and security
+
+[SECURITY.md](SECURITY.md) is worth a read before trusting this with real
+credentials — it is honest about the limits as well as the protections.
+[CONTRIBUTING.md](CONTRIBUTING.md) covers setup and house style, and
+[CHANGELOG.md](CHANGELOG.md) tracks what changed.
+
 ## Documentation
 
 Everything lives in **[docs/](docs/)**:

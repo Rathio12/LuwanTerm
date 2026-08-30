@@ -34,6 +34,24 @@ dist/
 
 Both are around 108 MB — that's Electron, and it doesn't shrink meaningfully.
 
+## How updating works
+
+There is no separate updater executable. The release's own
+`LuwanTerm-x.y.z-setup.exe` is what performs the update:
+
+1. Startup asks GitHub for `latest.yml`, which the release workflow publishes
+   alongside the binaries.
+2. If it names a newer version, a window asks you. Nothing is downloaded before
+   you answer.
+3. Accepting downloads that release's `setup.exe`, verified against the sha512
+   in `latest.yml`.
+4. The installer **runs visibly** so you can see the update happening, then
+   relaunches LuwanTerm on its own. It has nothing to ask along the way, since
+   the install directory is fixed.
+
+`latest.yml` must be attached to the release or the updater has nothing to read.
+The workflow does that; if you publish by hand, attach it too.
+
 ## Installing over an existing copy
 
 The installer is configured so a reinstall replaces the previous version rather

@@ -105,8 +105,12 @@ function register(hooks = {}) {
     };
   });
 
-  handle('updates:check', () => updater.check(true));
+  handle('updates:check', async () => {
+    await updater.check({ userAsked: true });
+    return updater.state();
+  });
   handle('updates:state', () => updater.state());
+  handle('updates:download', () => updater.download());
   handle('updates:install', () => updater.install());
 
   handle('settings:get', () => settings.get());
