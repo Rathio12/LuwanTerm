@@ -22,7 +22,7 @@ jobs:
       release: ${{ steps.check.outputs.release }}
       tag: ${{ steps.check.outputs.tag }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       # A release happens when package.json names a version that has no release
       # yet. Bumping the version and pushing is all it takes.
@@ -56,7 +56,7 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v4
         with:
