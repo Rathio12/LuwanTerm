@@ -34,6 +34,22 @@ dist/
 
 Both are around 108 MB — that's Electron, and it doesn't shrink meaningfully.
 
+## Installing over an existing copy
+
+The installer is configured so a reinstall replaces the previous version rather
+than sitting alongside it:
+
+| Option | Why |
+| --- | --- |
+| `allowToChangeInstallationDirectory: false` | A reinstall always lands in the same place. Letting the folder be chosen means someone can end up with two installs and wonder why their changes did nothing |
+| `deleteAppDataOnUninstall: false` | Hosts, keys, snippets and settings live in `userData` and survive an uninstall |
+| `perMachine: false` | Per-user install, so no elevation prompt and no shared state |
+
+Your data is never touched by installing or uninstalling. A settings file from an
+older build is migrated on first launch: missing keys get their default, values
+out of range are clamped, and keys that no longer exist are dropped so a removed
+setting cannot come back from disk.
+
 ## Configuration
 
 `npm start` and every build script run `npm run bake` first, which reads `.env`

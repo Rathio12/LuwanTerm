@@ -47,10 +47,37 @@ function coerce(patch) {
   return out;
 }
 
+let migrated = false;
+
+/**
+ * Brings a settings file written by an older build up to date: missing keys get
+ * their default, out-of-range values are clamped, and keys that no longer exist
+ * are dropped so a removed setting cannot come back from disk.
+ *
+ * Runs once per launch, and only writes when something actually changed.
+ */
+function migrate() {
+  const stored = store.read();
+  const clean = { ...DEFAULTS, ...coerce(stored) };
+
+  const before = JSON.stringify(stored, Object.keys(stored).sort());
+  const after = JSON.stringify(clean, Object.keys(clean).sort());
+  if (before !== after) {
+    const removed = Object.keys(stored).filter((key) => !(key in DEFAULTS));
+    if (removed.length) console.log(`[settings] dropping keys from an older build: ${removed.join(', ')}`);
+    store.write(clean);
+  }
+  return clean;
+}
+
 module.exports = {
   DEFAULTS,
 
   get() {
+    if (!migrated) {
+      migrated = true;
+      return migrate();
+    }
     return store.read();
   },
 
