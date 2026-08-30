@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.5.0
+
+Housekeeping. **No functional change since 1.3.0** - this release exists to
+exercise the build pipeline after `actions/upload-artifact` was bumped from v4
+to v7, which nothing had run until now.
+
+- Personal scratch files (`TODO.md`, `NOTES.md`, `scratch/`) are git-ignored, so
+  working notes stop ending up in the repository.
+
 ## 1.3.0
 
 **A loading screen that does something.** Startup now runs a real sequence

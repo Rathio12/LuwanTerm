@@ -3,6 +3,14 @@ dist/
 out/
 *.log
 .DS_Store
+
+# Signing material and baked build config
 build/certs/
 .env
 src/main/config.generated.json
+
+# Personal scratch files - notes for working on this, not part of it
+TODO.md
+NOTES.md
+scratch/
+*.local.*
