@@ -847,3 +847,101 @@ input[type="range"] {
   accent-color: var(--accent);
   background: transparent;
 }
+
+/* ---------- With a background image ---------- */
+/* The panels are deliberately more see-through here. Left at their normal
+   opacity they cover the image almost completely, which reads as the feature
+   being broken rather than subtle. */
+body.has-background .terminals { background: rgba(6, 7, 12, 0.42); }
+body.has-background .sidebar,
+body.has-background .dock { background: rgba(12, 14, 22, 0.55); }
+body.has-background .tab { background: rgba(12, 14, 22, 0.5); }
+body.has-background .titlebar { background: rgba(10, 11, 18, 0.4); }
+body.has-background .empty__card { background: rgba(12, 14, 22, 0.62); }
+
+/* Without this the opaque wash sits between the image and the eye. */
+body.has-background::before { opacity: 0.35; }
+
+/* ---------- Font picker ---------- */
+.fontpick {
+  display: grid;
+  gap: 2px;
+  max-height: 190px;
+  overflow-y: auto;
+  padding: 5px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--stroke-soft);
+  background: rgba(0, 0, 0, 0.22);
+}
+
+.fontpick__row {
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  text-align: left;
+  color: var(--ink-mute);
+  transition: background var(--fast), color var(--fast);
+}
+.fontpick__row:hover { background: var(--glass-strong); color: var(--ink); }
+.fontpick__row.is-on {
+  background: var(--glass-active);
+  border-color: var(--accent-line);
+  color: var(--ink);
+}
+
+.fontpick__name {
+  font-size: 12px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fontpick__sample {
+  font-size: 12.5px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.fontpick__row.is-on .fontpick__sample { color: var(--ink-mute); }
+
+.colorpick {
+  width: 42px;
+  height: 30px;
+  padding: 2px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--stroke);
+  background: rgba(0, 0, 0, 0.24);
+  cursor: pointer;
+}
+
+/* The chrome normally blurs what is behind it. With a background image that
+   would soften the picture whether or not the user asked for blur, so the
+   amount follows the blur slider and is zero by default. */
+body.has-background .sidebar,
+body.has-background .dock,
+body.has-background .terminals,
+body.has-background .tab,
+body.has-background .titlebar,
+body.has-background .empty__card {
+  backdrop-filter: blur(var(--bg-blur, 0px)) saturate(130%);
+}
+
+.slider__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.slider__value {
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+  background: var(--glass-strong);
+  padding: 1px 7px;
+  border-radius: var(--pill);
+}

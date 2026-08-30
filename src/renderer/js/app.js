@@ -92,6 +92,17 @@
     });
   }
 
+  /* ---------- Appearance ---------- */
+
+  /** Repaints the accent colour across the whole interface. */
+  function applyAccent(color) {
+    const root = document.documentElement;
+    root.style.setProperty('--accent', color);
+    root.style.setProperty('--accent-soft', App.dom.withAlpha(color, 0.22));
+    root.style.setProperty('--accent-line', App.dom.withAlpha(color, 0.55));
+    root.style.setProperty('--bg-wash-a', App.dom.withAlpha(color, 0.18));
+  }
+
   /* ---------- Background ---------- */
 
   /** Paints the user's image behind the glass, or clears it. */
@@ -102,13 +113,18 @@
       if (!background) {
         layer.style.backgroundImage = '';
         layer.style.opacity = '0';
+        document.body.classList.remove('has-background');
         return;
       }
       layer.style.backgroundImage = `url("${background.dataUri}")`;
       layer.style.opacity = String(Math.min(100, Math.max(0, background.opacity)) / 100);
       layer.style.filter = background.blur ? `blur(${background.blur}px)` : '';
+
+      document.documentElement.style.setProperty('--bg-blur', `${background.blur}px`);
+      document.body.classList.add('has-background');
     } catch (err) {
       layer.style.opacity = '0';
+      document.body.classList.remove('has-background');
       App.toast.error(err.message);
     }
   }
@@ -247,6 +263,7 @@
       qs('#app-version').textContent = `v${info.version}`;
 
       await Promise.all([App.hosts.reload(), App.keys.reload(), App.snippets.reload()]);
+      applyAccent(state.settings.accentColor);
       applyBackground();
     } catch (err) {
       App.toast.error(`Startup failed: ${err.message}`);
@@ -260,6 +277,7 @@
   }
 
   App.applyBackground = applyBackground;
+  App.applyAccent = applyAccent;
 
   document.addEventListener('DOMContentLoaded', boot);
 })(window.App);

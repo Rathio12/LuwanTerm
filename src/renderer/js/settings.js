@@ -13,6 +13,12 @@
   ];
 
   async function open() {
+
+    try {
+      state.settings = await window.term.settings.get();
+    } catch {
+
+    }
     const current = state.settings;
 
     const fields = {
@@ -28,6 +34,7 @@
       discordShowHost: form.check('Include the host name in what Discord shows', current.discordShowHost),
     };
 
+    const appearance = buildAppearance(current);
     const background = buildBackground(current);
     const updates = buildUpdates();
     const trusted = await loadKnownHosts();
@@ -45,12 +52,14 @@
           form.field('Cursor', fields.cursorStyle),
           form.field('Scrollback lines', fields.scrollback),
         ]),
+        buildFonts(current, fields.fontFamily),
         h('div', { class: 'row' }, [
           fields.cursorBlink,
           fields.copyOnSelect,
           fields.confirmOnClose,
           fields.webgl,
         ]),
+        appearance.element,
         background.element,
         h('div', { class: 'field' }, [
           h('label', { text: 'Discord Rich Presence' }),
@@ -90,6 +99,7 @@
           webgl: fields.webgl.input.checked,
           discordEnabled: fields.discordEnabled.input.checked,
           discordShowHost: fields.discordShowHost.input.checked,
+          ...appearance.value(),
           ...background.value(),
         });
         return true;
@@ -98,10 +108,178 @@
 
     if (updates.element.dispose) updates.element.dispose();
 
-    if (!result) return;
+    if (!result) {
+      App.applyAccent(state.settings.accentColor);
+      return;
+    }
+    App.applyAccent(state.settings.accentColor);
     App.applyBackground();
     for (const entry of state.sessions.values()) entry.term?.applySettings(state.settings);
     App.toast.ok('Settings saved');
+  }
+
+  let fontCatalogue = null;
+
+  const SAMPLE = 'const ok = 0O1lI; ~$>_';
+
+  /**
+   * A range input with a live readout, because a slider with no number is a
+   * guess rather than a setting.
+   */
+  function slider(label, attrs, unit) {
+    const input = h('input', { type: 'range', ...attrs });
+    const value = h('span', { class: 'slider__value', text: `${input.value}${unit}` });
+
+    input.addEventListener('input', () => {
+      value.textContent = `${input.value}${unit}`;
+    });
+
+    const element = h('div', { class: 'field' }, [
+      h('div', { class: 'slider__head' }, [h('label', { text: label }), value]),
+      input,
+    ]);
+    return { element, input };
+  }
+
+  /**
+   * Reports whether a font is actually installed, by checking that text
+   * measures differently in it than in each generic fallback. The browser
+   * silently substitutes a missing font, so measuring is the only way to tell.
+   */
+  function isInstalled(name, ctx) {
+    const probe = 'mmmmmmmmmmlliWWW';
+    return ['monospace', 'serif', 'sans-serif'].some((generic) => {
+      ctx.font = `72px ${generic}`;
+      const base = ctx.measureText(probe).width;
+      ctx.font = `72px "${name}", ${generic}`;
+      return ctx.measureText(probe).width !== base;
+    });
+  }
+
+  /** Adds anything monospaced the system reports, when the browser allows it. */
+  async function systemMonoFonts() {
+    if (typeof window.queryLocalFonts !== 'function') return [];
+    try {
+      const fonts = await window.queryLocalFonts();
+      return [...new Set(fonts.map((font) => font.family))].filter((family) =>
+        /(mono\w*|code|consol\w*|courier|terminal)/i.test(family)
+      );
+    } catch {
+      return [];
+    }
+  }
+
+  /** The first family in a stack, which is the one actually in use. */
+  function primaryFamily(stack) {
+    return String(stack || '').split(',')[0].trim().replace(/^["']|["']$/g, '');
+  }
+
+  /** A list of installed fonts, each rendered in itself so it can be judged. */
+  function buildFonts(current, fontField) {
+    const list = h('div', { class: 'fontpick' });
+    const element = h('div', { class: 'field' }, [
+      h('label', { text: 'Installed monospace fonts' }),
+      list,
+      h('span', { class: 'note', text: 'Click one to use it. The box above takes any font stack.' }),
+    ]);
+
+    const ctx = document.createElement('canvas').getContext('2d');
+
+    const render = (names) => {
+      list.replaceChildren();
+      if (!names.length) {
+        list.append(h('div', { class: 'hint', text: 'No known monospace fonts detected.' }));
+        return;
+      }
+      for (const name of names) {
+        const row = h('button', {
+          class: 'fontpick__row',
+          style: `font-family: "${name}", monospace`,
+          onclick: (event) => {
+            event.preventDefault();
+            fontField.value = `${name}, monospace`;
+            for (const other of list.children) other.classList.remove('is-on');
+            row.classList.add('is-on');
+          },
+        }, [
+          h('span', { class: 'fontpick__name', text: name }),
+          h('span', { class: 'fontpick__sample', text: SAMPLE }),
+        ]);
+        if (primaryFamily(fontField.value) === name) row.classList.add('is-on');
+        list.append(row);
+      }
+    };
+
+    list.append(h('div', { class: 'hint', text: 'Looking for installed fonts...' }));
+
+    (async () => {
+      if (!fontCatalogue) {
+        try {
+          fontCatalogue = await window.term.app.fonts();
+        } catch {
+          fontCatalogue = [];
+        }
+      }
+
+      const extra = await systemMonoFonts();
+      const names = [...new Set([...fontCatalogue, ...extra])];
+      const detected = names.filter((name) => isInstalled(name, ctx));
+      detected.sort((a, b) => a.localeCompare(b));
+      render(detected);
+    })();
+
+    return element;
+  }
+
+  const ACCENTS = ['#7c5cff', '#3ea8ff', '#22c58b', '#f2a33c', '#ff5c8a', '#ff5c72', '#c084fc'];
+
+  /** Accent colour and how far the terminal lets the background through. */
+  function buildAppearance(current) {
+    let accent = current.accentColor;
+
+    const custom = h('input', { type: 'color', class: 'colorpick', value: accent });
+    const swatches = h('div', { class: 'swatches' }, ACCENTS.map((value) =>
+      h('button', {
+        class: `swatch${value === accent ? ' is-on' : ''}`,
+        style: `background:${value}`,
+        title: value,
+        onclick: (event) => {
+          event.preventDefault();
+          accent = value;
+          custom.value = value;
+          for (const node of swatches.children) node.classList.toggle('is-on', node.title === value);
+          App.applyAccent(value);
+        },
+      })
+    ));
+
+    custom.addEventListener('input', () => {
+      accent = custom.value;
+      for (const node of swatches.children) node.classList.remove('is-on');
+      App.applyAccent(accent);
+    });
+
+    const opacity = slider(
+      'Terminal opacity',
+      { min: '20', max: '100', step: '1', value: current.terminalOpacity },
+      '%'
+    );
+
+    const element = h('div', { class: 'row row--2' }, [
+      form.field('Accent colour', h('div', { class: 'about__links' }, [swatches, custom])),
+      h('div', { class: 'row' }, [
+        opacity.element,
+        h('span', {
+          class: 'note',
+          text: 'Lower it to see your background through the terminal. Applies to sessions opened after saving.',
+        }),
+      ]),
+    ]);
+
+    return {
+      element,
+      value: () => ({ accentColor: accent, terminalOpacity: opacity.input.value }),
+    };
   }
 
   /** Picks a global background image, with opacity and blur to tame it. */
@@ -109,12 +287,8 @@
     let chosen = current.backgroundImage;
 
     const label = h('span', { class: 'note', text: chosen || 'No image chosen' });
-    const opacity = h('input', {
-      type: 'range', min: '0', max: '100', step: '1', value: current.backgroundOpacity,
-    });
-    const blur = h('input', {
-      type: 'range', min: '0', max: '40', step: '1', value: current.backgroundBlur,
-    });
+    const opacity = slider('Opacity', { min: '0', max: '100', step: '1', value: current.backgroundOpacity }, '%');
+    const blur = slider('Blur', { min: '0', max: '40', step: '1', value: current.backgroundBlur }, 'px');
 
     const choose = h('button', {
       class: 'btn btn--ghost',
@@ -144,15 +318,15 @@
       h('label', { text: 'Background image' }),
       h('div', { class: 'about__links' }, [choose, clear]),
       label,
-      form.row([form.field('Opacity', opacity), form.field('Blur', blur)]),
+      form.row([opacity.element, blur.element]),
     ]);
 
     return {
       element,
       value: () => ({
         backgroundImage: chosen,
-        backgroundOpacity: opacity.value,
-        backgroundBlur: blur.value,
+        backgroundOpacity: opacity.input.value,
+        backgroundBlur: blur.input.value,
       }),
     };
   }

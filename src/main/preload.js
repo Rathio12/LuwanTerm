@@ -28,6 +28,7 @@ contextBridge.exposeInMainWorld('term', {
     maximize: () => ipcRenderer.send('app:window', 'maximize'),
     close: () => ipcRenderer.send('app:window', 'close'),
     openExternal: (url) => call('app:open-external', url),
+    fonts: () => call('app:fonts'),
     pickBackground: () => call('app:pick-background'),
     background: () => call('app:background'),
     onMaximized: (cb) => subscribe('app:maximized', cb),

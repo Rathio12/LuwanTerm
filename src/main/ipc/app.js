@@ -53,6 +53,18 @@ function register(hooks = {}) {
     return true;
   });
 
+  /** The font catalogue the picker offers, shared with fonts/README.md. */
+  handle('app:fonts', () => {
+    try {
+      const file = path.join(app.getAppPath(), 'fonts', 'fonts.json');
+      const catalogue = JSON.parse(fs.readFileSync(file, 'utf8'));
+      return catalogue.fonts.map((font) => font.name);
+    } catch (err) {
+      console.error('[fonts] catalogue unavailable:', err.message);
+      return [];
+    }
+  });
+
   handle('app:pick-background', async () => {
     const result = await dialog.showOpenDialog(mainWindow(), {
       title: 'Choose a background image',

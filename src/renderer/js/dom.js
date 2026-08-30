@@ -93,8 +93,19 @@ window.App = window.App || {};
     return `/${out.join('/')}`;
   }
 
+  /** Turns #rrggbb into an rgba() string, leaving anything else untouched. */
+  function withAlpha(color, alpha) {
+    const match = /^#([0-9a-f]{6})$/i.exec(String(color).trim());
+    if (!match) return color;
+    const value = Number.parseInt(match[1], 16);
+    return `rgba(${(value >> 16) & 255}, ${(value >> 8) & 255}, ${value & 255}, ${alpha})`;
+  }
+
   const parentPath = (target) => (target === '/' ? '/' : joinPath(target, '..'));
   const baseName = (target) => target.split('/').filter(Boolean).pop() || '/';
 
-  App.dom = { qs, qsa, h, icon, iconButton, formatBytes, formatDate, debounce, joinPath, parentPath, baseName };
+  App.dom = {
+    qs, qsa, h, icon, iconButton, formatBytes, formatDate, debounce,
+    joinPath, parentPath, baseName, withAlpha,
+  };
 })(window.App);

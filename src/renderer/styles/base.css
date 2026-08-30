@@ -22,6 +22,7 @@ body {
 /* Ambient light wash that gives the glass something to sit on. */
 body::before {
   content: "";
+  transition: opacity 260ms ease;
   position: fixed;
   inset: -30%;
   z-index: -1;

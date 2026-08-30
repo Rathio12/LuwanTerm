@@ -33,6 +33,23 @@
    * @returns {{element: HTMLElement, focus: Function, fit: Function, write: Function,
    *            setOverlay: Function, applySettings: Function, paste: Function, dispose: Function}}
    */
+  /**
+   * xterm paints its own background over everything behind it, so a background
+   * image is invisible through the terminal until the theme itself is made
+   * translucent.
+   */
+  function themeFor(settings) {
+    const alpha = Math.min(100, Math.max(20, Number(settings.terminalOpacity) || 100)) / 100;
+    const accent = settings.accentColor || THEME.cursor;
+
+    return {
+      ...THEME,
+      background: alpha >= 1 ? THEME.background : `rgba(10, 11, 18, ${alpha})`,
+      cursor: accent,
+      selectionBackground: App.dom.withAlpha(accent, 0.32),
+    };
+  }
+
   function create(sessionId, settings) {
     const pane = h('div', { class: 'term-pane', dataset: { session: sessionId } });
     const host = h('div', { style: 'height:100%' });
@@ -46,7 +63,8 @@
       scrollback: settings.scrollback,
       allowProposedApi: true,
       macOptionIsMeta: true,
-      theme: THEME,
+      allowTransparency: Number(settings.terminalOpacity) < 100,
+      theme: themeFor(settings),
     });
 
     const fitAddon = new window.FitAddon.FitAddon();
@@ -152,6 +170,7 @@
         term.options.cursorBlink = next.cursorBlink;
         term.options.cursorStyle = next.cursorStyle;
         term.options.scrollback = next.scrollback;
+        term.options.theme = themeFor(next);
         fit();
       },
 

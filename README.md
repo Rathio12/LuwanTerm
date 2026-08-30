@@ -21,7 +21,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 - **SFTP** — browse, upload, download whole folders, rename, delete, with live progress and cancellable transfers.
 - **Tunnels** — local (`-L`), remote (`-R`), and dynamic SOCKS5 (`-D`) forwarding.
 - **Host key pinning** — fingerprints recorded on first use and checked every time, with a loud warning if one changes.
-- **Your own background** — any image behind the interface, with opacity and blur.
+- **Make it yours** — pick from every monospace font you have installed (previewed in its own face), set an accent colour, and put an image behind the interface.
 - **Updates itself** — checks GitHub releases, downloads in the background, offers a restart.
 - **Secrets in the OS keychain** — never written to disk in the clear. If the platform can't encrypt, nothing is stored at all.
 

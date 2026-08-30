@@ -12,6 +12,7 @@ Start here. Each guide stands on its own — read the one you need.
 | [Tunnels](tunnels.md) | Local, remote and SOCKS5 forwarding, with worked examples |
 | [Discord presence](discord.md) | Turning it on and what it reveals |
 | [Configuration](configuration.md) | `.env` build settings versus user settings |
+| [Fonts](../fonts/README.md) | The 193 families the picker offers |
 
 ## Building and shipping
 

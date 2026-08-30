@@ -13,8 +13,10 @@ const DEFAULTS = {
   confirmOnClose: true,
   webgl: true,
   backgroundImage: '',
-  backgroundOpacity: 35,
+  backgroundOpacity: 60,
   backgroundBlur: 0,
+  terminalOpacity: 100,
+  accentColor: '#7c5cff',
   discordEnabled: true,
 
   discordShowHost: false,
@@ -27,6 +29,7 @@ const CLAMP = {
   scrollback: [200, 200000],
   backgroundOpacity: [0, 100],
   backgroundBlur: [0, 40],
+  terminalOpacity: [20, 100],
 };
 
 function coerce(patch) {

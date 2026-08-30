@@ -54,9 +54,24 @@ immediately rather than just being typed.
 
 ## Appearance
 
-**Settings → Background image** puts your own image behind the interface, with
-sliders for opacity and blur. The terminal itself stays opaque so text remains
-readable; the image shows through the sidebar, tabs and panels.
+Nothing here changes the default look until you change it.
+
+**Font.** Settings lists every monospace family you have installed, each rendered
+in its own face so you can judge it before committing. Click one to use it, or
+type any CSS font stack into the box. The catalogue behind the list is
+[`fonts/`](../fonts/README.md) - 193 families, no binaries bundled.
+
+**Accent colour.** Seven presets plus a colour picker. It repaints the whole
+interface live as you drag, including the terminal cursor and selection, and
+reverts if you cancel.
+
+**Background image.** Your own image behind the interface, with opacity and blur
+sliders that show their value. Setting one also makes the panels more
+see-through, otherwise they cover the picture almost completely.
+
+**Terminal opacity.** The terminal paints its own background, so it stays opaque
+even with an image behind the app. Lower this to see through it. It applies to
+sessions opened after saving, not existing ones.
 
 Images are read from wherever they live and inlined into the window, so the file
 is never copied. Keep it under 8 MB. If the file later moves or is deleted, the

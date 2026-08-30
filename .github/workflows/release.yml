@@ -121,7 +121,7 @@ jobs:
             echo "release exists, replacing its assets"
             gh release upload "$TAG" "${assets[@]}" --clobber
           else
-            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --generate-notes
+            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --generate-notes --latest
           fi
 
           gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
