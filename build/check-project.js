@@ -12,7 +12,6 @@ const { execFileSync } = require('child_process');
 const root = path.join(__dirname, '..');
 let failures = 0;
 
-// Both go to stdout so the report reads in order in a CI log.
 const fail = (message) => {
   console.log(`  FAIL  ${message}`);
   failures += 1;
@@ -95,28 +94,26 @@ function checkHtmlReferences() {
 function checkPackagedFiles() {
   console.log('packaging');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
-  const listed = (pkg.build.files || [])
-    .filter((entry) => entry.startsWith('node_modules/'))
-    .map((entry) => entry.split('/')[1]);
+  const declared = Object.keys(pkg.dependencies || {});
 
   const html = fs.readFileSync(path.join(root, 'src/renderer/index.html'), 'utf8');
-  const needed = new Set(
-    [...html.matchAll(/(?:src|href)="(?:\.\.\/)+node_modules\/([^/"]+)/g)].map((m) => m[1])
+  const loaded = new Set(
+    [...html.matchAll(/(?:src|href)="(?:\.\.\/)+node_modules\/((?:@[^/"]+\/)?[^/"]+)/g)].map(
+      (m) => m[1]
+    )
   );
 
-  for (const name of needed) {
-    if (!listed.includes(name)) {
-      fail(`index.html loads node_modules/${name} but build.files does not ship it`);
+  for (const name of loaded) {
+    if (!declared.includes(name)) {
+      fail(`index.html loads node_modules/${name} but it is not a dependency`);
     }
   }
 
-  for (const name of Object.keys(pkg.dependencies || {})) {
-    const scope = name.split('/')[0];
-    if (!listed.includes(scope)) {
-      fail(`dependency ${name} is not covered by build.files`);
-    }
+  if ((pkg.build.files || []).some((entry) => entry.startsWith('node_modules/'))) {
+    fail('build.files pins node_modules paths by hand; electron-builder ships production deps itself');
   }
-  pass(`build.files covers ${listed.length} module paths`);
+
+  pass(`${declared.length} dependencies declared, ${loaded.size} loaded by the renderer`);
 }
 
 /** Documentation links must not rot. */

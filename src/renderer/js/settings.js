@@ -2,7 +2,7 @@
 (function (App) {
   'use strict';
 
-  const { h, iconButton } = App.dom;
+  const { h, icon, iconButton } = App.dom;
   const { form } = App.modal;
   const state = App.state;
 
@@ -28,6 +28,8 @@
       discordShowHost: form.check('Include the host name in what Discord shows', current.discordShowHost),
     };
 
+    const background = buildBackground(current);
+    const updates = buildUpdates();
     const trusted = await loadKnownHosts();
 
     const result = await App.modal.show({
@@ -62,6 +64,9 @@
           h('label', { text: 'Trusted host keys' }),
           trusted.element,
         ]),
+        background.element,
+        updates.element,
+        buildAbout(),
         h('p', {
           text: state.info.secretsAvailable
             ? 'Passwords and passphrases are encrypted by the operating system keychain.'
@@ -84,14 +89,165 @@
           webgl: fields.webgl.input.checked,
           discordEnabled: fields.discordEnabled.input.checked,
           discordShowHost: fields.discordShowHost.input.checked,
+          ...background.value(),
         });
         return true;
       },
     });
 
+    if (updates.element.dispose) updates.element.dispose();
+
     if (!result) return;
+    App.applyBackground();
     for (const entry of state.sessions.values()) entry.term?.applySettings(state.settings);
     App.toast.ok('Settings saved');
+  }
+
+  /** Picks a global background image, with opacity and blur to tame it. */
+  function buildBackground(current) {
+    let chosen = current.backgroundImage;
+
+    const label = h('span', { class: 'note', text: chosen || 'No image chosen' });
+    const opacity = h('input', {
+      type: 'range', min: '0', max: '100', step: '1', value: current.backgroundOpacity,
+    });
+    const blur = h('input', {
+      type: 'range', min: '0', max: '40', step: '1', value: current.backgroundBlur,
+    });
+
+    const choose = h('button', {
+      class: 'btn btn--ghost',
+      onclick: async (event) => {
+        event.preventDefault();
+        try {
+          const picked = await window.term.app.pickBackground();
+          if (!picked) return;
+          chosen = picked;
+          label.textContent = picked;
+        } catch (err) {
+          App.toast.error(err.message);
+        }
+      },
+    }, [icon('folder'), 'Choose image']);
+
+    const clear = h('button', {
+      class: 'btn btn--ghost',
+      onclick: (event) => {
+        event.preventDefault();
+        chosen = '';
+        label.textContent = 'No image chosen';
+      },
+    }, [icon('x'), 'Clear']);
+
+    const element = h('div', { class: 'field' }, [
+      h('label', { text: 'Background image' }),
+      h('div', { class: 'about__links' }, [choose, clear]),
+      label,
+      form.row([form.field('Opacity', opacity), form.field('Blur', blur)]),
+    ]);
+
+    return {
+      element,
+      value: () => ({
+        backgroundImage: chosen,
+        backgroundOpacity: opacity.value,
+        backgroundBlur: blur.value,
+      }),
+    };
+  }
+
+  const UPDATE_TEXT = {
+    idle: 'Not checked yet.',
+    checking: 'Checking for updates...',
+    current: 'You are on the latest version.',
+    downloading: 'Downloading update...',
+    ready: 'Update downloaded. Restart to apply it.',
+    'available-portable': 'A newer version exists. Portable builds cannot update themselves - download it again.',
+    disabled: 'Updates are only checked in a packaged build.',
+    error: 'Could not check for updates.',
+  };
+
+  /** Update status, with a manual check and a restart when one is waiting. */
+  function buildUpdates() {
+    const status = h('span', { class: 'note', text: UPDATE_TEXT.idle });
+    const restart = h('button', {
+      class: 'btn btn--primary',
+      hidden: true,
+      onclick: (event) => {
+        event.preventDefault();
+        window.term.updates.install().catch((err) => App.toast.error(err.message));
+      },
+    }, [icon('refresh'), 'Restart and update']);
+
+    const describe = (value) => {
+      const text = UPDATE_TEXT[value.status] || UPDATE_TEXT.idle;
+      if (value.status === 'downloading' && value.percent) {
+        status.textContent = `Downloading update ${value.version || ''} - ${value.percent}%`;
+      } else if (value.status === 'error') {
+        status.textContent = value.message || text;
+      } else if (value.status === 'ready') {
+        status.textContent = `Version ${value.version} downloaded. Restart to apply it.`;
+      } else {
+        status.textContent = text;
+      }
+      restart.hidden = value.status !== 'ready';
+    };
+
+    const check = h('button', {
+      class: 'btn btn--ghost',
+      onclick: async (event) => {
+        event.preventDefault();
+        status.textContent = UPDATE_TEXT.checking;
+        try {
+          describe(await window.term.updates.check());
+        } catch (err) {
+          status.textContent = err.message;
+        }
+      },
+    }, [icon('down'), 'Check for updates']);
+
+    window.term.updates.state().then(describe).catch(() => {});
+    const stop = window.term.updates.onState(describe);
+
+    const element = h('div', { class: 'field' }, [
+      h('label', { text: `Updates - you are running ${state.info.version}` }),
+      h('div', { class: 'about__links' }, [check, restart]),
+      status,
+    ]);
+
+    element.dispose = stop;
+    return { element };
+  }
+
+  /** Version plus the places to report a bug or get involved. */
+  function buildAbout() {
+    const links = state.info.links || {};
+
+    const button = (name, label, url) =>
+      url
+        ? h('button', {
+            class: 'btn btn--ghost',
+            onclick: (event) => {
+              event.preventDefault();
+              window.term.app.openExternal(url).catch((err) => App.toast.error(err.message));
+            },
+          }, [icon(name), label])
+        : null;
+
+    const buttons = [
+      button('bug', 'Report a bug', links.issues),
+      button('code', 'Source on GitHub', links.github),
+      button('chat', 'Discord', links.discord),
+    ].filter(Boolean);
+
+    return h('div', { class: 'field' }, [
+      h('label', { text: `About - LuwanTerm ${state.info.version}` }),
+      h('div', { class: 'about__links' }, buttons),
+      h('span', {
+        class: 'note',
+        text: 'Found something broken, or want to help? Both are welcome.',
+      }),
+    ]);
   }
 
   /** Small embedded list so a stale or rotated host key can be forgotten. */

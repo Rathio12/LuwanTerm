@@ -13,7 +13,7 @@ const { Reader, Writer } = require('./wire');
  */
 
 const MAGIC = Buffer.from('openssh-key-v1\0', 'binary');
-const BLOCK = 8; // Padding block size when no cipher is applied.
+const BLOCK = 8;
 
 /**
  * Re-orders key components into the layout OpenSSH stores inside its private
@@ -61,7 +61,7 @@ function privateFields(algorithm, publicBlob, privateBlob) {
     if (publicPart.length !== 32 || seed.length !== 32) {
       throw new Error('Malformed Ed25519 key material.');
     }
-    // OpenSSH stores the seed and public key together as the 64-byte secret.
+
     return out
       .string(algorithm)
       .string(publicPart)
@@ -92,7 +92,7 @@ function encodePrivateKey({ algorithm, comment = '', publicBlob, privateBlob }) 
     .string(comment);
 
   let body = section.done();
-  // Padding runs 1, 2, 3 ... until the section is a whole number of blocks.
+
   const padding = [];
   for (let i = 1; (body.length + padding.length) % BLOCK !== 0; i += 1) padding.push(i);
   body = Buffer.concat([body, Buffer.from(padding)]);

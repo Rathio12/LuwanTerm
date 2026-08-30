@@ -16,14 +16,7 @@ const crypto = require('crypto');
  * the connection, this quietly does nothing. It must never delay or crash the app.
  */
 
-/**
- * The Discord application this build reports as.
- *
- * Baked in on purpose: users of a release should not be able to make the app
- * masquerade as a different Discord application. If you are building your own
- * copy, put your own application id here - see docs/discord.md.
- */
-const CLIENT_ID = '1543680676539273276';
+const CLIENT_ID = require('./config').discordClientId;
 
 const OP = { HANDSHAKE: 0, FRAME: 1, CLOSE: 2, PING: 3, PONG: 4 };
 const MAX_PIPE = 10;
@@ -39,7 +32,7 @@ const startedAt = Date.now();
 
 /** Candidate socket paths, in the order Discord itself probes them. */
 function socketPath(index) {
-  // String.raw keeps the backslashes literal: \\?\pipe\discord-ipc-N
+
   if (process.platform === 'win32') return String.raw`\\?\pipe\discord-ipc-${index}`;
 
   const base =
@@ -183,7 +176,7 @@ module.exports = {
   /** @param {{largeImage?: string, largeText?: string, buttonLabel?: string, buttonUrl?: string}} [options] */
   start(options = {}) {
     this.stop();
-    if (!CLIENT_ID) return; // no application configured for this build
+    if (!CLIENT_ID) return;
     config = { ...options, clientId: CLIENT_ID };
     stopped = false;
     connect(0);

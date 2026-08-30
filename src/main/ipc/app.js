@@ -1,11 +1,26 @@
 'use strict';
 
+const fs = require('fs');
+const path = require('path');
 const { app, BrowserWindow, ipcMain, dialog, shell, clipboard } = require('electron');
 const { handle } = require('./helpers');
 const vault = require('../store/vault');
 const settings = require('../store/settings');
 const snippets = require('../store/snippets');
 const knownHosts = require('../store/known-hosts');
+const config = require('../config');
+const updater = require('../updater');
+
+const MAX_BACKGROUND_BYTES = 8 * 1024 * 1024;
+
+const MIME_TYPES = {
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.webp': 'image/webp',
+  '.gif': 'image/gif',
+  '.avif': 'image/avif',
+};
 
 /** Single-window app, so the active window is unambiguous. */
 const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
@@ -23,6 +38,7 @@ function register(hooks = {}) {
     version: app.getVersion(),
     platform: process.platform,
     secretsAvailable: vault.available(),
+    links: config.links,
   }));
 
   handle('app:open-external', async (url) => {
@@ -31,12 +47,55 @@ function register(hooks = {}) {
     return true;
   });
 
-  // Sandboxed preloads cannot reach the clipboard module directly.
   handle('clipboard:read', () => clipboard.readText());
   handle('clipboard:write', (text) => {
     clipboard.writeText(String(text ?? ''));
     return true;
   });
+
+  handle('app:pick-background', async () => {
+    const result = await dialog.showOpenDialog(mainWindow(), {
+      title: 'Choose a background image',
+      properties: ['openFile'],
+      filters: [{ name: 'Images', extensions: ['png', 'jpg', 'jpeg', 'webp', 'gif', 'avif'] }],
+    });
+    return result.canceled ? null : result.filePaths[0];
+  });
+
+  /**
+   * Reads the chosen background as a data URI. The renderer cannot open
+   * arbitrary local files itself, and inlining keeps it within the page's
+   * content security policy.
+   */
+  handle('app:background', () => {
+    const current = settings.get();
+    if (!current.backgroundImage) return null;
+
+    let stat;
+    try {
+      stat = fs.statSync(current.backgroundImage);
+    } catch {
+      return null;
+    }
+    if (stat.size > MAX_BACKGROUND_BYTES) {
+      throw new Error(
+        `That image is ${(stat.size / 1048576).toFixed(1)} MB. Pick one under ${MAX_BACKGROUND_BYTES / 1048576} MB.`
+      );
+    }
+
+    const type = MIME_TYPES[path.extname(current.backgroundImage).toLowerCase()];
+    if (!type) throw new Error('That file type is not supported as a background.');
+
+    return {
+      dataUri: `data:${type};base64,${fs.readFileSync(current.backgroundImage).toString('base64')}`,
+      opacity: current.backgroundOpacity,
+      blur: current.backgroundBlur,
+    };
+  });
+
+  handle('updates:check', () => updater.check(true));
+  handle('updates:state', () => updater.state());
+  handle('updates:install', () => updater.install());
 
   handle('settings:get', () => settings.get());
   handle('settings:set', (patch) => {

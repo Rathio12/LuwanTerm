@@ -416,7 +416,7 @@
           passphrase,
           savePassphrase: remember.input.checked,
         };
-        // Unticked means "use it where it lives", which is the common case.
+
         return copyIn.input.checked
           ? window.term.keys.import(payload)
           : window.term.keys.link(payload);

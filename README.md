@@ -21,6 +21,8 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 - **SFTP** — browse, upload, download whole folders, rename, delete, with live progress and cancellable transfers.
 - **Tunnels** — local (`-L`), remote (`-R`), and dynamic SOCKS5 (`-D`) forwarding.
 - **Host key pinning** — fingerprints recorded on first use and checked every time, with a loud warning if one changes.
+- **Your own background** — any image behind the interface, with opacity and blur.
+- **Updates itself** — checks GitHub releases, downloads in the background, offers a restart.
 - **Secrets in the OS keychain** — never written to disk in the clear. If the platform can't encrypt, nothing is stored at all.
 
 ## Quick start
@@ -46,6 +48,7 @@ Everything lives in **[docs/](docs/)**:
 | [SSH keys](docs/keys.md) | Generating, adding your own, `.ppk`, installing on a server |
 | [SFTP](docs/sftp.md) | Transferring files, folder downloads, cancelling |
 | [Tunnels](docs/tunnels.md) | Local, remote and SOCKS5 forwarding with worked examples |
+| [Configuration](docs/configuration.md) | `.env` build settings versus user settings |
 | [Building](docs/building.md) | Installer, portable, icon, the build config |
 | [Code signing](docs/signing.md) | Why Windows complains and what actually fixes it |
 | [Discord presence](docs/discord.md) | Turning it on, and what it does and doesn't reveal |

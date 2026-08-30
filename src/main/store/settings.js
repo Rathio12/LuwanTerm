@@ -12,9 +12,11 @@ const DEFAULTS = {
   copyOnSelect: true,
   confirmOnClose: true,
   webgl: true,
+  backgroundImage: '',
+  backgroundOpacity: 35,
+  backgroundBlur: 0,
   discordEnabled: true,
-  // Host names stay off by default: an SSH client should not announce which
-  // machines you are logged into. Opt in explicitly if you want that.
+
   discordShowHost: false,
 };
 
@@ -23,6 +25,8 @@ const store = new JsonStore(paths.settingsFile, DEFAULTS);
 const CLAMP = {
   fontSize: [9, 28],
   scrollback: [200, 200000],
+  backgroundOpacity: [0, 100],
+  backgroundBlur: [0, 40],
 };
 
 function coerce(patch) {

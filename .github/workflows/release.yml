@@ -62,6 +62,7 @@ jobs:
           path: |
             dist/*.exe
             dist/*.blockmap
+            dist/latest.yml
           retention-days: 30
 
       # Safe to re-run: updates an existing release's assets rather than
@@ -75,10 +76,18 @@ jobs:
         run: |
           tag="${INPUT_TAG:-$GITHUB_REF_NAME}"
           echo "publishing release for $tag"
+
+          # latest.yml is what the in-app updater reads, so it has to ship too.
+          assets=()
+          for file in dist/*.exe dist/*.blockmap dist/latest.yml; do
+            [ -f "$file" ] && assets+=("$file")
+          done
+          echo "attaching: ${assets[*]}"
+
           if gh release view "$tag" > /dev/null 2>&1; then
             echo "release exists, replacing its assets"
-            gh release upload "$tag" dist/*.exe dist/*.blockmap --clobber
+            gh release upload "$tag" "${assets[@]}" --clobber
           else
-            gh release create "$tag" dist/*.exe dist/*.blockmap --title "LuwanTerm $tag" --generate-notes --verify-tag
+            gh release create "$tag" "${assets[@]}" --title "LuwanTerm $tag" --generate-notes --verify-tag
           fi
           gh release view "$tag" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'

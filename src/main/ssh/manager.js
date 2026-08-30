@@ -101,7 +101,7 @@ class SessionManager {
   }
 
   async resolveKeyCredentials(profile) {
-    // A loose key file on disk: its passphrase is only discovered on rejection.
+
     if (!profile.keyId) {
       const stored = vault.get(secretKey(profile.id, 'passphrase'));
       return stored ? { passphrase: stored, fromVault: true } : {};

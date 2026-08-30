@@ -30,12 +30,8 @@ if (!password) {
   process.exit(1);
 }
 
-// --publish never: electron-builder publishes implicitly when it detects a git
-// tag, which needs a GitHub token it should not have. The release workflow
-// publishes explicitly instead.
 const args = ['electron-builder', '--win', '--publish', 'never', ...process.argv.slice(2)];
 
-// shell:true is required on Windows: Node refuses to spawn npx.cmd directly.
 const result = spawnSync('npx', args, {
   stdio: 'inherit',
   shell: true,

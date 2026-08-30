@@ -48,10 +48,8 @@ function createWindow() {
     },
   });
 
-  // Shown by main.js once the renderer signals it is ready, not on first paint.
   win.loadFile(path.join(__dirname, '..', 'renderer', 'index.html'));
 
-  // The renderer never navigates or spawns windows; links go to the OS browser.
   win.webContents.setWindowOpenHandler(({ url }) => {
     if (/^https?:\/\//i.test(url)) shell.openExternal(url);
     return { action: 'deny' };
@@ -59,7 +57,7 @@ function createWindow() {
   win.webContents.on('will-navigate', (event) => event.preventDefault());
 
   if (DEV) {
-    // Surfaces renderer errors in the terminal that launched `npm run dev`.
+
     win.webContents.on('console-message', (...args) => {
       const detail =
         args[0] && typeof args[0] === 'object' && 'message' in args[0]

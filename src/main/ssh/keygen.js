@@ -55,7 +55,6 @@ function inspect(privateKey, passphrase) {
     throw new Error(`Not a usable private key: ${parsed.message}`);
   }
 
-  // parseKey yields an array for formats that can hold several keys.
   return describe(Array.isArray(parsed) ? parsed[0] : parsed);
 }
 
@@ -110,9 +109,6 @@ function generate({ type, bits, comment = '', passphrase = '' }) {
     options.cipher = CIPHER;
   }
 
-  // ssh2 1.17 strips a leading zero byte from Ed25519 public keys, so roughly
-  // one generated key in 256 comes back 31 bytes long and cannot be parsed -
-  // by ssh2 or anything else. Verify what we produced and discard a bad draw.
   for (let attempt = 1; attempt <= GENERATE_ATTEMPTS; attempt += 1) {
     const pair = generateKeyPairSync(type, options);
     try {

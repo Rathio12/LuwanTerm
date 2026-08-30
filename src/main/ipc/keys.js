@@ -12,7 +12,7 @@ const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAl
 function register(manager) {
   handle('keys:types', () => keygen.KEY_TYPES);
   handle('keys:list', () => keys.list());
-  // Explicit, user-initiated scan. Results are shown for picking, not adopted.
+
   handle('keys:scan', () => keys.candidates());
   handle('keys:create', (input) => keys.create(input));
   handle('keys:rename', (id, name) => keys.rename(id, name));

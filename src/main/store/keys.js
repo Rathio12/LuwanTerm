@@ -99,9 +99,6 @@ module.exports = {
       throw new Error(`Could not read ${filePath}: ${err.message}`);
     }
 
-    // An encrypted key can be registered without unlocking it now; its public
-    // half is read from the .ppk itself or a sibling .pub, and the passphrase is
-    // asked for at connect time.
     let details;
     let encrypted = Boolean(passphrase);
     try {
@@ -193,7 +190,7 @@ module.exports = {
   setPassphrase(id, passphrase) {
     if (!this.get(id)) throw new Error('Key not found.');
     if (!passphrase) return vault.clear(secretKey(id));
-    // Refuse to store a passphrase that does not actually open the key.
+
     keygen.inspect(this.privateKey(id), passphrase);
     return vault.set(secretKey(id), passphrase);
   },
@@ -210,7 +207,6 @@ module.exports = {
     });
     vault.clear(secretKey(id));
 
-    // Only erase files this app created; a linked file belongs to the user.
     if (meta.source !== 'linked') {
       try {
         fs.rmSync(keyFile(id), { force: true });

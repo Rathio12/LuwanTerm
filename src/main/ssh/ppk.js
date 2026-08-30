@@ -152,7 +152,6 @@ function parse(text, passphrase = '') {
     });
   }
 
-  // An unencrypted v3 file derives nothing at all; its MAC key is empty.
   let material;
   if (!encrypted && version === 3) {
     material = { cipherKey: null, iv: null, macKey: Buffer.alloc(0) };
@@ -168,7 +167,7 @@ function parse(text, passphrase = '') {
       throw new PpkError('The encrypted section of this PPK file is truncated.');
     }
     const decipher = createDecipheriv('aes-256-cbc', material.cipherKey, material.iv);
-    decipher.setAutoPadding(false); // PuTTY pads with random bytes, not PKCS#7.
+    decipher.setAutoPadding(false);
     privateBlob = Buffer.concat([decipher.update(privateBlob), decipher.final()]);
   }
 

@@ -67,7 +67,7 @@
         webgl.onContextLoss(() => webgl.dispose());
         term.loadAddon(webgl);
       } catch {
-        // Falls back to the DOM renderer on machines without a usable GPU.
+
       }
     }
 
@@ -112,7 +112,7 @@
         search.close();
         return false;
       }
-      // Tab cycling and Alt+digit tab jumps belong to the app, not the shell.
+
       if (event.ctrlKey && event.code === 'Tab') return false;
       if (event.altKey && /^Digit[1-9]$/.test(event.code)) return false;
       return true;
@@ -133,7 +133,7 @@
       try {
         fitAddon.fit();
       } catch {
-        // xterm throws while the pane is hidden; the next resize retries.
+
       }
     }
 

@@ -92,6 +92,27 @@
     });
   }
 
+  /* ---------- Background ---------- */
+
+  /** Paints the user's image behind the glass, or clears it. */
+  async function applyBackground() {
+    const layer = qs('#backdrop');
+    try {
+      const background = await window.term.app.background();
+      if (!background) {
+        layer.style.backgroundImage = '';
+        layer.style.opacity = '0';
+        return;
+      }
+      layer.style.backgroundImage = `url("${background.dataUri}")`;
+      layer.style.opacity = String(Math.min(100, Math.max(0, background.opacity)) / 100);
+      layer.style.filter = background.blur ? `blur(${background.blur}px)` : '';
+    } catch (err) {
+      layer.style.opacity = '0';
+      App.toast.error(err.message);
+    }
+  }
+
   /* ---------- Transfers ---------- */
 
   const transfers = new Map();
@@ -133,7 +154,6 @@
       root.append(element);
     }
 
-    // Directory downloads report which file of how many is in flight.
     row.label.textContent = payload.filesTotal
       ? `${payload.name} - ${payload.filesDone + 1}/${payload.filesTotal} ${payload.file || ''}`
       : payload.name;
@@ -183,7 +203,6 @@
     window.addEventListener('keydown', (event) => {
       const keys = [...state.sessions.keys()];
 
-      // Alt+1..9 jumps to a tab; readline never sees these.
       if (event.altKey && !event.ctrlKey && /^Digit[1-9]$/.test(event.code)) {
         const target = keys[Number(event.code.slice(5)) - 1];
         if (!target) return;
@@ -228,17 +247,19 @@
       qs('#app-version').textContent = `v${info.version}`;
 
       await Promise.all([App.hosts.reload(), App.keys.reload(), App.snippets.reload()]);
+      applyBackground();
     } catch (err) {
       App.toast.error(`Startup failed: ${err.message}`);
     } finally {
-      // Dismisses the splash window, whether or not startup went cleanly.
+
       window.term.app.ready();
     }
 
-    // Keep host rows in sync with which hosts have a live session.
     state.on('sessions:changed', () => App.hosts.render());
     App.sessions.renderTabs();
   }
+
+  App.applyBackground = applyBackground;
 
   document.addEventListener('DOMContentLoaded', boot);
 })(window.App);

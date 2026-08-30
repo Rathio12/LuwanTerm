@@ -127,7 +127,6 @@ class SftpClient {
       group: item.attrs.gid,
     }));
 
-    // Symlinks are worth resolving so the UI knows what a double-click should do.
     await Promise.all(
       entries
         .filter((entry) => entry.type === 'link')

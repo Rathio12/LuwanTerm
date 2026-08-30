@@ -810,3 +810,26 @@
   margin-top: 3px;
   word-break: break-all;
 }
+
+.about__links { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- Custom background ---------- */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+  pointer-events: none;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  /* Slightly oversized so a blur cannot reveal soft edges. */
+  transform: scale(1.06);
+  transition: opacity var(--slow);
+}
+
+input[type="range"] {
+  width: 100%;
+  accent-color: var(--accent);
+  background: transparent;
+}

@@ -70,7 +70,7 @@ class SshConnection extends EventEmitter {
     this.client = new Client();
     this.closed = false;
     this.rejectedHostKey = false;
-    // Guarantees a stray 'error' emit can never crash the main process.
+
     this.on('error', () => {});
   }
 
@@ -91,7 +91,6 @@ class SshConnection extends EventEmitter {
           }
         }
 
-        // PuTTY files are decoded here; every other format is passed straight through.
         const prepared = keygen.loadForAuth(material, credentials.passphrase);
         auth.privateKey = prepared.privateKey;
         if (prepared.passphrase) auth.passphrase = prepared.passphrase;

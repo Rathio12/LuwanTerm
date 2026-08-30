@@ -30,7 +30,7 @@ function normalize(config) {
     if (!remoteHost) throw new Error('Destination host is required.');
     if (remotePort === null) throw new Error('Destination port must be between 1 and 65535.');
   }
-  // For -R the "remote" pair is what the server binds and local* is the target.
+
   if (type === 'remote' && remotePort === null) {
     throw new Error('Remote bind port must be between 1 and 65535.');
   }
@@ -55,7 +55,6 @@ class TunnelManager {
     this.emit = emit;
     this.tunnels = new Map();
 
-    // One shared listener dispatches every server-initiated channel by bound port.
     this.client.on('tcp connection', (info, accept, reject) => {
       const tunnel = [...this.tunnels.values()].find(
         (t) => t.type === 'remote' && t.boundPort === info.destPort

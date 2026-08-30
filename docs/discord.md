@@ -33,19 +33,21 @@ The application id is **baked into the build**, not a setting. A release should
 not be able to be pointed at some other Discord application by whoever is
 running it.
 
-If you are building your own copy, change the constant at the top of
-[`src/main/discord.js`](../src/main/discord.js):
+If you are building your own copy, set it in `.env` at the project root:
 
-```js
-const CLIENT_ID = '1543680676539273276';
+```ini
+DISCORD_CLIENT_ID=your-application-id
 ```
 
 1. Create an application at
    [discord.com/developers/applications](https://discord.com/developers/applications).
-2. Copy its **Application ID** into that constant.
+2. Copy its **Application ID** into `.env`.
 3. Under **Rich Presence → Art Assets**, upload an image named `icon` — without
    it the presence shows with no artwork.
-4. Rebuild.
+4. Rebuild. `build/bake-config.js` writes the value into the build.
+
+Leave `DISCORD_CLIENT_ID` empty to disable Rich Presence entirely. See
+[configuration](configuration.md).
 
 Changes apply immediately — no restart.
 

@@ -28,8 +28,17 @@ contextBridge.exposeInMainWorld('term', {
     maximize: () => ipcRenderer.send('app:window', 'maximize'),
     close: () => ipcRenderer.send('app:window', 'close'),
     openExternal: (url) => call('app:open-external', url),
+    pickBackground: () => call('app:pick-background'),
+    background: () => call('app:background'),
     onMaximized: (cb) => subscribe('app:maximized', cb),
     ready: () => ipcRenderer.send('app:ready'),
+  },
+
+  updates: {
+    check: () => call('updates:check'),
+    state: () => call('updates:state'),
+    install: () => call('updates:install'),
+    onState: (cb) => subscribe('update:state', cb),
   },
 
   clipboard: {

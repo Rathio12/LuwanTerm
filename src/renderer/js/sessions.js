@@ -97,7 +97,6 @@
     try {
       const info = await window.term.ssh.connect(hostId, { cols: 80, rows: 24 });
 
-      // The user may have closed the pending tab while we were dialling.
       if (!state.sessions.has(key)) {
         window.term.ssh.disconnect(info.id).catch(() => {});
         return;

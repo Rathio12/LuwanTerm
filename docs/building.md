@@ -19,6 +19,7 @@ npm install
 | `npm run dist:signed` | Same, signed — see [signing](signing.md) |
 | `npm run pack` | Unpacked build only, no installers. Fast |
 | `npm run make-icon` | Regenerate `build/icon.ico` |
+| `npm run bake` | Write `.env` into the build. Runs automatically |
 | `npm run make-cert` | Create a self-signed signing certificate |
 | `npm run trust-cert` | Trust that certificate on this machine (admin) |
 
@@ -32,6 +33,12 @@ dist/
 ```
 
 Both are around 108 MB — that's Electron, and it doesn't shrink meaningfully.
+
+## Configuration
+
+`npm start` and every build script run `npm run bake` first, which reads `.env`
+and writes `src/main/config.generated.json`. That is where the Discord
+application id and the links come from. See [configuration](configuration.md).
 
 ## The icon
 

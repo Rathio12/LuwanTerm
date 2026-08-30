@@ -19,7 +19,6 @@ const { fingerprintOf } = require('./fingerprint');
 
 const MAX_KEY_BYTES = 128 * 1024;
 
-// Files that live in ~/.ssh but are never private keys.
 const IGNORED = new Set([
   'authorized_keys',
   'authorized_keys2',

@@ -10,7 +10,7 @@ function register(manager) {
 
   handle('ssh:write', (sessionId, data) => {
     const session = manager.sessions.get(sessionId);
-    // Keystrokes racing a disconnect are normal; drop them instead of erroring.
+
     return session ? session.write(data) : false;
   });
 

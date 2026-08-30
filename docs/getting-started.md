@@ -52,6 +52,26 @@ The **Snippets** tab holds commands you type often. Click one and it goes to the
 focused session. Tick "Press Enter after inserting" if it should run
 immediately rather than just being typed.
 
+## Appearance
+
+**Settings → Background image** puts your own image behind the interface, with
+sliders for opacity and blur. The terminal itself stays opaque so text remains
+readable; the image shows through the sidebar, tabs and panels.
+
+Images are read from wherever they live and inlined into the window, so the file
+is never copied. Keep it under 8 MB. If the file later moves or is deleted, the
+background quietly falls back to the default.
+
+## Updates
+
+LuwanTerm checks GitHub for a newer release shortly after startup, downloads it
+in the background, and offers to restart. **Settings → Updates** shows the
+current state and has a manual check.
+
+The automatic check never reports an error, so an offline machine is not nagged;
+a check you asked for tells you what happened. Portable builds cannot replace
+themselves and will say so rather than pretending to update.
+
 ## Keyboard shortcuts
 
 | Shortcut | Action |

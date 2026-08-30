@@ -224,3 +224,21 @@ Worth matching if you want the codebase to stay readable:
   pair and discards bad ones. Don't remove that loop either.
 - Each SFTP transfer opens its own channel so cancelling one can't disturb the
   file listing or another transfer.
+- Both build scripts pass `--publish never`. Without it, electron-builder sees a
+  git tag and tries to publish to GitHub itself, which needs a token it should
+  not hold. Releases are published by the workflow's own step.
+- `src/main/discord.js` builds the Windows pipe path with `String.raw`. Written
+  as a normal string literal the backslashes collapse and the socket is never
+  found.
+- `SshConnection` attaches a no-op `error` listener in its constructor. Node
+  throws on an `error` event with no listener, which would take down the main
+  process during a failed connect.
+- The renderer is a plain script chain, so **load order in `index.html` matters**
+  and a new module must be listed there. `npm run check` catches a missing one.
+
+## Comments
+
+The codebase carries no `//` line comments; explanation lives in JSDoc blocks
+and in these docs. `node build/strip-comments.js` removes any that creep back
+in, and `--dry` shows what it would touch. It is a tokeniser rather than a
+regular expression, so URLs, regex literals and template strings are safe.

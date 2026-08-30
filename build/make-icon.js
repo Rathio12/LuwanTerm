@@ -59,7 +59,6 @@ function render() {
         lerp(ACCENT_A[2], ACCENT_B[2], gradient),
       ];
 
-      // The ">_" mark, drawn as three round-capped strokes.
       const mark = Math.max(
         coverage(segmentDistance(px, py, 84, 82, 138, 128, 22)),
         coverage(segmentDistance(px, py, 138, 128, 84, 174, 22)),
@@ -107,8 +106,8 @@ function encodePng(pixels) {
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(SIZE, 0);
   ihdr.writeUInt32BE(SIZE, 4);
-  ihdr[8] = 8; // bit depth
-  ihdr[9] = 6; // RGBA
+  ihdr[8] = 8;
+  ihdr[9] = 6;
   ihdr[10] = 0;
   ihdr[11] = 0;
   ihdr[12] = 0;
@@ -116,7 +115,7 @@ function encodePng(pixels) {
   const stride = SIZE * 4;
   const raw = Buffer.alloc((stride + 1) * SIZE);
   for (let y = 0; y < SIZE; y += 1) {
-    raw[y * (stride + 1)] = 0; // filter: none
+    raw[y * (stride + 1)] = 0;
     pixels.copy(raw, y * (stride + 1) + 1, y * stride, (y + 1) * stride);
   }
 
@@ -133,19 +132,19 @@ function encodePng(pixels) {
 function encodeIco(png) {
   const header = Buffer.alloc(6);
   header.writeUInt16LE(0, 0);
-  header.writeUInt16LE(1, 2); // type: icon
-  header.writeUInt16LE(1, 4); // one image
+  header.writeUInt16LE(1, 2);
+  header.writeUInt16LE(1, 4);
 
   const entry = Buffer.alloc(16);
-  entry[0] = 0; // 0 means 256
+  entry[0] = 0;
   entry[1] = 0;
   entry[2] = 0;
   entry[3] = 0;
-  entry.writeUInt16LE(1, 4); // colour planes
-  entry.writeUInt16LE(32, 6); // bits per pixel
+  entry.writeUInt16LE(1, 4);
+  entry.writeUInt16LE(32, 6);
   entry.writeUInt32BE(0, 8);
   entry.writeUInt32LE(png.length, 8);
-  entry.writeUInt32LE(22, 12); // offset
+  entry.writeUInt32LE(22, 12);
 
   return Buffer.concat([header, entry, png]);
 }

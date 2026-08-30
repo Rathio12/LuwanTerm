@@ -7,8 +7,8 @@ const { SessionManager } = require('./ssh/manager');
 const { registerAll } = require('./ipc');
 const settings = require('./store/settings');
 const discord = require('./discord');
+const updater = require('./updater');
 
-// Keep the splash up long enough to read, but never long enough to annoy.
 const SPLASH_MIN_MS = 700;
 const SPLASH_TIMEOUT_MS = 8000;
 
@@ -50,8 +50,12 @@ if (!app.requestSingleInstanceLock()) {
       }, remaining);
     };
 
+    updater.start((state) => {
+      if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('update:state', state);
+    });
+
     ipcMain.once('app:ready', reveal);
-    // Never strand the user on the splash if the renderer cannot report in.
+
     mainWindow.webContents.once('did-fail-load', reveal);
     setTimeout(reveal, SPLASH_TIMEOUT_MS);
 

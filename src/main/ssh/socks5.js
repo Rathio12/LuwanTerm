@@ -19,7 +19,7 @@ const REPLY = {
 };
 
 function reply(socket, code) {
-  // BND.ADDR/BND.PORT are advisory; 0.0.0.0:0 is accepted by every client.
+
   socket.write(Buffer.from([VERSION, code, 0x00, ATYP.IPV4, 0, 0, 0, 0, 0, 0]));
 }
 
