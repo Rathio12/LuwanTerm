@@ -8,8 +8,8 @@
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
-    "dist": "npm run make-icon && electron-builder --win",
-    "pack": "npm run make-icon && electron-builder --dir",
+    "dist": "npm run make-icon && electron-builder --win --publish never",
+    "pack": "npm run make-icon && electron-builder --dir --publish never",
     "make-icon": "node build/make-icon.js",
     "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/make-cert.ps1",
     "trust-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/trust-cert.ps1",
