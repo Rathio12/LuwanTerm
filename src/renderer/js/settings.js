@@ -51,6 +51,7 @@
           fields.confirmOnClose,
           fields.webgl,
         ]),
+        background.element,
         h('div', { class: 'field' }, [
           h('label', { text: 'Discord Rich Presence' }),
           fields.discordEnabled,
@@ -60,18 +61,18 @@
             text: 'Shows a session count only, unless you tick the box above - anyone who can see your profile can see whatever it displays.',
           }),
         ]),
-        h('div', { class: 'field' }, [
-          h('label', { text: 'Trusted host keys' }),
-          trusted.element,
-        ]),
-        background.element,
         updates.element,
         buildAbout(),
-        h('p', {
-          text: state.info.secretsAvailable
-            ? 'Passwords and passphrases are encrypted by the operating system keychain.'
-            : 'This system has no keychain available, so secrets are never written to disk and you are asked on every connect.',
-        }),
+        h('div', { class: 'field' }, [
+          h('label', { text: 'Trusted host keys' }),
+          h('span', {
+            class: 'note',
+            text: state.info.secretsAvailable
+              ? 'Passwords and passphrases are encrypted by the operating system keychain.'
+              : 'This system has no keychain available, so secrets are never written to disk and you are asked on every connect.',
+          }),
+          trusted.element,
+        ]),
       ]),
       buttons: [
         { label: 'Cancel', value: null },
