@@ -13,7 +13,6 @@ const DEFAULTS = {
   confirmOnClose: true,
   webgl: true,
   discordEnabled: true,
-  discordClientId: '1543680676539273276',
   // Host names stay off by default: an SSH client should not announce which
   // machines you are logged into. Opt in explicitly if you want that.
   discordShowHost: false,

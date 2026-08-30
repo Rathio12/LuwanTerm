@@ -76,6 +76,58 @@ because the project path contains a space. ssh2 falls back to its pure-JS
 implementation and works fine. Move the project to a path without spaces if you
 want it built.
 
+## Releasing with GitHub Actions
+
+Two workflows live in [`.github/workflows/`](../.github/workflows).
+
+### CI — every push and pull request
+
+Runs [`build/check-project.js`](../build/check-project.js) on Ubuntu with **no
+`npm ci`**, so it finishes in seconds. It checks:
+
+- every `.js` file parses
+- every `<script>` and `<link>` in the HTML resolves — catches a renderer module
+  added without its script tag
+- everything the renderer loads from `node_modules` is listed in `build.files`,
+  and every dependency is covered
+- documentation links do not rot
+- `build/icon.ico` matches what the generator produces
+- no signing material has been committed
+
+Run the same thing locally with `npm run check`.
+
+### Release — on a version tag
+
+```bash
+npm version 1.1.0        # bumps package.json and creates the tag
+git push --follow-tags
+```
+
+That builds on Windows, verifies the tag matches `package.json`, runs the
+checks, produces the installer and portable exe, and publishes a GitHub Release
+with generated notes.
+
+You can also trigger it by hand from the Actions tab. Leave **publish**
+unticked to get the binaries as workflow artifacts without cutting a release —
+useful for testing the pipeline.
+
+### Signing in CI
+
+The build signs itself if two repository secrets exist, and produces an unsigned
+build if they don't:
+
+| Secret | Contents |
+| --- | --- |
+| `WINDOWS_CERT_BASE64` | The `.pfx`, base64 encoded |
+| `WINDOWS_CERT_PASSWORD` | Its password |
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("build\certs\luwanterm.pfx")) | Set-Clipboard
+```
+
+Paste that into the secret. See [signing](signing.md) for what a self-signed
+certificate does and does not achieve.
+
 ## Sanity-checking a build
 
 The packaged app is a different beast from `npm start` — the code lives inside

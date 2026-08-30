@@ -16,6 +16,15 @@ const crypto = require('crypto');
  * the connection, this quietly does nothing. It must never delay or crash the app.
  */
 
+/**
+ * The Discord application this build reports as.
+ *
+ * Baked in on purpose: users of a release should not be able to make the app
+ * masquerade as a different Discord application. If you are building your own
+ * copy, put your own application id here - see docs/discord.md.
+ */
+const CLIENT_ID = '1543680676539273276';
+
 const OP = { HANDSHAKE: 0, FRAME: 1, CLOSE: 2, PING: 3, PONG: 4 };
 const MAX_PIPE = 10;
 const RECONNECT_MS = 20000;
@@ -169,11 +178,13 @@ function push(presence) {
 }
 
 module.exports = {
-  /** @param {{clientId: string, largeImage?: string, largeText?: string, buttonLabel?: string, buttonUrl?: string}} options */
-  start(options) {
+  CLIENT_ID,
+
+  /** @param {{largeImage?: string, largeText?: string, buttonLabel?: string, buttonUrl?: string}} [options] */
+  start(options = {}) {
     this.stop();
-    if (!options || !options.clientId) return; // nothing configured, stay silent
-    config = options;
+    if (!CLIENT_ID) return; // no application configured for this build
+    config = { ...options, clientId: CLIENT_ID };
     stopped = false;
     connect(0);
   },

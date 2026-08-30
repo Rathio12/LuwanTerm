@@ -18,25 +18,34 @@ logged into is a genuine leak — Discord sees it, and so does anyone who can vi
 your profile. There's a separate tick box if you want host names anyway, off by
 default.
 
-## Setting it up
-
-It ships enabled with an application id already configured, so it should just
-work. To point it at your own Discord application instead:
-
-1. Create an application at
-   [discord.com/developers/applications](https://discord.com/developers/applications).
-2. Copy the **Application ID**.
-3. Under **Rich Presence → Art Assets**, upload an image named `icon` — without
-   it the presence shows with no artwork.
-4. In LuwanTerm: **Settings → Discord Rich Presence**, paste the id.
-
 ## Settings
 
 | Setting | Default | What it does |
 | --- | --- | --- |
 | Show LuwanTerm on your Discord profile | on | Master switch |
-| Discord application ID | preset | Which Discord app the presence belongs to |
 | Include the host name | **off** | Shows which machine you're on. Think before enabling |
+
+Changes apply immediately — no restart.
+
+## Using your own Discord application
+
+The application id is **baked into the build**, not a setting. A release should
+not be able to be pointed at some other Discord application by whoever is
+running it.
+
+If you are building your own copy, change the constant at the top of
+[`src/main/discord.js`](../src/main/discord.js):
+
+```js
+const CLIENT_ID = '1543680676539273276';
+```
+
+1. Create an application at
+   [discord.com/developers/applications](https://discord.com/developers/applications).
+2. Copy its **Application ID** into that constant.
+3. Under **Rich Presence → Art Assets**, upload an image named `icon` — without
+   it the presence shows with no artwork.
+4. Rebuild.
 
 Changes apply immediately — no restart.
 

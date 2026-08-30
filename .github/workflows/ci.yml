@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    name: Checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Deliberately no `npm ci`: these checks need no dependencies, so CI
+      # stays fast and cheap. Anything needing Electron belongs in Release.
+      - name: Project checks
+        run: node build/check-project.js
+
+      - name: Icon is committed and current
+        run: |
+          if ! git diff --quiet -- build/icon.ico build/icon.png; then
+            echo "build/icon.ico is out of date - run: npm run make-icon"
+            git --no-pager diff --stat -- build/icon.ico build/icon.png
+            exit 1
+          fi
+          echo "icon matches the generator output"
+
+      - name: No secrets committed
+        run: |
+          if git ls-files | grep -Ei 'certs/|\.pfx$|password\.txt$'; then
+            echo "signing material must never be committed"
+            exit 1
+          fi
+          echo "no signing material in the tree"

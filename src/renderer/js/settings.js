@@ -25,11 +25,6 @@
       confirmOnClose: form.check('Confirm before closing a live session', current.confirmOnClose),
       webgl: form.check('GPU accelerated rendering (needs a restart)', current.webgl),
       discordEnabled: form.check('Show LuwanTerm on your Discord profile', current.discordEnabled),
-      discordClientId: form.input({
-        value: current.discordClientId,
-        placeholder: 'Discord application ID',
-        class: 'input input--mono',
-      }),
       discordShowHost: form.check('Include the host name in what Discord shows', current.discordShowHost),
     };
 
@@ -57,11 +52,10 @@
         h('div', { class: 'field' }, [
           h('label', { text: 'Discord Rich Presence' }),
           fields.discordEnabled,
-          fields.discordClientId,
           fields.discordShowHost,
           h('span', {
             class: 'note',
-            text: 'Create an application at discord.com/developers and paste its ID. Off by default, and it shows only a session count unless you tick the box above - anyone who can see your profile can see whatever it displays.',
+            text: 'Shows a session count only, unless you tick the box above - anyone who can see your profile can see whatever it displays.',
           }),
         ]),
         h('div', { class: 'field' }, [
@@ -89,7 +83,6 @@
           confirmOnClose: fields.confirmOnClose.input.checked,
           webgl: fields.webgl.input.checked,
           discordEnabled: fields.discordEnabled.input.checked,
-          discordClientId: fields.discordClientId.value.trim(),
           discordShowHost: fields.discordShowHost.input.checked,
         });
         return true;

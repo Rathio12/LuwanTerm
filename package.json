@@ -13,7 +13,8 @@
     "make-icon": "node build/make-icon.js",
     "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/make-cert.ps1",
     "trust-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/trust-cert.ps1",
-    "dist:signed": "npm run make-icon && node build/dist-signed.js"
+    "dist:signed": "npm run make-icon && node build/dist-signed.js",
+    "check": "node build/check-project.js"
   },
   "build": {
     "appId": "io.luwan.term",

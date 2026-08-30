@@ -70,15 +70,11 @@ if (!app.requestSingleInstanceLock()) {
  * SSH client should not broadcast which machines you are logged into.
  */
 function applyDiscord(current = settings.get()) {
-  if (!current.discordEnabled || !current.discordClientId) {
+  if (!current.discordEnabled) {
     discord.stop();
     return;
   }
-  discord.start({
-    clientId: current.discordClientId,
-    largeImage: 'icon',
-    largeText: 'LuwanTerm',
-  });
+  discord.start({ largeImage: 'icon', largeText: 'LuwanTerm' });
   updatePresence();
 }
 
