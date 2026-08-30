@@ -1,0 +1,163 @@
+'use strict';
+
+const { EventEmitter } = require('events');
+const { SshConnection } = require('./connection');
+const { SftpClient } = require('./sftp');
+const { TunnelManager } = require('./tunnels');
+
+const TERM_NAME = 'xterm-256color';
+
+/**
+ * One tab's worth of remote state: the connection, its interactive shell, and
+ * the SFTP / tunnel facilities multiplexed over the same connection.
+ *
+ * Emits `{ type, ...payload }` objects through the `event` event so the manager
+ * only has to forward one stream to the renderer.
+ */
+class Session extends EventEmitter {
+  constructor(id, profile, handlers) {
+    super();
+    this.id = id;
+    this.profile = profile;
+    this.status = 'connecting';
+    this.connection = new SshConnection(profile, handlers);
+    this.stream = null;
+    this.sftp = null;
+    this.tunnels = null;
+    this.startedAt = Date.now();
+  }
+
+  emitEvent(type, payload = {}) {
+    this.emit('event', { type, sessionId: this.id, ...payload });
+  }
+
+  setStatus(status, detail) {
+    if (this.status === status) return;
+    this.status = status;
+    this.emitEvent('status', { status, detail });
+  }
+
+  async start(credentials, size = {}) {
+    this.connection.on('banner', (message) => this.emitEvent('banner', { message }));
+    this.connection.on('error', (err) => {
+      this.setStatus('error', err.message);
+      this.dispose();
+    });
+    this.connection.on('close', () => {
+      this.setStatus('closed', 'Connection closed.');
+      this.dispose();
+    });
+
+    await this.connection.connect(credentials);
+
+    this.sftp = new SftpClient(this.connection.client);
+    this.tunnels = new TunnelManager(this.connection.client, (type, payload) =>
+      this.emitEvent(type, payload)
+    );
+
+    await this.openShell(size);
+    this.setStatus('ready');
+
+    if (this.profile.initialCommand) {
+      this.write(`${this.profile.initialCommand}\n`);
+    }
+    return this.describe();
+  }
+
+  openShell({ cols = 80, rows = 24 } = {}) {
+    return new Promise((resolve, reject) => {
+      this.connection.client.shell({ term: TERM_NAME, cols, rows }, (err, stream) => {
+        if (err) {
+          reject(new Error(`Could not open a shell: ${err.message}`));
+          return;
+        }
+        this.stream = stream;
+        stream.on('data', (chunk) => this.emitEvent('data', { chunk }));
+        stream.stderr.on('data', (chunk) => this.emitEvent('data', { chunk }));
+        stream.on('close', () => {
+          this.stream = null;
+          this.setStatus('closed', 'Shell session ended.');
+          this.dispose();
+        });
+        resolve(stream);
+      });
+    });
+  }
+
+  /**
+   * Runs a single command on its own channel, separate from the interactive shell.
+   * @returns {Promise<{code: number|null, stdout: string, stderr: string}>}
+   */
+  exec(command) {
+    return new Promise((resolve, reject) => {
+      this.connection.client.exec(command, (err, stream) => {
+        if (err) {
+          reject(new Error(`Command could not be started: ${err.message}`));
+          return;
+        }
+        let stdout = '';
+        let stderr = '';
+        stream.on('data', (chunk) => {
+          stdout += chunk;
+        });
+        stream.stderr.on('data', (chunk) => {
+          stderr += chunk;
+        });
+        stream.once('error', (streamErr) => reject(streamErr));
+        stream.once('close', (code) => resolve({ code, stdout, stderr }));
+      });
+    });
+  }
+
+  write(data) {
+    if (!this.stream) return false;
+    this.stream.write(data);
+    return true;
+  }
+
+  resize(cols, rows) {
+    if (!this.stream) return false;
+    if (!Number.isInteger(cols) || !Number.isInteger(rows) || cols < 1 || rows < 1) return false;
+    this.stream.setWindow(rows, cols, 0, 0);
+    return true;
+  }
+
+  describe() {
+    return {
+      id: this.id,
+      hostId: this.profile.id,
+      name: this.profile.name,
+      host: this.profile.host,
+      port: this.profile.port,
+      username: this.profile.username,
+      color: this.profile.color,
+      defaultPath: this.profile.defaultPath,
+      status: this.status,
+      startedAt: this.startedAt,
+    };
+  }
+
+  /** Tears down every channel; safe to call more than once. */
+  dispose() {
+    if (this.disposed) return;
+    this.disposed = true;
+
+    if (this.tunnels) this.tunnels.closeAll().catch(() => {});
+    if (this.sftp) this.sftp.dispose();
+    if (this.stream) {
+      try {
+        this.stream.end();
+      } catch { /* already closed */ }
+    }
+    this.connection.end();
+    this.emitEvent('disposed');
+  }
+
+  async close() {
+    this.setStatus('closed', 'Disconnected.');
+    this.dispose();
+    return true;
+  }
+}
+
+module.exports = { Session };

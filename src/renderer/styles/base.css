@@ -1,0 +1,83 @@
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+body {
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--bg-base);
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
+/* Ambient light wash that gives the glass something to sit on. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  z-index: -1;
+  background:
+    radial-gradient(48% 42% at 18% 8%, var(--bg-wash-a), transparent 65%),
+    radial-gradient(42% 46% at 88% 92%, var(--bg-wash-b), transparent 62%),
+    linear-gradient(160deg, var(--bg-base), var(--bg-deep));
+}
+
+.sprite { position: absolute; width: 0; height: 0; }
+
+svg { width: 16px; height: 16px; flex: none; }
+svg:not(.sprite) {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+h1, h2, h3, p { margin: 0; }
+
+button, input, select, textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+
+input, select, textarea { user-select: text; }
+
+:focus-visible {
+  outline: 2px solid var(--accent-line);
+  outline-offset: 1px;
+}
+
+::-webkit-scrollbar { width: 9px; height: 9px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.11);
+  border-radius: var(--pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); background-clip: content-box; }
+
+.glass {
+  background: var(--glass);
+  backdrop-filter: blur(22px) saturate(150%);
+  border: 1px solid var(--stroke);
+}
+
+.ico { color: var(--ink-faint); }
+
+[hidden] { display: none !important; }

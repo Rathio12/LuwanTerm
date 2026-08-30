@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'" />
+  <title>Starting LuwanTerm</title>
+  <style>
+    :root {
+      --accent: #7c5cff;
+      --ink: #eef0f8;
+      --ink-mute: #a5abc4;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      user-select: none;
+      -webkit-app-region: drag;
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      font-family: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(70% 60% at 20% 0%, rgba(124, 92, 255, 0.28), transparent 70%),
+        radial-gradient(60% 60% at 100% 100%, rgba(62, 168, 255, 0.2), transparent 65%),
+        linear-gradient(160deg, #0a0b12, #06070c);
+      border: 1px solid rgba(255, 255, 255, 0.09);
+    }
+
+    .card { display: grid; justify-items: center; gap: 14px; padding: 0 28px; }
+
+    .mark {
+      display: grid;
+      place-items: center;
+      width: 54px;
+      height: 54px;
+      border-radius: 16px;
+      background: linear-gradient(140deg, var(--accent), #4b7cff);
+      box-shadow: 0 10px 30px rgba(124, 92, 255, 0.45);
+      animation: breathe 2.4s ease-in-out infinite;
+    }
+    .mark svg { width: 26px; height: 26px; fill: none; stroke: #fff; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+
+    @keyframes breathe {
+      50% { transform: translateY(-3px); box-shadow: 0 16px 38px rgba(124, 92, 255, 0.55); }
+    }
+
+    .name { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
+    .status { font-size: 11.5px; color: var(--ink-mute); margin-top: -8px; }
+
+    /* Indeterminate sweep - no progress is faked, it just shows life. */
+    .track {
+      width: 190px;
+      height: 3px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.09);
+      overflow: hidden;
+    }
+    .track::after {
+      content: "";
+      display: block;
+      width: 40%;
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, var(--accent), #3ea8ff, transparent);
+      animation: sweep 1.15s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+
+    @keyframes sweep {
+      from { transform: translateX(-100%); }
+      to { transform: translateX(340%); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .mark, .track::after { animation: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <span class="mark">
+      <svg viewBox="0 0 24 24"><path d="m5 7 4 4-4 4M12 16h7"/></svg>
+    </span>
+    <span class="name">LuwanTerm</span>
+    <span class="track"></span>
+    <span class="status">Starting up</span>
+  </div>
+</body>
+</html>
