@@ -11,7 +11,16 @@ Shows LuwanTerm on your Discord profile while it's running.
 ```
 LuwanTerm
 3 sessions
+[ See GitHub ]  [ Discord ]
 ```
+
+The buttons come from `LINK_GITHUB` and `LINK_DISCORD` in `.env`. **A button
+with no url is not shown**, so if `LINK_DISCORD` is empty you get one button,
+not two. Discord allows at most two.
+
+> **Discord does not draw activity buttons on your own profile.** They appear to
+> other people looking at you. If you are checking your own card and see no
+> buttons, that is Discord, not the app - ask someone else what they see.
 
 **It does not show host names.** An SSH client announcing which machines you're
 logged into is a genuine leak — Discord sees it, and so does anyone who can view

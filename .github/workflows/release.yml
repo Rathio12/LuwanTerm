@@ -2,11 +2,12 @@ name: Release
 
 on:
   push:
+    branches: [main]
     tags: ['v*']
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Existing tag to publish a release for, e.g. v1.0.0. Leave empty to only build artifacts.'
+        description: 'Tag to publish, e.g. v1.1.0. Leave empty to only build artifacts.'
         type: string
         required: false
 
@@ -14,8 +15,44 @@ permissions:
   contents: write
 
 jobs:
+  decide:
+    name: Decide
+    runs-on: ubuntu-latest
+    outputs:
+      release: ${{ steps.check.outputs.release }}
+      tag: ${{ steps.check.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # A release happens when package.json names a version that has no release
+      # yet. Bumping the version and pushing is all it takes.
+      - id: check
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+        run: |
+          if [ -n "$INPUT_TAG" ]; then
+            tag="$INPUT_TAG"
+          elif [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag="$GITHUB_REF_NAME"
+          else
+            tag="v$(node -p "require('./package.json').version")"
+          fi
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          if [ "${GITHUB_REF_TYPE}" != "tag" ] && [ -z "$INPUT_TAG" ] && gh release view "$tag" > /dev/null 2>&1; then
+            echo "$tag is already released; nothing to do"
+            echo "release=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "will release $tag"
+            echo "release=true" >> "$GITHUB_OUTPUT"
+          fi
+
   windows:
     name: Windows build
+    needs: decide
+    if: needs.decide.outputs.release == 'true'
     runs-on: windows-latest
 
     steps:
@@ -30,16 +67,15 @@ jobs:
         run: npm ci
 
       - name: Verify the tag matches package.json
-        if: startsWith(github.ref, 'refs/tags/')
         shell: bash
         run: |
           version=$(node -p "require('./package.json').version")
-          tag="${GITHUB_REF_NAME#v}"
-          if [ "$version" != "$tag" ]; then
-            echo "tag $GITHUB_REF_NAME does not match package.json version $version"
+          tag="${{ needs.decide.outputs.tag }}"
+          if [ "v$version" != "$tag" ]; then
+            echo "tag $tag does not match package.json version $version"
             exit 1
           fi
-          echo "version $version matches the tag"
+          echo "version $version matches $tag"
 
       - name: Project checks
         run: node build/check-project.js
@@ -65,29 +101,27 @@ jobs:
             dist/latest.yml
           retention-days: 30
 
-      # Safe to re-run: updates an existing release's assets rather than
-      # failing, so the same tag can be rebuilt without deleting anything.
+      # Creates the tag as part of the release when publishing from a branch,
+      # and replaces the assets when the release already exists.
       - name: Publish release
-        if: startsWith(github.ref, 'refs/tags/') || inputs.tag != ''
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          INPUT_TAG: ${{ inputs.tag }}
+          TAG: ${{ needs.decide.outputs.tag }}
         run: |
-          tag="${INPUT_TAG:-$GITHUB_REF_NAME}"
-          echo "publishing release for $tag"
+          echo "publishing $TAG"
 
-          # latest.yml is what the in-app updater reads, so it has to ship too.
           assets=()
           for file in dist/*.exe dist/*.blockmap dist/latest.yml; do
             [ -f "$file" ] && assets+=("$file")
           done
           echo "attaching: ${assets[*]}"
 
-          if gh release view "$tag" > /dev/null 2>&1; then
+          if gh release view "$TAG" > /dev/null 2>&1; then
             echo "release exists, replacing its assets"
-            gh release upload "$tag" "${assets[@]}" --clobber
+            gh release upload "$TAG" "${assets[@]}" --clobber
           else
-            gh release create "$tag" "${assets[@]}" --title "LuwanTerm $tag" --generate-notes --verify-tag
+            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --generate-notes
           fi
-          gh release view "$tag" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
+
+          gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'

@@ -21,11 +21,15 @@ your values stay yours.
 # Discord application to report as. Empty disables Rich Presence entirely.
 DISCORD_CLIENT_ID=1543680676539273276
 
-# Links shown in Settings. Any left empty is simply not rendered.
+# Links shown in Settings, and as buttons on the Discord presence card.
+# Any left empty is simply not rendered.
 LINK_GITHUB=https://github.com/Rathio12/LuwanTerm
 LINK_ISSUES=https://github.com/Rathio12/LuwanTerm/issues/new
 LINK_DISCORD=
 ```
+
+`LINK_DISCORD` starts empty. Until you set it, the Discord button is absent
+from both Settings and the presence card.
 
 Real environment variables win over the file, so CI can override one without
 committing anything:

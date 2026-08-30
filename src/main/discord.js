@@ -159,9 +159,13 @@ function push(presence) {
     activity.assets = { large_image: config.largeImage };
     if (config.largeText) activity.assets.large_text = config.largeText;
   }
-  if (config.buttonLabel && /^https?:\/\//i.test(config.buttonUrl || '')) {
-    activity.buttons = [{ label: config.buttonLabel, url: config.buttonUrl }];
-  }
+
+  const buttons = (config.buttons || [])
+    .filter((button) => button && button.label && /^https?:\/\//i.test(button.url || ''))
+    .slice(0, 2)
+    .map((button) => ({ label: String(button.label).slice(0, 31), url: button.url }));
+
+  if (buttons.length) activity.buttons = buttons;
 
   send(OP.FRAME, {
     cmd: 'SET_ACTIVITY',

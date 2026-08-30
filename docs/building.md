@@ -119,20 +119,25 @@ Runs [`build/check-project.js`](../build/check-project.js) on Ubuntu with **no
 
 Run the same thing locally with `npm run check`.
 
-### Release — on a version tag
+### Release — automatic, on a version bump
 
 ```bash
-npm version 1.1.0        # bumps package.json and creates the tag
-git push --follow-tags
+npm version 1.2.0 --no-git-tag-version
+git commit -am "Release 1.2.0"
+git push
 ```
 
-That builds on Windows, verifies the tag matches `package.json`, runs the
-checks, produces the installer and portable exe, and publishes a GitHub Release
-with generated notes.
+That is the whole process. On every push to `main` the workflow reads the
+version from `package.json` and asks GitHub whether a release for it already
+exists. If not, it builds, creates the tag, and publishes the release with
+generated notes. If it does, the run stops immediately and costs nothing.
 
-You can also trigger it by hand from the Actions tab. Leave **publish**
-unticked to get the binaries as workflow artifacts without cutting a release —
-useful for testing the pipeline.
+Pushing a `v*` tag by hand still works, and a manual run from the Actions tab
+takes a tag to publish (leave it empty to just get artifacts).
+
+The tag is created by the release itself rather than pushed first, because a tag
+pushed with the built-in token does not trigger another workflow — chaining two
+workflows would have needed a personal access token.
 
 ### Signing in CI
 

@@ -7,6 +7,7 @@ const { SessionManager } = require('./ssh/manager');
 const { registerAll } = require('./ipc');
 const settings = require('./store/settings');
 const discord = require('./discord');
+const config = require('./config');
 const updater = require('./updater');
 
 const SPLASH_MIN_MS = 700;
@@ -78,7 +79,14 @@ function applyDiscord(current = settings.get()) {
     discord.stop();
     return;
   }
-  discord.start({ largeImage: 'icon', largeText: 'LuwanTerm' });
+  discord.start({
+    largeImage: 'icon',
+    largeText: 'LuwanTerm',
+    buttons: [
+      { label: 'See GitHub', url: config.links.github },
+      { label: 'Discord', url: config.links.discord },
+    ],
+  });
   updatePresence();
 }
 
@@ -88,18 +96,16 @@ function updatePresence() {
 
   const sessions = manager.list();
   const count = sessions.length;
-  let state;
 
-  if (!count) {
-    state = 'Idle';
-  } else if (current.discordShowHost) {
+  const details = count === 0 ? 'Idle' : count === 1 ? '1 session' : `${count} sessions`;
+
+  let state;
+  if (count && current.discordShowHost) {
     const active = sessions[sessions.length - 1];
     state = count > 1 ? `${active.name} and ${count - 1} more` : `On ${active.name}`;
-  } else {
-    state = count === 1 ? '1 session' : `${count} sessions`;
   }
 
-  discord.setPresence({ details: 'LuwanTerm', state });
+  discord.setPresence({ details, state });
 }
 
 app.on('before-quit', () => {
