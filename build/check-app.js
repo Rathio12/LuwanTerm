@@ -28,16 +28,20 @@ function connect(url) {
     const waiting = new Map();
     let id = 0;
 
+    const call = (method, params = {}) => new Promise((ok, fail) => {
+      const messageId = ++id;
+      waiting.set(messageId, { ok, fail });
+      socket.send(JSON.stringify({ id: messageId, method, params }));
+    });
+
     socket.addEventListener('open', () => resolve({
+      call,
       evaluate(expression) {
-        return new Promise((ok, fail) => {
-          const messageId = ++id;
-          waiting.set(messageId, { ok, fail });
-          socket.send(JSON.stringify({
-            id: messageId,
-            method: 'Runtime.evaluate',
-            params: { expression, awaitPromise: true, returnByValue: true, userGesture: true },
-          }));
+        return call('Runtime.evaluate', {
+          expression,
+          awaitPromise: true,
+          returnByValue: true,
+          userGesture: true,
         });
       },
       close: () => socket.close(),
@@ -49,8 +53,9 @@ function connect(url) {
       if (!pending) return;
       waiting.delete(message.id);
       if (message.error) pending.fail(new Error(message.error.message));
-      else if (message.result.exceptionDetails) pending.fail(new Error(message.result.exceptionDetails.text));
-      else pending.ok(message.result.result.value);
+      else if (message.result && message.result.exceptionDetails) pending.fail(new Error(message.result.exceptionDetails.text));
+      else if (message.result && message.result.result) pending.ok(message.result.result.value);
+      else pending.ok(message.result);
     });
 
     socket.addEventListener('error', () => reject(new Error('devtools socket failed')));
@@ -136,12 +141,32 @@ async function main() {
   })()`);
   check('this build carries a Discord application id', presence.configured);
   check('Rich Presence is enabled', presence.enabled);
-  check('Rich Presence reached Discord', presence.connected,
-    presence.connected ? 'connected' : 'no running Discord client on this machine');
+  // Windows named pipes live under two backslashes, a dot and pipe. Building
+  // the separator from its code point keeps it intact through every quoting
+  // layer between here and the file.
+  const SEP = String.fromCharCode(92);
+  const pipePath = (index) => `${SEP}${SEP}.${SEP}pipe${SEP}discord-ipc-${index}`;
+
+  // Only meaningful when Discord is actually running. A closed Discord is a
+  // fact about this machine, not a fault in the app.
+  const discordRunning = [...Array(10).keys()].some((index) => {
+    try {
+      return fs.existsSync(pipePath(index));
+    } catch {
+      return false;
+    }
+  });
+  if (discordRunning) {
+    check('Rich Presence reached Discord', presence.connected,
+      presence.connected ? 'connected' : 'Discord is running but the app did not reach it');
+  } else {
+    console.log('  skip  Rich Presence reached Discord  (no Discord client running here)');
+  }
 
   check('the GitHub link is the repo',
     about.links.github === 'https://github.com/Rathio12/LuwanTerm', about.links.github);
 
+  await client.call('Page.bringToFront').catch(() => {});
   const fonts = await client.evaluate(`(async () => {
     await new Promise((r) => setTimeout(r, 1200));
     const picker = document.querySelector('.fontpick');
@@ -158,6 +183,7 @@ async function main() {
     `${fonts.count} fonts: ${fonts.sample.join(', ')}`);
   check('the local font API is reachable', fonts.api);
 
+  await client.call('Page.bringToFront').catch(() => {});
   const local = await client.evaluate(`(async () => {
     if (typeof window.queryLocalFonts !== 'function') return { ok: false, why: 'no api' };
     try {

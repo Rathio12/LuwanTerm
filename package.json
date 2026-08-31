@@ -14,7 +14,6 @@
     "make-license": "node build/make-license-txt.js",
     "make-provenance": "node build/make-provenance.js",
     "check-copy": "node build/check-copy.js",
-    "check-copy": "node build/check-copy.js",
     "make-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/make-cert.ps1",
     "trust-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/trust-cert.ps1",
     "dist:signed": "npm run bake && npm run make-icon && npm run make-license && npm run make-provenance && node build/dist-signed.js",
