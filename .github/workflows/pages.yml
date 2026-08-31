@@ -7,7 +7,7 @@ on:
       - 'site/**'
       - 'src/renderer/styles/tokens.css'
       - 'fonts/fonts.json'
-      - 'docs/images/**'
+      - 'guides/images/**'
       - 'build/make-site.js'
       - '.github/workflows/pages.yml'
   workflow_dispatch:

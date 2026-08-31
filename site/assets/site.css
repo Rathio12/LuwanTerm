@@ -210,3 +210,62 @@ footer a { margin: 0 10px; }
   .frow { grid-template-columns: 1fr; gap: 2px; }
   .ftag { text-align: left; }
 }
+
+/* ---------- The app's titlebar, reused ---------- */
+
+.titlebar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: var(--titlebar-h);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--stroke-soft);
+  background: rgba(10, 11, 18, 0.72);
+  backdrop-filter: blur(18px) saturate(140%);
+}
+
+.titlebar__brand { display: flex; align-items: center; gap: 9px; }
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  color: #fff;
+  background: linear-gradient(140deg, var(--accent), #4b7cff);
+  box-shadow: 0 3px 12px rgba(124, 92, 255, 0.45);
+}
+.brand-mark svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.1;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.brand-name { font-weight: 600; font-size: 14px; letter-spacing: 0.2px; }
+.brand-version { color: var(--ink-faint); font-size: 11px; }
+
+.titlebar__nav { margin-left: auto; display: flex; gap: 4px; }
+.titlebar__nav a {
+  padding: 6px 11px;
+  border-radius: var(--r-sm);
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink-mute);
+  transition: background var(--fast), color var(--fast);
+}
+.titlebar__nav a:hover { background: var(--glass-strong); color: var(--ink); text-decoration: none; }
+
+/* The hero sits below a fixed bar now, so it needs less of its own space. */
+header { padding-top: 64px; }
+
+@media (max-width: 720px) {
+  .titlebar__nav a:not(:last-child) { display: none; }
+}

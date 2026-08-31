@@ -81,7 +81,7 @@ jobs:
         run: node build/check-project.js
 
       # Signs the build when the certificate secrets exist, and produces an
-      # unsigned build when they do not. See docs/signing.md.
+      # unsigned build when they do not. See guides/signing.md.
       - name: Build installer and portable
         env:
           CSC_LINK: ${{ secrets.WINDOWS_CERT_BASE64 }}

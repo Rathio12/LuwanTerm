@@ -32,9 +32,9 @@ copy(
 
 copy(path.join(root, 'fonts', 'fonts.json'), path.join(assets, 'fonts.json'), 'fonts');
 
-for (const name of fs.readdirSync(path.join(root, 'docs', 'images'))) {
+for (const name of fs.readdirSync(path.join(root, 'guides', 'images'))) {
   if (!/\.(png|jpg|svg|webp)$/i.test(name)) continue;
-  copy(path.join(root, 'docs', 'images', name), path.join(images, name), 'image');
+  copy(path.join(root, 'guides', 'images', name), path.join(images, name), 'image');
 }
 
 console.log('site assets assembled');

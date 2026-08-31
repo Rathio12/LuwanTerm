@@ -47,7 +47,7 @@ Being straight about the limits is more useful than a longer list of features.
   anything sensitive.
 - **Releases are signed with a self-signed certificate**, which proves builds
   come from the same key but is not a trusted-CA signature. See
-  [docs/signing.md](docs/signing.md).
+  [guides/signing.md](guides/signing.md).
 - **The app has not been audited**, and has not yet been exercised against a
   wide range of real SSH servers.
 

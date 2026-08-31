@@ -26,6 +26,9 @@ async function loadRelease() {
     }
     if (portable) document.getElementById('portable').href = portable.browser_download_url;
 
+    const version = document.getElementById('version');
+    if (version) version.textContent = release.tag_name;
+
     const size = setup ? ` - ${megabytes(setup.size)}` : '';
     const date = new Date(release.published_at).toLocaleDateString(undefined, {
       year: 'numeric',

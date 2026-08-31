@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.6.5
+
+- Guides moved out of `docs/` into `guides/`, so markdown, the website and build
+  output no longer share a folder.
+- The website carries the app's titlebar and reuses its tokens directly, so the
+  page and the program read as one thing rather than two.
+
+## 1.6.0
+
+**A test suite.** 11 suites, 172 checks, run by `npm test` and by CI. They cover
+what had only ever been checked by hand: the PuTTY parser against fixtures ssh2
+itself accepts, the SSH wire codec, key generation and discovery, settings
+migration, the SOCKS5 proxy including requests split across packets, the diff
+engine and the log scrubber. The badge in the README comes from the real run.
+
+**Premium features, driven by config rather than new controls:**
+
+- Session logging writes a readable transcript per session, with escape
+  sequences stripped by a scanner rather than a regex.
+- Auto-reconnect re-dials a session that dropped on its own, a bounded number of
+  times. A session you closed is never reconnected.
+- Jump hosts reach machines with no direct route, the same idea as `ProxyJump`.
+- `~/.ssh/config` can be read into host profiles, `ProxyJump` included.
+- A file diff engine, for comparing a remote file with a local one or with the
+  same path on another server.
+
+All of them live in `settings.json` and `hosts.json`; see
+[configuration](guides/configuration.md).
+
+**Also:** the website moved to `site/` and builds from the app's own
+`tokens.css`, published by a Pages workflow. Fixed a `.gitignore` entry of
+`test` that excluded the whole suite - the tests would have been committed
+nowhere while a badge claimed they passed.
+
 ## 1.5.0
 
 Housekeeping. **No functional change since 1.3.0** - this release exists to

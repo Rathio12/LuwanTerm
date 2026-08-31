@@ -30,7 +30,7 @@ the reason those parts can be trusted.
 
 The point of these is consistency, not ceremony.
 
-- **No `//` comments.** Explanation goes in JSDoc blocks or in `docs/`.
+- **No `//` comments.** Explanation goes in JSDoc blocks or in `guides/`.
   `node build/strip-comments.js` removes any that creep in (`--dry` previews).
 - **Comments explain *why*, not *what*.** If a line needs a comment to say what
   it does, rename something instead.
@@ -43,8 +43,8 @@ The point of these is consistency, not ceremony.
 - **Never touch a user's files.** The app deletes only what it created, and
   never rewrites a key.
 
-[docs/architecture.md](docs/architecture.md) explains how the pieces fit, and
-[docs/customising.md](docs/customising.md) has worked examples of adding a panel,
+[guides/architecture.md](guides/architecture.md) explains how the pieces fit, and
+[guides/customising.md](guides/customising.md) has worked examples of adding a panel,
 an IPC call or a setting — plus the gotchas that will bite you.
 
 ## Commits
@@ -63,7 +63,7 @@ git push
 ```
 
 Pushing a version that has no release yet builds, tags and publishes it. See
-[docs/building.md](docs/building.md).
+[guides/building.md](guides/building.md).
 
 ## Security
 

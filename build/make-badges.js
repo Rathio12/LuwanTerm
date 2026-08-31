@@ -47,7 +47,7 @@ function countLines() {
   walk(path.join(root, 'src'));
   walk(path.join(root, 'build'));
   walk(path.join(root, 'test'));
-  walk(path.join(root, 'docs'));
+  walk(path.join(root, 'guides'));
   for (const name of fs.readdirSync(root)) {
     const full = path.join(root, name);
     if (fs.statSync(full).isFile() && COUNTED.includes(path.extname(name)) && name !== 'package-lock.json') {

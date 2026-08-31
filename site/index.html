@@ -14,6 +14,23 @@
 </head>
 <body>
 
+<!-- The app's own titlebar, so the page and the program read as one thing. -->
+<div class="titlebar">
+  <div class="titlebar__brand">
+    <span class="brand-mark">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 7 4 4-4 4M12 16h7"/></svg>
+    </span>
+    <span class="brand-name">LuwanTerm</span>
+    <span class="brand-version" id="version"></span>
+  </div>
+  <nav class="titlebar__nav">
+    <a href="#features">Features</a>
+    <a href="#fonts">Fonts</a>
+    <a href="#start">Get started</a>
+    <a href="https://github.com/Rathio12/LuwanTerm">GitHub</a>
+  </nav>
+</div>
+
 <header class="wrap">
   <img class="mark" src="assets/images/icon.png" alt="LuwanTerm" />
   <h1>LuwanTerm</h1>
@@ -29,7 +46,7 @@
   <img class="shot" src="assets/images/app.png" alt="LuwanTerm main window" />
 </header>
 
-<section class="wrap">
+<section class="wrap" id="features">
   <h2>What it does</h2>
   <p class="lede">Everything a terminal, a file browser and a tunnel manager would do, without three separate windows.</p>
   <div class="grid">
@@ -42,7 +59,7 @@
   </div>
 </section>
 
-<section class="wrap">
+<section class="wrap" id="fonts">
   <h2>Fonts</h2>
   <p class="lede">
     LuwanTerm knows <span class="fcount" id="total">193</span> monospace families and shows you the ones you have,
@@ -52,7 +69,7 @@
   <div class="fonts" id="fontlist"></div>
 </section>
 
-<section class="wrap">
+<section class="wrap" id="start">
   <h2>Getting started</h2>
   <p class="lede">Download and run. If Windows warns about an unknown publisher, that is expected: the builds are signed with a self-signed certificate, which is the honest limit of what a free one can do.</p>
   <pre>git clone https://github.com/Rathio12/LuwanTerm.git
@@ -62,14 +79,14 @@ npm start</pre>
 
   <table>
     <tr><th>Guide</th><th>What's in it</th></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/getting-started.md">Getting started</a></td><td>First connection, host profiles, tabs, shortcuts</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/keys.md">SSH keys</a></td><td>Generating, adding your own, .ppk, installing on a server</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/sftp.md">SFTP</a></td><td>Transfers, folder downloads, cancelling</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/tunnels.md">Tunnels</a></td><td>Local, remote and SOCKS5, with worked examples</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/configuration.md">Configuration</a></td><td>Build settings versus user settings</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/signing.md">Code signing</a></td><td>Why Windows warns and what actually fixes it</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/customising.md">Make it your own</a></td><td>Rebranding, retheming, adding a panel</td></tr>
-    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/architecture.md">Architecture</a></td><td>How it fits together, for anyone changing the code</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/getting-started.md">Getting started</a></td><td>First connection, host profiles, tabs, shortcuts</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/keys.md">SSH keys</a></td><td>Generating, adding your own, .ppk, installing on a server</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/sftp.md">SFTP</a></td><td>Transfers, folder downloads, cancelling</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/tunnels.md">Tunnels</a></td><td>Local, remote and SOCKS5, with worked examples</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/configuration.md">Configuration</a></td><td>Build settings versus user settings</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/signing.md">Code signing</a></td><td>Why Windows warns and what actually fixes it</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/customising.md">Make it your own</a></td><td>Rebranding, retheming, adding a panel</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/guides/architecture.md">Architecture</a></td><td>How it fits together, for anyone changing the code</td></tr>
   </table>
 </section>
 

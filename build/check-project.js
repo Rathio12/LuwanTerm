@@ -120,10 +120,10 @@ function checkPackagedFiles() {
 function checkDocLinks() {
   console.log('documentation');
   const files = ['README.md'];
-  const docs = path.join(root, 'docs');
+  const docs = path.join(root, 'guides');
   if (fs.existsSync(docs)) {
     for (const name of fs.readdirSync(docs)) {
-      if (name.endsWith('.md')) files.push(path.join('docs', name));
+      if (name.endsWith('.md')) files.push(path.join('guides', name));
     }
   }
 

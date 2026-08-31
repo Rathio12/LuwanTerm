@@ -94,7 +94,7 @@ being offline is not something worth interrupting you about.
 ## Updates
 
 Accepting an update downloads it and restarts. Your hosts, keys, snippets and
-settings are kept; see [building](../docs/building.md#installing-over-an-existing-copy).
+settings are kept; see [building](building.md#installing-over-an-existing-copy).
 
 **Settings → Updates** shows the current state and has a manual check, which
 does report errors, unlike the one at startup. Portable builds cannot replace

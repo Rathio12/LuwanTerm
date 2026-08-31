@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="docs/images/icon.png" width="88" alt="LuwanTerm">
+<img src="guides/images/icon.png" width="88" alt="LuwanTerm">
 
 # LuwanTerm
 
@@ -24,7 +24,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 </div>
 
 <div align="center">
-  <img src="docs/images/app.png" width="820" alt="LuwanTerm main window">
+  <img src="guides/images/app.png" width="820" alt="LuwanTerm main window">
 </div>
 
 ## What it does
@@ -62,20 +62,20 @@ credentials — it is honest about the limits as well as the protections.
 
 ## Documentation
 
-Everything lives in **[docs/](docs/)**:
+Everything lives in **[guides/](guides/)**:
 
 | Guide | What's in it |
 | --- | --- |
-| [Getting started](docs/getting-started.md) | First connection, hosts, tabs, shortcuts |
-| [SSH keys](docs/keys.md) | Generating, adding your own, `.ppk`, installing on a server |
-| [SFTP](docs/sftp.md) | Transferring files, folder downloads, cancelling |
-| [Tunnels](docs/tunnels.md) | Local, remote and SOCKS5 forwarding with worked examples |
-| [Configuration](docs/configuration.md) | `.env` build settings versus user settings |
-| [Building](docs/building.md) | Installer, portable, icon, the build config |
-| [Code signing](docs/signing.md) | Why Windows complains and what actually fixes it |
-| [Discord presence](docs/discord.md) | Turning it on, and what it does and doesn't reveal |
-| [Make it your own](docs/customising.md) | Rebranding, retheming, adding a panel or an IPC call |
-| [Architecture](docs/architecture.md) | How the pieces fit, for anyone changing the code |
+| [Getting started](guides/getting-started.md) | First connection, hosts, tabs, shortcuts |
+| [SSH keys](guides/keys.md) | Generating, adding your own, `.ppk`, installing on a server |
+| [SFTP](guides/sftp.md) | Transferring files, folder downloads, cancelling |
+| [Tunnels](guides/tunnels.md) | Local, remote and SOCKS5 forwarding with worked examples |
+| [Configuration](guides/configuration.md) | `.env` build settings versus user settings |
+| [Building](guides/building.md) | Installer, portable, icon, the build config |
+| [Code signing](guides/signing.md) | Why Windows complains and what actually fixes it |
+| [Discord presence](guides/discord.md) | Turning it on, and what it does and doesn't reveal |
+| [Make it your own](guides/customising.md) | Rebranding, retheming, adding a panel or an IPC call |
+| [Architecture](guides/architecture.md) | How the pieces fit, for anyone changing the code |
 
 ## Built on
 
