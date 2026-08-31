@@ -101,6 +101,18 @@ fs.writeFileSync(path.join(root, 'fonts', 'preview.html'), html, 'utf8');
 
 /* ---------- README.md ---------- */
 
+// How much of the catalogue the website can show to someone who has none of it
+// installed. Written by build/make-webfonts.js; absent on a fresh clone.
+let servedLine = 'Some families are served directly, and Nerd Font builds are previewed in their unpatched base family.';
+try {
+  const web = require(path.join(root, 'docs', 'assets', 'webfonts.json'));
+  servedLine =
+    `Right now ${web.families.length} of the ${catalogue.fonts.length} are served directly, and ` +
+    `${Object.keys(web.aliases).length} more are Nerd Font builds previewed in their unpatched base family.`;
+} catch {
+  // The sentence above still reads correctly without the numbers.
+}
+
 const tables = [...groups.entries()]
   .map(([group, names]) => {
     const body = names.map((name) => `| ${name} |`).join('\n');
@@ -127,8 +139,11 @@ Most of the open source ones are on [Google Fonts](https://fonts.google.com/?cla
 ## Seeing them
 
 - **In the app** — Settings lists every installed family with a live preview.
-- **In a browser** — open [preview.html](preview.html). Installed families render
-  in themselves; the rest are dimmed and marked.
+- **On the website** — the [font list](https://rathio12.github.io/LuwanTerm/#fonts)
+  renders what you have installed and fetches the rest from Google Fonts where it
+  can. Click any font there and the demo terminal above switches to it.
+- **In a browser, offline** — open [preview.html](preview.html). Installed
+  families render in themselves; the rest are dimmed and marked.
 
 GitHub strips style attributes from Markdown, so the table below cannot show the
 actual typefaces. That is what \`preview.html\` is for.
@@ -146,6 +161,17 @@ node build/make-font-preview.js
 
 That regenerates this file and \`preview.html\`. A monospaced font is strongly
 recommended; a proportional one will make columns misalign.
+
+Then refresh the website's copy, so people who do not have the font can still
+preview it:
+
+\`\`\`bash
+node build/make-webfonts.js
+\`\`\`
+
+That asks Google Fonts which families it can serve and writes
+\`docs/assets/webfonts.json\`. ${servedLine} The rest — commercial faces and
+bitmap fonts — cannot be served, and appear greyed out.
 
 ## The catalogue
 

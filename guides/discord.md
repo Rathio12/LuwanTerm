@@ -11,12 +11,12 @@ Shows LuwanTerm on your Discord profile while it's running.
 ```
 LuwanTerm
 3 sessions
-[ See GitHub ]  [ Discord ]
+[ See GitHub ]  [ View page ]
 ```
 
-The buttons come from `LINK_GITHUB` and `LINK_DISCORD` in `.env`. **A button
-with no url is not shown**, so if `LINK_DISCORD` is empty you get one button,
-not two. Discord allows at most two.
+The buttons come from `LINK_GITHUB`, `LINK_WEBSITE` and `LINK_DISCORD` in
+`.env`, in that order of preference. **Discord allows at most two, and a button
+with no url is not shown**, so the first two that are configured win.
 
 > **Discord does not draw activity buttons on your own profile.** They appear to
 > other people looking at you. If you are checking your own card and see no
@@ -54,6 +54,10 @@ DISCORD_CLIENT_ID=your-application-id
 3. Under **Rich Presence → Art Assets**, upload an image named `icon` — without
    it the presence shows with no artwork.
 4. Rebuild. `build/bake-config.js` writes the value into the build.
+
+The image beside the text comes from `DISCORD_LARGE_IMAGE`. A new application
+has no art assets, so an asset name shows nothing at all - give it a public
+image url instead and Discord will proxy it.
 
 Leave `DISCORD_CLIENT_ID` empty to disable Rich Presence entirely. See
 [configuration](configuration.md).

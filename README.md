@@ -43,9 +43,10 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 ## Try it without installing
 
 The [website](https://rathio12.github.io/LuwanTerm/) has a working copy of the
-interface: pick any monospace font you have installed, change the size, the
-accent and the terminal opacity, and watch it apply. It offers only the fonts on
-your machine, using the same check the app runs.
+interface: change the font, the size, the accent and the terminal opacity, and
+watch it apply. The font list below it runs the same check the app does to find
+what you have installed, then loads the rest from Google Fonts - **click any
+font in that list and the demo switches to it.**
 
 ## Quick start
 

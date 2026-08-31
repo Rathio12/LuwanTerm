@@ -17,7 +17,9 @@
     "check": "node build/check-project.js && node test/run.js",
     "bake": "node build/bake-config.js",
     "make-fonts": "node build/make-font-preview.js",
-    "test": "node test/run.js"
+    "test": "node test/run.js",
+    "check-site": "electron build/check-site.js",
+    "make-webfonts": "node build/make-webfonts.js"
   },
   "build": {
     "appId": "io.luwan.term",

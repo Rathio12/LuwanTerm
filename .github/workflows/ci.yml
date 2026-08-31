@@ -52,6 +52,26 @@ jobs:
           fi
           echo "no signing material in the tree"
 
+  ui:
+    name: Website
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      # Drives the published page in a real Electron window: the font list is
+      # built from a fetch, a canvas measurement pass and click handlers, none of
+      # which a syntax check can prove. xvfb gives the runner a display.
+      - name: Font list and demo
+        run: xvfb-run -a npm run check-site
+
   tests:
     name: Tests
     runs-on: ubuntu-latest

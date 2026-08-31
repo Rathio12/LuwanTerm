@@ -162,7 +162,7 @@
     try {
       const fonts = await window.queryLocalFonts();
       return [...new Set(fonts.map((font) => font.family))].filter((family) =>
-        /(mono\w*|code|consol\w*|courier|terminal)/i.test(family)
+        /\b(mono\w*|code|consol\w*|courier|terminal)\b/i.test(family)
       );
     } catch {
       return [];
@@ -412,6 +412,7 @@
     const buttons = [
       button('bug', 'Report a bug', links.issues),
       button('code', 'Source on GitHub', links.github),
+      button('globe', 'View page', links.website),
       button('chat', 'Discord', links.discord),
     ].filter(Boolean);
 

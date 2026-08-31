@@ -190,10 +190,13 @@ function applyDiscord(current = settings.get()) {
     return;
   }
   discord.start({
-    largeImage: 'icon',
+    largeImage: config.discordLargeImage,
     largeText: 'LuwanTerm',
+    // Discord shows at most two buttons and drops any without a url, so this is
+    // a preference order rather than a list: the first two that are configured win.
     buttons: [
       { label: 'See GitHub', url: config.links.github },
+      { label: 'View page', url: config.links.website },
       { label: 'Discord', url: config.links.discord },
     ],
   });

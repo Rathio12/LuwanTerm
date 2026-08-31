@@ -65,8 +65,9 @@
   <p class="lede">
     A working copy of the interface. Change the font, the size, the accent and how
     far the terminal lets the background through - exactly the settings the app
-    has. Only fonts installed on this machine are offered, which is how the app
-    picks them too.
+    has. The picker offers every font this page can draw: the ones installed on
+    this machine, plus the rest fetched from Google Fonts so you can try them
+    without installing anything.
   </p>
 
   <div class="demo">
@@ -121,9 +122,12 @@
 <section class="wrap" id="fonts">
   <h2>Fonts</h2>
   <p class="lede">
-    LuwanTerm knows <span class="fcount" id="total">193</span> monospace families and shows you the ones you have,
-    each rendered in its own face. <strong id="installed">Checking what you have...</strong>
-    This list is live - it runs the same check the app does.
+    LuwanTerm knows <span class="fcount" id="total">193</span> monospace families, each rendered in its own
+    face. <strong id="installed">Checking what you have...</strong>
+    The list is live - it runs the same check the app does, then loads what it can
+    from Google Fonts for the rest. <strong>Click any font to put it in the demo
+    above.</strong> A Nerd Font is drawn in its unpatched base family, and a few
+    commercial faces cannot be served at all.
   </p>
   <div class="fonts" id="fontlist"></div>
 </section>

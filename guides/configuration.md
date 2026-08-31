@@ -21,15 +21,25 @@ your values stay yours.
 # Discord application to report as. Empty disables Rich Presence entirely.
 DISCORD_CLIENT_ID=1543680676539273276
 
+# The image Rich Presence shows: either the name of an art asset uploaded in the
+# Discord developer portal, or a public image url. Discord accepts both.
+DISCORD_LARGE_IMAGE=https://rathio12.github.io/LuwanTerm/assets/images/icon.png
+
 # Links shown in Settings, and as buttons on the Discord presence card.
 # Any left empty is simply not rendered.
 LINK_GITHUB=https://github.com/Rathio12/LuwanTerm
 LINK_ISSUES=https://github.com/Rathio12/LuwanTerm/issues/new
+LINK_WEBSITE=https://rathio12.github.io/LuwanTerm/
 LINK_DISCORD=
 ```
 
 `LINK_DISCORD` starts empty. Until you set it, the Discord button is absent
 from both Settings and the presence card.
+
+`DISCORD_LARGE_IMAGE` is a url rather than an asset name on purpose. An asset
+name only works once you have uploaded an image under **Rich Presence → Art
+Assets** for your own application; a url works immediately, because Discord
+fetches it through its own proxy.
 
 Real environment variables win over the file, so CI can override one without
 committing anything:
@@ -37,6 +47,20 @@ committing anything:
 ```bash
 DISCORD_CLIENT_ID=... npm run dist
 ```
+
+## Where the values come from
+
+`bake-config.js` takes the first value it finds, in this order:
+
+1. a real environment variable
+2. `.env`
+3. [`.env.example`](../.env.example)
+
+The last step matters more than it looks. `.env` is git-ignored, so a fresh
+clone — and every CI build — has none. Without the fallback those builds bake an
+empty config and ship with Rich Presence silently disabled and no About links.
+`.env.example` holds this project's own public values, which is why it is
+committed. Anything private belongs in a real environment variable instead.
 
 ## How it gets into the build
 

@@ -165,22 +165,54 @@ pre {
 
 .frow {
   display: grid;
-  grid-template-columns: 220px 1fr 100px;
+  grid-template-columns: 210px 1fr 116px 92px;
   gap: 14px;
   align-items: center;
+  width: 100%;
   padding: 9px 12px;
   border-radius: var(--r-sm);
   border: 1px solid transparent;
-  transition: background var(--fast);
+  background: none;
+  color: inherit;
+  text-align: left;
+  transition: background var(--fast), border-color var(--fast);
 }
+button.frow { cursor: pointer; font: inherit; }
 .frow:hover { background: var(--glass-strong); }
+button.frow:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .frow.installed { border-color: var(--stroke-soft); }
-.frow.missing { opacity: 0.3; }
+.frow.web, .frow.base { border-color: transparent; }
+.frow.none { opacity: 0.3; }
+
+/* The font currently driving the demo. */
+.frow.is-using {
+  background: var(--glass-strong);
+  border-color: var(--accent);
+}
+.frow.is-using .ftag::after { content: ' • live'; }
 
 .fname { font-weight: 550; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .fsample { font-size: 13.5px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; }
-.ftag { font-size: 10px; text-align: right; text-transform: uppercase; letter-spacing: 0.6px; color: var(--green); }
-.frow.missing .ftag { color: var(--ink-faint); }
+.fgroup {
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.ftag {
+  font-family: var(--font-ui);
+  font-size: 10px;
+  text-align: right;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  white-space: nowrap;
+  color: var(--green);
+}
+.frow.web .ftag { color: var(--accent); }
+.frow.base .ftag { color: var(--ink-mute); }
+.frow.none .ftag { color: var(--ink-faint); }
 .fcount { color: var(--accent); font-weight: 650; }
 
 /* ---------- Table ---------- */
@@ -208,7 +240,7 @@ footer a { margin: 0 10px; }
 @media (max-width: 640px) {
   header { padding-top: 56px; }
   .frow { grid-template-columns: 1fr; gap: 2px; }
-  .ftag { text-align: left; }
+  .ftag, .fgroup { text-align: left; }
 }
 
 /* ---------- The app's titlebar, reused ---------- */

@@ -17,8 +17,10 @@ const target = path.join(root, 'src', 'main', 'config.generated.json');
 
 const KEYS = {
   DISCORD_CLIENT_ID: 'discordClientId',
+  DISCORD_LARGE_IMAGE: 'discordLargeImage',
   LINK_GITHUB: 'github',
   LINK_ISSUES: 'issues',
+  LINK_WEBSITE: 'website',
   LINK_DISCORD: 'discord',
 };
 
@@ -45,18 +47,26 @@ function parseEnv(text) {
   return out;
 }
 
+const read = (file) => (fs.existsSync(file) ? parseEnv(fs.readFileSync(file, 'utf8')) : {});
+
 const envFile = path.join(root, '.env');
-const fromFile = fs.existsSync(envFile) ? parseEnv(fs.readFileSync(envFile, 'utf8')) : {};
+const fromFile = read(envFile);
+
+// .env is not committed, so a fresh clone - and every CI build - would otherwise
+// bake an empty config and ship a release with no Discord id and no links. The
+// committed .env.example holds the project's own public values, so it stands in
+// as the last resort. Anything private belongs in a real environment variable.
+const fromExample = read(path.join(root, '.env.example'));
 
 const config = {};
 for (const [envKey, configKey] of Object.entries(KEYS)) {
-  const value = process.env[envKey] ?? fromFile[envKey] ?? '';
+  const value = process.env[envKey] ?? fromFile[envKey] ?? fromExample[envKey] ?? '';
   config[configKey] = String(value).trim();
 }
 
 fs.writeFileSync(target, `${JSON.stringify(config, null, 2)}\n`, 'utf8');
 
-const source = fs.existsSync(envFile) ? '.env' : 'defaults';
+const source = fs.existsSync(envFile) ? '.env' : '.env.example';
 console.log(`config baked from ${source}:`);
 for (const [key, value] of Object.entries(config)) {
   console.log(`  ${key}: ${value || '(empty)'}`);

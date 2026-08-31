@@ -13,8 +13,10 @@
 
 const DEFAULTS = {
   discordClientId: '',
+  discordLargeImage: '',
   github: '',
   issues: '',
+  website: '',
   discord: '',
 };
 
@@ -33,6 +35,7 @@ module.exports = {
   links: {
     github: config.github,
     issues: config.issues,
+    website: config.website,
     discord: config.discord,
   },
 };
