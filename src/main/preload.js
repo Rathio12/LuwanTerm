@@ -2,10 +2,6 @@
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-/**
- * Unwraps the { ok, data, error } envelope from ipc/helpers.js so renderer
- * code can use plain try/catch against real Error objects.
- */
 async function call(channel, ...args) {
   const result = await ipcRenderer.invoke(channel, ...args);
   if (!result || result.ok !== true) {
@@ -14,7 +10,6 @@ async function call(channel, ...args) {
   return result.data;
 }
 
-/** Wraps a main -> renderer channel and hands back an unsubscribe function. */
 function subscribe(channel, listener) {
   const wrapped = (_event, payload) => listener(payload);
   ipcRenderer.on(channel, wrapped);

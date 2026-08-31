@@ -1,4 +1,3 @@
-/* Session lifecycle: tabs, terminals, and the files/tunnels dock. */
 (function (App) {
   'use strict';
 
@@ -9,7 +8,6 @@
   const terminalsRoot = () => qs('#terminals');
   const dock = () => qs('#dock');
 
-  /** Shell output can arrive before the terminal exists; hold it until it does. */
   const pending = new Map();
 
   const STATUS_CLASS = {
@@ -73,13 +71,6 @@
     });
   }
 
-  /** Opens a new session for a stored host profile. */
-  /**
-   * @param {string} hostId
-   * @param {{attempts?: number}} [options] carries the retry count across a
-   *   reconnect so it does not restart from zero each time
-   * @returns {Promise<boolean>} whether a session came up
-   */
   async function open(hostId, options = {}) {
     const host = state.hostById(hostId);
     if (!host) return false;
@@ -148,11 +139,6 @@
     entry.term.focus();
   }
 
-  /**
-   * @param {string} key
-   * @param {{silent?: boolean}} [options] skip the confirmation, used when a
-   *   reconnect is replacing the session rather than the user closing it
-   */
   async function close(key, options = {}) {
     const entry = state.sessions.get(key);
     if (!entry) return;
@@ -184,13 +170,6 @@
     renderTabs();
   }
 
-  /**
-   * Re-dials a session that dropped on its own.
-   *
-   * Driven entirely by settings.json - `autoReconnect`, `autoReconnectAttempts`
-   * and `autoReconnectDelaySeconds` - so it adds nothing to the interface. The
-   * existing disconnected overlay just says what is happening.
-   */
   function scheduleReconnect(entry) {
     const { autoReconnect, autoReconnectAttempts, autoReconnectDelaySeconds } = state.settings;
     if (!autoReconnect || entry.userClosed) return false;
@@ -246,8 +225,6 @@
     renderTabs();
   }
 
-  /* ---------- Dock ---------- */
-
   function syncDock(entry) {
     const mode = entry ? entry.dock : null;
     dock().hidden = !mode;
@@ -280,7 +257,6 @@
     requestAnimationFrame(() => entry.term?.fit());
   }
 
-  /** Sends text into the active terminal, used by the snippet list. */
   function sendToActive(text, execute) {
     const entry = state.active();
     if (!entry || entry.info.status !== 'ready') {

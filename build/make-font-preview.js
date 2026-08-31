@@ -1,16 +1,5 @@
 'use strict';
 
-/**
- * Turns fonts/fonts.json into two previews:
- *
- *   fonts/preview.html  a real preview - every family rendered in itself,
- *                       with the ones you do not have marked as missing
- *   fonts/README.md     the catalogue as a table, for reading on the repo
- *
- * GitHub strips style attributes from Markdown, so a genuine font preview is
- * only possible in the HTML page. The table is the honest alternative.
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -25,8 +14,6 @@ for (const font of catalogue.fonts) {
 
 const escapeHtml = (text) =>
   String(text).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
-
-/* ---------- preview.html ---------- */
 
 const rows = [...groups.entries()]
   .map(([group, names]) => {
@@ -98,8 +85,6 @@ ${rows}
 `;
 
 fs.writeFileSync(path.join(root, 'fonts', 'preview.html'), html, 'utf8');
-
-/* ---------- README.md ---------- */
 
 let servedLine = 'Some families are served directly, and Nerd Font builds are previewed in their unpatched base family.';
 try {

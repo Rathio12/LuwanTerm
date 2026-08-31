@@ -1,4 +1,3 @@
-/* Tiny DOM + formatting helpers shared by every renderer module. */
 window.App = window.App || {};
 
 (function (App) {
@@ -7,10 +6,6 @@ window.App = window.App || {};
   const qs = (selector, scope = document) => scope.querySelector(selector);
   const qsa = (selector, scope = document) => [...scope.querySelectorAll(selector)];
 
-  /**
-   * Creates an element. Attributes starting with `on` bind listeners, `class`
-   * and `text` are special-cased, everything else becomes a real attribute.
-   */
   function h(tag, attrs = {}, children = []) {
     const node = document.createElement(tag);
 
@@ -32,7 +27,6 @@ window.App = window.App || {};
     return node;
   }
 
-  /** Builds an <svg><use> reference into the sprite defined in index.html. */
   function icon(name) {
     const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
@@ -80,7 +74,6 @@ window.App = window.App || {};
     };
   }
 
-  /** Joins POSIX path segments and normalises `..` / `.` the way a shell would. */
   function joinPath(base, segment) {
     if (segment.startsWith('/')) return segment;
     const parts = `${base}/${segment}`.split('/');
@@ -93,7 +86,6 @@ window.App = window.App || {};
     return `/${out.join('/')}`;
   }
 
-  /** Turns #rrggbb into an rgba() string, leaving anything else untouched. */
   function withAlpha(color, alpha) {
     const match = /^#([0-9a-f]{6})$/i.exec(String(color).trim());
     if (!match) return color;

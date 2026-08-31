@@ -1,18 +1,5 @@
 'use strict';
 
-/**
- * Build-time configuration.
- *
- * The point of these checks is that a release is never shipped unconfigured: an
- * empty Discord id disables Rich Presence outright, and empty links quietly drop
- * the About buttons. .env is not committed, so CI builds rely on the fallback to
- * .env.example - which is exactly what regressed once already.
- *
- * Everything here bakes into a temp directory. The suite must never touch the
- * developer's own .env or the generated config, or an interrupted run leaves
- * their working tree broken.
- */
-
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -32,10 +19,6 @@ const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'luwanterm-config-'));
 const out = path.join(dir, 'config.generated.json');
 const envFile = path.join(dir, '.env');
 
-/**
- * Bakes with a given environment. `env` values of null are removed, so a test
- * can hide a variable the developer happens to have set.
- */
 function run(env = {}, { withEnvFile = false } = {}) {
   const merged = {
     ...process.env,

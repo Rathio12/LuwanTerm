@@ -1,24 +1,5 @@
 'use strict';
 
-/**
- * Tells you whether something is a copy of LuwanTerm.
- *
- *   node build/check-copy.js <folder or file>
- *
- * The markers are derived from this repository every time it runs, so there is
- * no list committed anywhere for somebody to find and strip. What it looks for
- * is the writing rather than the names: comment sentences, error wording and
- * distinctive constants. Renaming the app, reformatting the code, changing the
- * icon and swapping the colours leave all of that intact, because rewriting
- * every comment in a codebase is more work than writing one.
- *
- * It reads binaries too, so a repackaged installer or an unpacked asar can be
- * checked the same way.
- *
- * A high score is evidence, not a verdict. Read the matches before accusing
- * anyone of anything.
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -27,9 +8,14 @@ const SOURCE = ['src', 'build', 'test'];
 const READABLE = new Set(['.js', '.css', '.html', '.json', '.md', '.yml', '.txt']);
 const SKIP = new Set(['node_modules', '.git', 'dist', 'out', 'coverage', '.cache']);
 
-/** Phrases shorter than this match too much prose to mean anything. */
 const MIN_WORDS = 7;
 const MAX_BYTES = 64 * 1024 * 1024;
+
+const RX_BLOCK = new RegExp('\\/\\*[\\s\\S]*?\\*\\/', 'g');
+const RX_LINE = new RegExp('(^|[^:])\\/\\/[^\\n]*', 'gm');
+const RX_STRING = new RegExp('([\'"`])(?:\\\\.|(?!\\1)[^\\\\])*\\1', 'g');
+const RX_NUMBER = new RegExp('\\b\\d[\\d.a-fx]*\\b', 'gi');
+const RX_NAME = new RegExp('[A-Za-z_$][A-Za-z0-9_$]*', 'g');
 
 const normalise = (text) => text.toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\s+/g, ' ').trim();
 
@@ -49,10 +35,6 @@ function walk(dir, files = []) {
   return files;
 }
 
-/**
- * Pulls the sentences worth fingerprinting out of one of our own files: comment
- * prose and string literals long enough to be ours rather than anyone's.
- */
 function markersFrom(text) {
   const found = new Set();
 
@@ -92,7 +74,32 @@ function markersFrom(text) {
   return found;
 }
 
-/** Every marker this repository can offer, and which file each came from. */
+const KEYWORDS = new Set([
+  'const', 'let', 'var', 'function', 'return', 'if', 'else', 'for', 'of', 'in',
+  'while', 'try', 'catch', 'finally', 'throw', 'new', 'this', 'class', 'extends',
+  'async', 'await', 'typeof', 'instanceof', 'delete', 'void', 'null', 'true',
+  'false', 'undefined', 'require', 'module', 'exports', 'default', 'import',
+  'export', 'from', 'break', 'continue', 'switch', 'case', 'do', 'yield',
+]);
+
+const SHAPE_LENGTH = 6;
+
+function shapesFrom(text) {
+  const bare = text
+    .replace(RX_BLOCK, ' ')
+    .replace(RX_LINE, ' ')
+    .replace(RX_STRING, ' ')
+    .replace(RX_NUMBER, ' ');
+
+  const names = (bare.match(RX_NAME) || []).filter((name) => !KEYWORDS.has(name));
+
+  const shapes = new Set();
+  for (let i = 0; i + SHAPE_LENGTH <= names.length; i += 1) {
+    shapes.add(names.slice(i, i + SHAPE_LENGTH).join(' ').toLowerCase());
+  }
+  return shapes;
+}
+
 function buildFingerprint() {
   const markers = new Map();
 
@@ -109,16 +116,16 @@ function buildFingerprint() {
       for (const marker of markersFrom(text)) {
         if (!markers.has(marker)) markers.set(marker, relative);
       }
+      if (path.extname(file) === '.js') {
+        for (const shape of shapesFrom(text)) {
+          if (!markers.has(shape)) markers.set(shape, relative);
+        }
+      }
     }
   }
   return markers;
 }
 
-/**
- * Reads a file as text whatever it is. A packaged app is a binary with our
- * strings sitting inside it, and UTF-16 is how Windows tooling often stores
- * them, so both encodings are searched.
- */
 function readSearchable(file) {
   let buffer;
   try {
@@ -164,6 +171,10 @@ function main() {
   console.log('');
   console.log(`matched ${hits.size} of ${markers.size} markers  (${score.toFixed(1)}%)`);
   console.log('');
+  console.log('The count is what matters, not the share. Pointing this at one folder');
+  console.log('cannot match markers taken from the rest of the project, and unrelated');
+  console.log('code of the same kind matches in the single digits.');
+  console.log('');
 
   if (hits.size) {
     console.log('strongest evidence:');
@@ -181,8 +192,8 @@ function main() {
     console.log('');
   }
 
-  if (score >= 25) console.log('verdict: this is a copy of LuwanTerm.');
-  else if (score >= 5) console.log('verdict: parts of LuwanTerm are in here. Read the matches.');
+  if (hits.size >= 200) console.log('verdict: this is a copy of LuwanTerm.');
+  else if (hits.size >= 20) console.log('verdict: parts of LuwanTerm are in here. Read the matches.');
   else if (hits.size) console.log('verdict: a few incidental matches. Probably coincidence - read them.');
   else console.log('verdict: no trace of LuwanTerm.');
 
@@ -194,7 +205,7 @@ function main() {
     console.log('      or scan resources/app.asar, which is not compressed.');
   }
 
-  process.exit(score >= 5 ? 1 : 0);
+  process.exit(hits.size >= 20 ? 1 : 0);
 }
 
 if (require.main === module) main();

@@ -1,4 +1,3 @@
-/* Transient notifications in the bottom-right corner. */
 (function (App) {
   'use strict';
 

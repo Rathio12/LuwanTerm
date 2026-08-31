@@ -5,10 +5,6 @@ const SAMPLE = 'const ok = 0O1lI; ~$>_ => != <=';
 
 const megabytes = (n) => `${(n / 1048576).toFixed(0)} MB`;
 
-/**
- * Points the buttons at the newest release's actual assets. Without this the
- * version would be baked into the page and go stale on every release.
- */
 async function loadRelease() {
   const meta = document.getElementById('meta');
   try {
@@ -41,11 +37,6 @@ async function loadRelease() {
   }
 }
 
-/**
- * A font is installed if text measures differently in it than in each generic
- * fallback. A browser silently substitutes a missing font, so measuring is the
- * only way to tell. This is the same check the app runs.
- */
 function isInstalled(name, context) {
   const probe = 'mmmmmmmmmmlliWWW';
   return ['monospace', 'serif', 'sans-serif'].some((generic) => {
@@ -58,11 +49,6 @@ function isInstalled(name, context) {
 
 const loadedWebFonts = new Set();
 
-/**
- * Pulls one family from Google Fonts. Families are requested as a row scrolls
- * into view rather than all at once, so opening the page does not drag in every
- * font binary in the catalogue.
- */
 function ensureWebFont(family) {
   if (!family || loadedWebFonts.has(family)) return;
   loadedWebFonts.add(family);
@@ -183,14 +169,11 @@ async function loadFonts() {
   setUpDemo(rows.filter((row) => row.render));
 }
 
-/* ---------- Interactive demo ---------- */
-
 const LF = String.fromCharCode(10);
 const BULLET = String.fromCharCode(9679);
 
 const ACCENTS = ['#7c5cff', '#3ea8ff', '#22c58b', '#f2a33c', '#ff5c8a', '#c084fc'];
 
-/** A short, plausible session, written once and reused as the demo content. */
 const TRANSCRIPT = [
   ['t-prompt', 'root@prod-web'], ['t-dim', ':'], ['t-path', '~'], [null, '$ systemctl status nginx'],
   ['br'],
@@ -240,13 +223,8 @@ function paintTranscript(target) {
   target.replaceChildren(fragment);
 }
 
-/** Set by setUpDemo, and used by the font list to drive the demo. */
 let applyDemoFont = null;
 
-/**
- * Wires the demo controls. Everything writes a CSS variable on the demo root,
- * which is how the app applies these settings too.
- */
 function setUpDemo(usableFonts) {
   const demo = document.querySelector('.demo');
   const term = document.getElementById('demoTerm');

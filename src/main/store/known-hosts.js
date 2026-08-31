@@ -10,9 +10,6 @@ const keyOf = (host, port) => `${host}:${port}`;
 module.exports = {
   keyOf,
 
-  /**
-   * @returns {'trusted'|'unknown'|'changed'}
-   */
   verify(host, port, fingerprint) {
     const entry = store.read().entries[keyOf(host, port)];
     if (!entry) return 'unknown';

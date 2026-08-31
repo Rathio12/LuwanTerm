@@ -1,4 +1,3 @@
-/* Port-forwarding panel for one session. */
 (function (App) {
   'use strict';
 
@@ -72,7 +71,6 @@
       }
     }
 
-    /** Live connection counts arrive as events; patch the row in place. */
     function updateActivity(payload) {
       const row = list.querySelector(`[data-tunnel="${payload.id}"] .tn__live`);
       if (row) {

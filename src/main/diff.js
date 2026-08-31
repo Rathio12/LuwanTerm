@@ -1,18 +1,8 @@
 'use strict';
 
-/**
- * Line diffing, used to compare a remote file with a local one or with the
- * same path on another server.
- *
- * Trimming the shared head and tail first is what makes this usable on real
- * files: a config with one changed line reduces to a handful of lines before
- * the quadratic part runs at all.
- */
-
 const MAX_LINES = 20000;
 const MAX_AREA = 4_000_000;
 
-/** Longest common subsequence over two already-trimmed line arrays. */
 function lcsMatrix(a, b) {
   const rows = a.length + 1;
   const cols = b.length + 1;
@@ -29,7 +19,6 @@ function lcsMatrix(a, b) {
   return { table, cols };
 }
 
-/** Walks the matrix into a flat list of kept, added and removed lines. */
 function walk(a, b) {
   const { table, cols } = lcsMatrix(a, b);
   const out = [];
@@ -62,15 +51,6 @@ function walk(a, b) {
 
 const splitLines = (text) => String(text).replace(/\r\n/g, '\n').split('\n');
 
-/**
- * Compares two texts line by line.
- *
- * @param {string} left
- * @param {string} right
- * @param {{context?: number}} [options] lines of unchanged context to keep
- * @returns {{identical: boolean, added: number, removed: number, truncated: boolean,
- *            hunks: Array<{leftStart: number, rightStart: number, lines: object[]}>}}
- */
 function diffLines(left, right, options = {}) {
   const context = Number.isInteger(options.context) ? options.context : 3;
 
@@ -145,7 +125,6 @@ function diffLines(left, right, options = {}) {
   };
 }
 
-/** Keeps changed lines plus `context` unchanged lines either side. */
 function groupIntoHunks(lines, context) {
   const keep = new Array(lines.length).fill(false);
 

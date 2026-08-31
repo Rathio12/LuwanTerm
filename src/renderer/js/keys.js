@@ -1,4 +1,3 @@
-/* SSH key store: generate, import, inspect, install on a server, delete. */
 (function (App) {
   'use strict';
 
@@ -12,7 +11,6 @@
     { value: 'ecdsa', label: 'ECDSA', bits: [256, 384, 521] },
   ];
 
-  /** Turns an SSH algorithm name into a short badge. */
   function typeLabel(key) {
     if (!key.type || key.type === 'unknown') return 'LOCKED';
     if (key.type === 'ssh-ed25519') return 'ED25519';
@@ -173,8 +171,6 @@
       });
   }
 
-  /* ---------- Generate ---------- */
-
   function create() {
     const name = form.input({ placeholder: 'laptop' });
     const type = form.select(GENERATE_TYPES.map(({ value, label }) => ({ value, label })), {
@@ -247,12 +243,6 @@
       });
   }
 
-  /* ---------- Import ---------- */
-
-  /**
-   * Entry point for adding a key that already exists. Nothing is ever pulled in
-   * automatically - the user picks the file, or asks for a scan.
-   */
   async function addExisting() {
     const choice = await App.modal.show({
       title: 'Add an existing key',
@@ -274,7 +264,6 @@
     return undefined;
   }
 
-  /** Explicit, user-triggered scan of ~/.ssh and PuTTY's saved sessions. */
   async function scanForKeys() {
     let found;
     try {
@@ -427,8 +416,6 @@
     await reload();
     App.toast.ok(`Added ${result.name}`);
   }
-
-  /* ---------- Install on a server ---------- */
 
   async function deploy(key) {
     const ready = [...state.sessions.values()].filter((entry) => entry.info.status === 'ready');

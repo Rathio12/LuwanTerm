@@ -38,18 +38,8 @@ function normalize(config) {
   return { ...record, remoteHost: remoteHost || '127.0.0.1', remotePort };
 }
 
-/**
- * Port forwarding for one SSH connection.
- *
- * - `local`   : listen locally, forward each connection out through the server (`-L`)
- * - `remote`  : ask the server to listen, forward what arrives back here (`-R`)
- * - `dynamic` : listen locally as a SOCKS5 proxy (`-D`)
- */
 class TunnelManager {
-  /**
-   * @param {import('ssh2').Client} client
-   * @param {(event: string, payload: object) => void} emit
-   */
+
   constructor(client, emit) {
     this.client = client;
     this.emit = emit;
@@ -103,7 +93,6 @@ class TunnelManager {
     return this.list().find((t) => t.id === tunnel.id);
   }
 
-  /** Local and dynamic forwards both need a local TCP listener. */
   openListener(tunnel) {
     return new Promise((resolve, reject) => {
       const server = net.createServer((socket) => {
@@ -162,7 +151,6 @@ class TunnelManager {
     });
   }
 
-  /** Bridges an incoming server channel to the configured local target. */
   pipeToLocal(tunnel, channel) {
     tunnel.connections += 1;
     this.emit('tunnel:activity', { id: tunnel.id, connections: tunnel.connections });

@@ -1,4 +1,3 @@
-/* xterm.js wrapper: one instance per session, wired to the SSH shell. */
 (function (App) {
   'use strict';
 
@@ -28,16 +27,6 @@
     brightWhite: '#eef0f8',
   };
 
-  /**
-   * Builds a terminal bound to `sessionId`.
-   * @returns {{element: HTMLElement, focus: Function, fit: Function, write: Function,
-   *            setOverlay: Function, applySettings: Function, paste: Function, dispose: Function}}
-   */
-  /**
-   * xterm paints its own background over everything behind it, so a background
-   * image is invisible through the terminal until the theme itself is made
-   * translucent.
-   */
   function themeFor(settings) {
     const alpha = Math.min(100, Math.max(20, Number(settings.terminalOpacity) || 100)) / 100;
     const accent = settings.accentColor || THEME.cursor;
@@ -174,7 +163,6 @@
         fit();
       },
 
-      /** Shows a blocking message over the terminal (connecting / disconnected). */
       setOverlay(config) {
         if (overlay) {
           overlay.remove();
@@ -207,7 +195,6 @@
     };
   }
 
-  /** Compact find bar driven by the search addon. */
   function buildSearch(pane, searchAddon, term) {
     const input = h('input', { type: 'search', placeholder: 'Find in terminal' });
     const options = { caseSensitive: false, regex: false, decorations: undefined };

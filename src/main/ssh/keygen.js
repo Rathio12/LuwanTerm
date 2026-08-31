@@ -8,14 +8,12 @@ const { encodePrivateKey } = require('./openssh-key');
 const CIPHER = 'aes256-ctr';
 const GENERATE_ATTEMPTS = 8;
 
-/** Key types this app can create, with the bit sizes each one accepts. */
 const KEY_TYPES = {
   ed25519: { label: 'Ed25519', bits: null },
   ecdsa: { label: 'ECDSA', bits: [256, 384, 521], defaultBits: 256 },
   rsa: { label: 'RSA', bits: [2048, 3072, 4096], defaultBits: 4096 },
 };
 
-/** Thrown when a private key is encrypted and the passphrase is missing or wrong. */
 class PassphraseError extends Error {
   constructor(message, { wrong = false } = {}) {
     super(message);
@@ -36,10 +34,6 @@ function describe(parsed) {
   };
 }
 
-/**
- * Reads a private key, returning its public half and fingerprint.
- * @throws {PassphraseError} when the key is encrypted and cannot be opened
- */
 function inspect(privateKey, passphrase) {
   if (ppk.looksLikePpk(privateKey)) return inspectPpk(privateKey, passphrase);
 
@@ -58,7 +52,6 @@ function inspect(privateKey, passphrase) {
   return describe(Array.isArray(parsed) ? parsed[0] : parsed);
 }
 
-/** PuTTY files carry the same information in a different container. */
 function inspectPpk(contents, passphrase) {
   const parsed = ppk.parse(contents, passphrase);
   const comment = parsed.comment || '';
@@ -71,14 +64,6 @@ function inspectPpk(contents, passphrase) {
   };
 }
 
-/**
- * Prepares stored key material for ssh2.
- *
- * PuTTY files are decoded in memory only - the file itself is never rewritten,
- * and its passphrase is consumed here rather than being handed to ssh2.
- *
- * @returns {{privateKey: string|Buffer, passphrase: string|undefined}}
- */
 function loadForAuth(contents, passphrase) {
   if (!ppk.looksLikePpk(contents)) {
     return { privateKey: contents, passphrase: passphrase || undefined };
@@ -86,10 +71,6 @@ function loadForAuth(contents, passphrase) {
   return { privateKey: encodePrivateKey(ppk.parse(contents, passphrase)), passphrase: undefined };
 }
 
-/**
- * Creates a new key pair in OpenSSH format.
- * @param {{type: string, bits?: number, comment?: string, passphrase?: string}} options
- */
 function generate({ type, bits, comment = '', passphrase = '' }) {
   const spec = KEY_TYPES[type];
   if (!spec) throw new Error(`Unsupported key type "${type}".`);

@@ -1,5 +1,39 @@
 # Changelog
 
+## 1.7.2
+
+**Every build is now marked.** `provenance.generated.json` ships inside the
+asar with the version, the commit, the moment it was built and an id unique to
+that one run, signed with an Ed25519 key the project holds. The public half is
+compiled in, so a copy checks itself with no server and nothing read from the
+machine it runs on. `LuwanTerm.exe --provenance` prints the result: *verified*,
+*unsigned* (someone else's build of the source, which is honest rather than an
+accusation), *forged* (the record was edited after signing) or *absent*.
+
+The signature covers a digest of all 62 shipped source files, so a genuine
+signature cannot be lifted onto a build whose code was changed afterwards - the
+files then report as CHANGED.
+
+**And a way to recognise the code when the mark is gone.**
+`npm run check-copy -- <path>` fingerprints this repository every time it runs,
+so there is no marker list committed for anyone to find and strip. It matches
+prose where prose survives, and otherwise the *shape*: strings, comments and
+numbers thrown away, and what remains is the identifiers in the order they are
+used, six at a time. Against a copy renamed throughout, rebranded, recoloured
+and stripped of every stamp it matched 2185 markers where the original matched
+2188. Unrelated code of the same kind matches one.
+
+**Every comment removed** from the JavaScript, CSS and HTML - line comments,
+block comments and JSDoc alike. `build/strip-comments.js` walks the source as a
+tokeniser rather than running a regular expression over it, because `//` and
+`/*` appear inside strings, template literals and regex literals and a naive
+replace corrupts all three. The two HTML comments that mark where the README
+badges are written are kept, because they are structure rather than commentary.
+
+**Also:** two duplicate keys removed - `check-copy` appeared twice in
+`package.json` and `discord` twice in the `app:info` payload - and the local
+app harness no longer fails on a machine where Discord simply is not running.
+
 ## 1.7.0
 
 **A licence.** The project was marked `UNLICENSED` while being published as open

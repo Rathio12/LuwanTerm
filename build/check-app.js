@@ -21,7 +21,6 @@ async function targets() {
   return response.json();
 }
 
-/** Minimal CDP client: connect, evaluate, close. */
 function connect(url) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(url);
@@ -202,7 +201,7 @@ async function main() {
   await wait(500);
   try {
     fs.rmSync(profile, { recursive: true, force: true });
-  } catch { /* the OS will clear it */ }
+  } catch {  }
 
   const failed = results.filter((passed) => !passed).length;
   console.log(`\n${results.length} checks, ${results.length - failed} passed, ${failed} failed`);

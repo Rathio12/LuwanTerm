@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * Runs every *.test.js in this folder, each in its own process.
- *
- * Isolation matters here: several suites install a stub `electron` module and
- * one overrides os.homedir, which would leak between suites in a shared
- * process. A child process each is simpler than undoing it.
- */
-
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');

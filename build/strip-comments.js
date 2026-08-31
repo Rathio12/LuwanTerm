@@ -1,17 +1,5 @@
 'use strict';
 
-/**
- * Removes `//` line comments from JavaScript sources.
- *
- * This walks the source as a tokeniser rather than using a regular expression,
- * because `//` appears inside strings ("https://..."), template literals and
- * regex literals, and a naive replace corrupts all three.
- *
- * Block comments, including JSDoc, are left alone.
- *
- * Usage: node build/strip-comments.js [--dry] [paths...]
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -23,7 +11,6 @@ const REGEX_PRECEDERS = new Set([
   'case', 'do', 'else', 'yield', 'await', 'throw',
 ]);
 
-/** Decides whether a slash opens a regex literal or is a division sign. */
 function startsRegex(code, index) {
   let i = index - 1;
   while (i >= 0 && /\s/.test(code[i])) i -= 1;
@@ -40,8 +27,7 @@ function startsRegex(code, index) {
   return false;
 }
 
-/** @returns {string} the source with line comments removed */
-function strip(code) {
+function strip(code, all = false) {
   let out = '';
   let i = 0;
 
@@ -57,7 +43,7 @@ function strip(code) {
     if (ch === '/' && next === '*') {
       const end = code.indexOf('*/', i + 2);
       const stop = end === -1 ? code.length : end + 2;
-      out += code.slice(i, stop);
+      if (!all) out += code.slice(i, stop);
       i = stop;
       continue;
     }
@@ -104,7 +90,7 @@ function strip(code) {
             else if (code[j] === '}') brace -= 1;
             j += 1;
           }
-          out += '${' + strip(code.slice(i + 2, j - 1)) + '}';
+          out += '${' + strip(code.slice(i + 2, j - 1), all) + '}';
           i = j;
           continue;
         }
@@ -143,7 +129,52 @@ function strip(code) {
   return out;
 }
 
-/** Drops lines left empty by a removed comment and collapses the gap. */
+function stripCss(code) {
+  let out = '';
+  let i = 0;
+
+  while (i < code.length) {
+    const ch = code[i];
+
+    if (ch === '/' && code[i + 1] === '*') {
+      const end = code.indexOf('*/', i + 2);
+      i = end === -1 ? code.length : end + 2;
+      continue;
+    }
+
+    if (ch === '"' || ch === "'") {
+      const quote = ch;
+      out += ch;
+      i += 1;
+      while (i < code.length) {
+        out += code[i];
+        if (code[i] === ESCAPE) {
+          out += code[i + 1] ?? '';
+          i += 2;
+          continue;
+        }
+        if (code[i] === quote) {
+          i += 1;
+          break;
+        }
+        i += 1;
+      }
+      continue;
+    }
+
+    out += ch;
+    i += 1;
+  }
+  return out;
+}
+
+const KEPT_HTML = new Set(['badges', '/badges']);
+
+function stripHtml(code) {
+  return code.replace(/<!--([\s\S]*?)-->/g, (match, body) =>
+    (KEPT_HTML.has(body.trim()) ? match : ''));
+}
+
 function tidy(code) {
   const lines = code.split('\n').map((line) => (line.trim() ? line.replace(/[ \t]+$/, '') : ''));
   const kept = [];
@@ -164,7 +195,7 @@ function collect(target, files) {
       if (entry === 'node_modules' || entry.startsWith('.')) continue;
       collect(path.join(target, entry), files);
     }
-  } else if (target.endsWith('.js')) {
+  } else if (/\.(js|css|html)$/.test(target)) {
     files.push(target);
   }
   return files;
@@ -172,6 +203,7 @@ function collect(target, files) {
 
 const args = process.argv.slice(2);
 const dry = args.includes('--dry');
+const all = args.includes('--all');
 const targets = args.filter((a) => !a.startsWith('--'));
 const roots = targets.length ? targets : ['src'];
 
@@ -181,7 +213,16 @@ for (const root of roots) collect(path.resolve(root), files);
 let changed = 0;
 for (const file of files) {
   const before = fs.readFileSync(file, 'utf8');
-  const after = tidy(strip(before));
+  const extension = path.extname(file);
+
+  if (!all && extension !== '.js') continue;
+
+  let stripped;
+  if (extension === '.css') stripped = stripCss(before);
+  else if (extension === '.html') stripped = stripHtml(before);
+  else stripped = strip(before, all);
+
+  const after = tidy(stripped);
   if (before === after) continue;
   changed += 1;
   const removed = before.split('\n').length - after.split('\n').length;

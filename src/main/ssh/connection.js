@@ -11,7 +11,6 @@ const keygen = require('./keygen');
 
 const READY_TIMEOUT_MS = 20000;
 
-/** Resolves the platform's default SSH agent endpoint. */
 function defaultAgent() {
   if (process.platform === 'win32') {
     return fs.existsSync('\\.\pipe\openssh-ssh-agent')
@@ -21,7 +20,6 @@ function defaultAgent() {
   return process.env.SSH_AUTH_SOCK || null;
 }
 
-/** Turns ssh2/libuv failures into something worth showing a human. */
 function describeError(err) {
   const message = err && err.message ? err.message : String(err);
   switch (err && err.code) {
@@ -50,19 +48,8 @@ function describeError(err) {
   return message;
 }
 
-/**
- * One live SSH connection. Owns authentication and host-key trust; the shell,
- * SFTP and tunnel modules borrow the underlying ssh2 client from here.
- *
- * Events: `banner`, `close`, `error`.
- */
 class SshConnection extends EventEmitter {
-  /**
-   * @param {object} profile stored host profile
-   * @param {object} handlers
-   * @param {(info: object) => Promise<boolean>} handlers.confirmHostKey
-   * @param {(info: object) => Promise<string[]|null>} handlers.requestAnswers
-   */
+
   constructor(profile, handlers) {
     super();
     this.profile = profile;
@@ -110,7 +97,6 @@ class SshConnection extends EventEmitter {
     return auth;
   }
 
-  /** Verifies the server key against the trust store, prompting when needed. */
   hostVerifier(keyBlob, callback) {
     const fingerprint = fingerprintOf(keyBlob);
     const keyType = keyTypeOf(keyBlob);
@@ -136,11 +122,6 @@ class SshConnection extends EventEmitter {
       });
   }
 
-  /**
-   * @param {object} credentials
-   * @param {import('stream').Duplex} [sock] an already-open channel to the
-   *   server, used when reaching it through a jump host
-   */
   connect(credentials = {}, sock = null) {
     const auth = this.buildAuth(credentials);
 
@@ -194,7 +175,7 @@ class SshConnection extends EventEmitter {
     this.closed = true;
     try {
       this.client.end();
-    } catch { /* already torn down */ }
+    } catch {  }
   }
 }
 

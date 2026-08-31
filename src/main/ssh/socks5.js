@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Minimal SOCKS5 server logic for dynamic port forwarding (`ssh -D`).
- * Supports the no-auth method and the CONNECT command, which is what
- * browsers and CLI tools use in practice.
- */
-
 const VERSION = 0x05;
 const CMD_CONNECT = 0x01;
 const ATYP = { IPV4: 0x01, DOMAIN: 0x03, IPV6: 0x04 };
@@ -23,7 +17,6 @@ function reply(socket, code) {
   socket.write(Buffer.from([VERSION, code, 0x00, ATYP.IPV4, 0, 0, 0, 0, 0, 0]));
 }
 
-/** Parses a CONNECT request, returning null while more bytes are still needed. */
 function parseRequest(buffer) {
   if (buffer.length < 5) return null;
   if (buffer[0] !== VERSION) throw new Error('bad-version');
@@ -55,11 +48,6 @@ function parseRequest(buffer) {
   return { host, port: buffer.readUInt16BE(cursor), consumed: cursor + 2 };
 }
 
-/**
- * Drives one client socket through the SOCKS5 exchange.
- * @param {import('net').Socket} socket
- * @param {(host: string, port: number) => Promise<import('stream').Duplex>} connect
- */
 function serveSocks5(socket, connect) {
   let stage = 'greeting';
   let buffer = Buffer.alloc(0);

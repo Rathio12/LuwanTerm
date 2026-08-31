@@ -19,7 +19,6 @@ function register(manager) {
     return session;
   };
 
-  /** Streams transfer progress on a channel the renderer matches by id. */
   const reporter = (sessionId, transferId, name, direction) => (progress) => {
     manager.send('sftp:progress', { sessionId, transferId, name, direction, ...progress });
   };
@@ -28,10 +27,6 @@ function register(manager) {
     manager.send('sftp:progress', { sessionId, transferId, name, direction, done: true, ...extra });
   };
 
-  /**
-   * Runs a transfer, turning a deliberate cancel into a normal result so the
-   * renderer shows a notice instead of an error.
-   */
   async function runTransfer(sessionId, transferId, name, direction, work) {
     try {
       const result = await work();
@@ -128,10 +123,6 @@ function register(manager) {
 
   handle('sftp:read-text', async (sessionId, target) => sftpOf(sessionId).sftp.readText(target));
 
-  /**
-   * Compares a remote file with one on this machine. The local side is chosen
-   * through a dialog, since the renderer cannot open files itself.
-   */
   handle('sftp:compare-local', async (sessionId, remotePath) => {
     const session = sftpOf(sessionId);
     const name = posix.basename(remotePath);
@@ -156,7 +147,6 @@ function register(manager) {
     };
   });
 
-  /** Compares the same path on two different servers. */
   handle('sftp:compare-remote', async (sessionId, remotePath, otherSessionId, otherPath) => {
     const left = sftpOf(sessionId);
     const right = sftpOf(otherSessionId);

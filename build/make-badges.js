@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * Regenerates the badge row in README.md.
- *
- * The counts are measured here rather than typed by hand, so they cannot drift
- * into being a nice-sounding lie. Run `npm test` first and the test badge
- * reflects that run; otherwise it is left out rather than guessed.
- */
-
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -20,7 +12,6 @@ const STYLE = 'flat-square';
 const COUNTED = ['.js', '.html', '.css', '.md', '.json', '.yml', '.ps1'];
 const SKIP = new Set(['node_modules', 'dist', '.git', 'out', 'images', 'certs']);
 
-/** Counts lines of everything the project actually consists of. */
 function countLines() {
   const totals = { code: 0, docs: 0, files: 0 };
 
@@ -86,7 +77,6 @@ const tests = readTestResults();
 const deps = pkg.dependencies || {};
 const clean = (range) => String(range || '').replace(/^[^0-9]*/, '');
 
-/** Reads LINK_DISCORD out of .env so the badge appears once one is set. */
 function discordInvite() {
   try {
     const env = fs.readFileSync(path.join(root, '.env'), 'utf8');

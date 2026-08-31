@@ -2,10 +2,6 @@
 
 const { ipcMain } = require('electron');
 
-/**
- * Wraps a handler so the renderer always receives a predictable envelope
- * instead of Electron's "Error invoking remote method ..." wrapper text.
- */
 function handle(channel, fn) {
   ipcMain.handle(channel, async (event, ...args) => {
     try {

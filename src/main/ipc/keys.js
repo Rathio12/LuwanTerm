@@ -34,10 +34,6 @@ function register(manager) {
     return result.canceled ? null : result.filePaths[0];
   });
 
-  /**
-   * Inspects a candidate key file without importing it, so the renderer knows
-   * whether to ask for a passphrase first.
-   */
   handle('keys:probe', (filePath, passphrase) => {
     try {
       const details = keygen.inspect(fs.readFileSync(filePath, 'utf8'), passphrase);

@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * Build stamping and copy detection.
- *
- * Neither of these stops anyone taking the code - nothing can. What they have
- * to do is make an unmodified copy identify itself, and make a disguised one
- * still recognisable, so the licence has something to stand on.
- */
-
 const fs = require('fs');
 const os = require('os');
 const path = require('path');
@@ -18,8 +10,6 @@ suite('provenance');
 
 const root = path.join(__dirname, '..');
 const { markersFrom, normalise } = require(path.join(root, 'build', 'check-copy'));
-
-/* ---------- Marker extraction ---------- */
 
 const sample = `
 /**
@@ -48,8 +38,6 @@ check('svg path data is not treated as writing',
 check('normalising ignores case, punctuation and spacing',
   normalise('The  Quick-Brown, FOX!') === 'the quick brown fox');
 
-/* ---------- Detection ---------- */
-
 const run = (target) => {
   const result = spawnSync(process.execPath, [path.join(root, 'build', 'check-copy.js'), target], {
     cwd: root,
@@ -65,13 +53,13 @@ const run = (target) => {
 };
 
 const ours = run(path.join(root, 'src'));
-check('the fingerprint is substantial', ours.total > 200, `${ours.total} markers`);
-check('our own source scores high', ours.score > 40, `${ours.score}%`);
+check('the fingerprint is substantial', ours.total > 5000, `${ours.total} markers`);
+check('our own source matches in the thousands', ours.hits > 1000, `${ours.hits} markers`);
 check('it names this as a copy', /verdict: this is a copy/.test(ours.output));
 
 const other = run(path.join(root, 'node_modules', 'ssh2'));
-check('unrelated code scores zero', other.score === 0, `${other.score}%`);
-check('and is not called a copy', /verdict: no trace/.test(other.output));
+check('unrelated code barely registers', other.hits < 20, `${other.hits} of ${other.total}`);
+check('and is not called a copy', !/verdict: this is a copy/.test(other.output));
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'luwanterm-copy-'));
 const disguise = (from, to) => {
@@ -94,14 +82,14 @@ const disguise = (from, to) => {
 disguise(path.join(root, 'src'), path.join(dir, 'lib'));
 
 const stolen = run(dir);
-check('a renamed, reformatted copy is still caught', stolen.score > 40, `${stolen.score}%`);
+check('a renamed, reformatted copy is still caught', stolen.hits > 1000, `${stolen.hits} markers`);
 check('and is named as one', /verdict: this is a copy/.test(stolen.output));
-check('renaming barely dents the score', Math.abs(stolen.score - ours.score) < 15,
-  `${ours.score}% -> ${stolen.score}%`);
+check('the disguise costs almost nothing', ours.hits - stolen.hits < ours.hits * 0.1,
+  `${ours.hits} -> ${stolen.hits}`);
+check('so it cannot be defeated by renaming', stolen.hits > other.hits * 50,
+  `${stolen.hits} vs ${other.hits} for unrelated code`);
 
 fs.rmSync(dir, { recursive: true, force: true });
-
-/* ---------- The stamp ---------- */
 
 const stampScript = path.join(root, 'build', 'make-provenance.js');
 const generated = path.join(root, 'src', 'main', 'provenance.generated.json');
@@ -127,14 +115,6 @@ delete require.cache[require.resolve(path.join(root, 'src', 'main', 'provenance'
 const provenance = require(path.join(root, 'src', 'main', 'provenance'));
 check('the app reads the stamp', provenance.stamped === true);
 check('and describes itself in one line', /^LuwanTerm .* from https:/.test(String(provenance)));
-
-/* ---------- The signature ---------- */
-
-/**
- * The stamp on its own only says what a build claims to be. The signature is
- * what makes the claim checkable: a fork can copy the file, but it cannot
- * produce one that verifies against the key embedded in the app.
- */
 
 const crypto = require('crypto');
 const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');
@@ -194,8 +174,6 @@ check('the canonical form is one line per field',
 const unsigned = stampWith('');
 check('no key means no signature', unsigned.record.signature === undefined);
 check('and the build says so', /no PROVENANCE_KEY/.test(unsigned.output));
-
-/* ---------- The source digest ---------- */
 
 const digestRoot = path.join(root, 'src');
 const first = provenance.digestTree(digestRoot);

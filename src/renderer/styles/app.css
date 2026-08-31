@@ -1,4 +1,3 @@
-/* ---------- Titlebar ---------- */
 .titlebar {
   height: var(--titlebar-h);
   display: flex;
@@ -41,7 +40,6 @@
 .winbtn:hover { background: var(--glass-strong); color: var(--ink); }
 .winbtn--danger:hover { background: var(--red); color: #fff; }
 
-/* ---------- Shell ---------- */
 .shell {
   display: grid;
   grid-template-columns: var(--sidebar-w) 1fr;
@@ -50,7 +48,6 @@
   padding: 10px;
 }
 
-/* ---------- Sidebar ---------- */
 .sidebar {
   display: flex;
   flex-direction: column;
@@ -107,7 +104,6 @@
 }
 .sidebar__foot .btn--primary { flex: 1; }
 
-/* ---------- Host rows ---------- */
 .host {
   --dot: var(--accent);
   display: grid;
@@ -186,7 +182,6 @@
   line-height: 1.7;
 }
 
-/* ---------- Workspace ---------- */
 .workspace {
   display: flex;
   flex-direction: column;
@@ -275,7 +270,6 @@
 .seg:hover { background: var(--glass-hover); color: var(--ink); }
 .seg.is-active { background: var(--glass-active); border-color: var(--accent-line); color: var(--ink); }
 
-/* ---------- Stage ---------- */
 .stage {
   flex: 1;
   display: flex;
@@ -333,7 +327,6 @@
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ---------- Empty state ---------- */
 .empty { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; }
 .empty__card {
   pointer-events: auto;
@@ -361,7 +354,6 @@
 .empty p { color: var(--ink-mute); font-size: 12px; }
 .empty .btn { margin-top: 6px; }
 
-/* ---------- Dock ---------- */
 .dock-split {
   width: 10px;
   flex: none;
@@ -399,7 +391,6 @@
 .dock__body { flex: 1; min-height: 0; display: flex; }
 .dock__view { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 
-/* ---------- Buttons ---------- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -442,7 +433,6 @@
 .iconbtn--danger:hover { background: var(--red); color: #fff; }
 .iconbtn[disabled] { opacity: 0.35; pointer-events: none; }
 
-/* ---------- Forms ---------- */
 .field { display: grid; gap: 5px; }
 .field > label { font-size: 11px; font-weight: 550; color: var(--ink-mute); }
 .field .note { font-size: 11px; color: var(--ink-faint); }
@@ -487,7 +477,6 @@
 .swatch:hover { transform: scale(1.12); }
 .swatch.is-on { border-color: var(--ink); }
 
-/* ---------- Modal ---------- */
 .modal-root {
   position: fixed;
   inset: 0;
@@ -502,8 +491,7 @@
 
 .modal {
   width: min(560px, 100%);
-  /* A percentage here resolves against an auto-sized grid row and is ignored,
-     which let tall dialogs run off the bottom of the window. */
+
   max-height: calc(100vh - 48px);
   display: flex;
   flex-direction: column;
@@ -544,8 +532,7 @@
   display: grid;
   gap: 14px;
   overflow-y: auto;
-  /* Both are needed: flex children refuse to shrink below their content
-     height, so without min-height the body never scrolls. */
+
   flex: 1;
   min-height: 0;
   overscroll-behavior: contain;
@@ -573,7 +560,6 @@
 .callout--danger { background: rgba(255, 92, 114, 0.1); border-color: rgba(255, 92, 114, 0.34); color: #ffa3b0; }
 .callout code { font-family: var(--font-mono); word-break: break-all; color: var(--ink); }
 
-/* ---------- Toasts ---------- */
 .toasts {
   position: fixed;
   right: 18px;
@@ -605,7 +591,6 @@
 .toast__bar { width: 3px; align-self: stretch; border-radius: var(--pill); background: var(--accent); }
 @keyframes slide-in { from { opacity: 0; transform: translateX(16px); } }
 
-/* ---------- SFTP browser ---------- */
 .fb { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .fb__bar {
   display: flex;
@@ -656,7 +641,6 @@
 }
 .fb__count { flex: 1; font-size: 11px; color: var(--ink-faint); }
 
-/* ---------- Tunnels ---------- */
 .tn { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 .tn__list { flex: 1; overflow-y: auto; padding: 10px; display: grid; gap: 8px; align-content: start; }
 
@@ -691,7 +675,6 @@
 .tn__foot { padding: 10px; border-top: 1px solid var(--stroke-soft); }
 .tn__foot .btn { width: 100%; }
 
-/* ---------- Transfers ---------- */
 .transfers { display: grid; gap: 6px; }
 .transfer {
   display: grid;
@@ -711,7 +694,6 @@
 .transfer__fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--cyan)); transition: width 140ms linear; }
 .transfer__pct { text-align: right; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
 
-/* ---------- Misc ---------- */
 .kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 12px; }
 .kv dt { color: var(--ink-faint); }
 .kv dd { margin: 0; font-family: var(--font-mono); word-break: break-all; }
@@ -729,7 +711,6 @@
   color: var(--ink-faint);
 }
 
-/* ---------- Terminal search ---------- */
 .term-search {
   position: absolute;
   top: 10px;
@@ -756,7 +737,6 @@
 }
 .term-search input:focus { border-color: var(--accent-line); }
 
-/* ---------- Key list ---------- */
 .keyrow {
   padding: 9px 10px;
   border-radius: var(--r-md);
@@ -802,7 +782,6 @@
 
 .tag--found { background: rgba(62, 168, 255, 0.14); color: #8fcaff; }
 
-/* ---------- Key picker ---------- */
 .pick__list {
   display: grid;
   gap: 4px;
@@ -827,7 +806,6 @@
 
 .about__links { display: flex; flex-wrap: wrap; gap: 8px; }
 
-/* ---------- Custom background ---------- */
 .backdrop {
   position: fixed;
   inset: 0;
@@ -837,7 +815,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  /* Slightly oversized so a blur cannot reveal soft edges. */
+
   transform: scale(1.06);
   transition: opacity var(--slow);
 }
@@ -848,10 +826,6 @@ input[type="range"] {
   background: transparent;
 }
 
-/* ---------- With a background image ---------- */
-/* The panels are deliberately more see-through here. Left at their normal
-   opacity they cover the image almost completely, which reads as the feature
-   being broken rather than subtle. */
 body.has-background .terminals { background: rgba(6, 7, 12, 0.42); }
 body.has-background .sidebar,
 body.has-background .dock { background: rgba(12, 14, 22, 0.55); }
@@ -859,10 +833,8 @@ body.has-background .tab { background: rgba(12, 14, 22, 0.5); }
 body.has-background .titlebar { background: rgba(10, 11, 18, 0.4); }
 body.has-background .empty__card { background: rgba(12, 14, 22, 0.62); }
 
-/* Without this the opaque wash sits between the image and the eye. */
 body.has-background::before { opacity: 0.35; }
 
-/* ---------- Font picker ---------- */
 .fontpick {
   display: grid;
   gap: 2px;
@@ -919,9 +891,6 @@ body.has-background::before { opacity: 0.35; }
   cursor: pointer;
 }
 
-/* The chrome normally blurs what is behind it. With a background image that
-   would soften the picture whether or not the user asked for blur, so the
-   amount follows the blur slider and is zero by default. */
 body.has-background .sidebar,
 body.has-background .dock,
 body.has-background .terminals,

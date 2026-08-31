@@ -9,14 +9,6 @@ const ppk = require('./ppk');
 const keygen = require('./keygen');
 const { fingerprintOf } = require('./fingerprint');
 
-/**
- * Finds SSH keys already present on this machine so they can be used without
- * being imported or copied anywhere.
- *
- * Sources: the user's ~/.ssh directory, and on Windows the key files referenced
- * by PuTTY's saved sessions.
- */
-
 const MAX_KEY_BYTES = 128 * 1024;
 
 const IGNORED = new Set([
@@ -32,7 +24,6 @@ const IGNORED = new Set([
 
 const PRIVATE_HEADER = /^\s*(-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----|PuTTY-User-Key-File-\d+\s*:)/;
 
-/** Stable id for a key referenced by path rather than stored in the app. */
 const idForPath = (file) => `disc:${Buffer.from(file, 'utf8').toString('base64url')}`;
 const pathForId = (id) => Buffer.from(id.slice(5), 'base64url').toString('utf8');
 const isDiscoveredId = (id) => typeof id === 'string' && id.startsWith('disc:');
@@ -55,13 +46,6 @@ function readIfKey(file) {
   return PRIVATE_HEADER.test(contents) ? contents : null;
 }
 
-/**
- * Describes a key file without needing its passphrase.
- *
- * PPK files carry their public half in the clear. For an encrypted OpenSSH key
- * we fall back to the sibling .pub file, and if that is missing the entry is
- * still listed, just without a fingerprint.
- */
 function describe(file, contents) {
   const base = { id: idForPath(file), path: file, name: path.basename(file), source: 'discovered' };
 
@@ -92,7 +76,6 @@ function describe(file, contents) {
   }
 }
 
-/** Recovers metadata for an encrypted key from its matching .pub file. */
 function fromSiblingPublicKey(file) {
   try {
     const line = fs.readFileSync(`${file}.pub`, 'utf8').trim();
@@ -129,7 +112,6 @@ function scanSshDirectory(found) {
   }
 }
 
-/** Reads PublicKeyFile out of PuTTY's saved sessions in the registry. */
 function scanPuttySessions() {
   return new Promise((resolve) => {
     if (process.platform !== 'win32') {
@@ -156,9 +138,6 @@ function scanPuttySessions() {
   });
 }
 
-/**
- * @returns {Promise<object[]>} discovered keys, newest sources last
- */
 async function scan() {
   const found = new Map();
   scanSshDirectory(found);
@@ -174,10 +153,6 @@ async function scan() {
   return [...found.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/**
- * Describes a single key file by path, for keys referenced rather than stored.
- * @returns {object|null} null when the file is missing or is not a private key
- */
 function describePath(file) {
   const contents = readIfKey(file);
   if (!contents) return null;

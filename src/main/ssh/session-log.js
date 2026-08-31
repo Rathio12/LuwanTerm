@@ -3,17 +3,6 @@
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Writes a session's terminal output to a file.
- *
- * Off unless `sessionLogging` is turned on in settings.json. There is no
- * control for it in the app on purpose: something that records what you typed
- * should be a deliberate choice made once, not a toggle flipped by accident.
- *
- * Escape sequences are stripped by default, because a log full of cursor
- * movement is unreadable and the point of keeping one is to read it later.
- */
-
 const ESC = 27;
 const BEL = 7;
 const BACKSLASH = 92;
@@ -22,13 +11,6 @@ const NEWLINE = String.fromCharCode(10);
 const stamp = () => new Date().toISOString().replace(/[:.]/g, '-').replace('T', '_').slice(0, 19);
 const safe = (text) => String(text).replace(/[^A-Za-z0-9._-]+/g, '-').replace(/^-+|-+$/g, '') || 'session';
 
-/**
- * Removes terminal escape sequences by scanning rather than by pattern.
- *
- * A regex for this is notoriously fiddly and easy to break; a scanner states
- * the grammar plainly: CSI runs to a byte between @ and ~, OSC runs to a BEL or
- * a string terminator, and anything else after ESC is a single byte.
- */
 function clean(text) {
   const input = String(text);
   let out = '';
@@ -87,11 +69,7 @@ function clean(text) {
 }
 
 class SessionLog {
-  /**
-   * @param {string} directory where logs live
-   * @param {object} profile the host being connected to
-   * @param {{keepAnsi?: boolean}} [options]
-   */
+
   constructor(directory, profile, options = {}) {
     this.keepAnsi = Boolean(options.keepAnsi);
     this.stream = null;
@@ -120,18 +98,12 @@ class SessionLog {
     if (this.stream) this.stream.write(text + NEWLINE);
   }
 
-  /** @param {Buffer|string} chunk raw terminal output */
   write(chunk) {
     if (!this.stream) return;
     const text = Buffer.isBuffer(chunk) ? chunk.toString('utf8') : String(chunk);
     this.stream.write(this.keepAnsi ? text : clean(text));
   }
 
-  /**
-   * Finishes the transcript.
-   * @returns {Promise<void>} resolves once the file is actually on disk, which
-   *   matters to anyone that wants to read it straight afterwards
-   */
   close(reason) {
     const stream = this.stream;
     if (!stream) return Promise.resolve();

@@ -1,19 +1,11 @@
 'use strict';
 
-/**
- * Builds PPK files from key material, so the shipped parser can be measured
- * against something it did not produce itself.
- *
- * Test-only: the app never writes a PPK.
- */
-
 const crypto = require('crypto');
 const path = require('path');
 const { Reader, Writer } = require(path.join(__dirname, '..', '..', 'src', 'main', 'ssh', 'wire'));
 
 const MAC_SALT = 'putty-private-key-file-mac-key';
 
-/** Pulls the pieces out of an OpenSSH private key, in PPK field order. */
 function decodeOpenSsh(pem) {
   const body = pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
   const buf = Buffer.from(body, 'base64');
@@ -54,7 +46,6 @@ function decodeOpenSsh(pem) {
   return { algorithm, publicBlob, privateBlob };
 }
 
-/** PPK v2 key schedule: SHA-1 based, all-zero IV. */
 function deriveV2(passphrase) {
   const halves = [0, 1].map((sequence) => {
     const counter = Buffer.alloc(4);
@@ -69,7 +60,6 @@ function deriveV2(passphrase) {
   };
 }
 
-/** PPK v3 key schedule: one Argon2 run split into key, IV and MAC key. */
 function deriveV3(passphrase, salt, params) {
   const tag = Buffer.from(
     crypto.argon2Sync(params.flavour, {
@@ -91,11 +81,6 @@ function deriveV3(passphrase, salt, params) {
 
 const chunk = (text) => text.match(/.{1,64}/g) || [''];
 
-/**
- * @param {{version: 2|3, algorithm: string, comment: string,
- *          publicBlob: Buffer, privateBlob: Buffer, passphrase?: string}} spec
- * @returns {string} the contents of a .ppk file
- */
 function writePpk(spec) {
   const { version, algorithm, comment, publicBlob, privateBlob, passphrase = '' } = spec;
   const encrypted = Boolean(passphrase);

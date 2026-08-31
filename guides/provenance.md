@@ -108,47 +108,54 @@ node -e "const c=require('crypto');const{privateKey,publicKey}=c.generateKeyPair
 That prints the new public key. Put it in `PUBLIC_KEY` in
 `src/main/provenance.js`, and update the repository secret.
 
-## The writing
+## The shape of the code
 
 The layer that survives everything else.
 
 ```bash
-npm run check-copy -- <folder or file>
+npm run check-copy -- <folder, asar, or app directory>
 ```
 
 It builds a fingerprint from this repository *every time it runs* — there is no
 list of markers committed anywhere for somebody to find and strip — and looks
-for that writing inside whatever you point it at. What it matches is prose:
-comment sentences, error wording, distinctive phrases. Renaming the app,
-reformatting the code, changing the icon and swapping every colour leave all of
-it intact, because rewriting every comment in a codebase is more work than
-writing one.
+for it inside whatever you point it at. Two kinds of marker:
+
+**Prose.** Error wording, user-facing copy, and any comment sentences that
+remain. Distinctive, but a determined copier can rewrite strings, and this
+project strips its own comments.
+
+**Shape.** Every string, comment and number is thrown away, and what is left is
+the identifiers in the order the author reached for them, taken six at a time.
+This is the durable half. Renaming the product changes a handful of names out of
+thousands of sequences; reformatting, reindenting and restyling change none of
+them at all, because none of that alters the order in which things are used.
+
+Measured against a copy renamed throughout, rebranded, recoloured and stripped
+of every stamp:
+
+| scanned | markers matched |
+| --- | --- |
+| this repository's `src/` | 2188 |
+| that copy | 2185 |
+| ssh2, unrelated code of the same kind | 1 |
+| electron-updater | 0 |
+
+The disguise cost three markers out of 2188.
+
+**Read the count, not the percentage.** The fingerprint spans the whole project,
+so pointing the tool at one folder can never match the markers taken from the
+rest of it — a genuine copy of `src/` still shows about 12%. What separates a
+copy from a coincidence is thousands of matches against one or two.
 
 It reads binaries as well as source, in UTF-8 and UTF-16, so an unpacked app
-folder or an `app.asar` can be scanned directly.
+folder or an `app.asar` can be scanned directly. An installer cannot: NSIS
+stores everything compressed, and the tool says so rather than reporting a
+clean bill. Install it first and scan the folder, or scan `resources/app.asar`.
 
-```
-fingerprint: 588 markers from this repository
-scanning 312 files under C:\Program Files\ProTerm
-
-matched 201 of 588 markers  (34.2%)
-
-strongest evidence:
-  "a logging failure must never take the session down with it"
-     ours: src/main/ssh/session-log.js
-     theirs: C:\Program Files\ProTerm\resources\app.asar
-  ...
-
-verdict: this is a copy of LuwanTerm.
-```
-
-An installer stores everything compressed, so scanning a `setup.exe` from the
-outside finds nothing. Install it first and scan the folder, or scan
-`resources/app.asar`, which is not compressed.
-
-**A high score is evidence, not a verdict.** Read the matched phrases before
-accusing anyone of anything. Two projects solving the same problem will share
-some vocabulary; they will not share whole sentences of commentary.
+**A match is evidence, not a verdict.** Read what actually matched before
+accusing anyone of anything. Two projects solving the same problem in the same
+language will share some vocabulary, and a handful of matches means nothing.
+What they will not share is thousands of identical six-name sequences.
 
 ## If you find a copy being sold
 

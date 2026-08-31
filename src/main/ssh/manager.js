@@ -11,21 +11,15 @@ const PROMPT_TIMEOUT_MS = 180000;
 
 const secretKey = (hostId, kind) => `host:${hostId}:${kind}`;
 
-/**
- * Owns every live session and is the only place that talks to the renderer
- * about SSH. Interactive prompts (passwords, host-key trust, 2FA challenges)
- * are round-tripped through the renderer as request/response pairs.
- */
 class SessionManager {
   constructor() {
     this.sessions = new Map();
     this.prompts = new Map();
     this.target = null;
-    /** @type {(() => void)|null} notified whenever the live session set changes */
+
     this.onChange = null;
   }
 
-  /** @param {import('electron').WebContents} webContents */
   attach(webContents) {
     this.target = webContents;
   }
@@ -35,7 +29,6 @@ class SessionManager {
     this.target.send(channel, payload);
   }
 
-  /** Sends a question to the renderer and waits for the user's answer. */
   ask(payload) {
     if (!this.target || this.target.isDestroyed()) {
       return Promise.reject(new Error('No window available to prompt in.'));
@@ -88,7 +81,6 @@ class SessionManager {
     });
   }
 
-  /** Collects whatever secret the profile's auth mode needs before dialing. */
   async resolveCredentials(profile) {
     if (profile.auth === 'agent') return {};
     if (profile.auth === 'key') return this.resolveKeyCredentials(profile);
@@ -127,10 +119,6 @@ class SessionManager {
     };
   }
 
-  /**
-   * Resolves a jumpHost value, which is either the id of another saved host or
-   * an ssh-style `[user@]host[:port]` string.
-   */
   resolveJumpProfile(value, target) {
     const saved = hosts.get(value);
     if (saved) return saved;
@@ -150,12 +138,6 @@ class SessionManager {
     };
   }
 
-  /**
-   * Opens the bastion and asks it to reach the target, returning the channel
-   * the real connection will run over.
-   *
-   * @returns {Promise<{connection: SshConnection, sock: import('stream').Duplex}>}
-   */
   async openJump(profile) {
     const jumpProfile = this.resolveJumpProfile(profile.jumpHost, profile);
     const credentials = await this.resolveCredentials(jumpProfile);
@@ -231,10 +213,6 @@ class SessionManager {
     vault.set(credentials.secretSlot || secretKey(profile.id, kind), credentials[kind]);
   }
 
-  /**
-   * Appends a managed public key to the remote account's authorized_keys,
-   * creating ~/.ssh with the permissions sshd insists on.
-   */
   async deployKey(sessionId, keyId) {
     const session = this.get(sessionId);
     const meta = keys.get(keyId);

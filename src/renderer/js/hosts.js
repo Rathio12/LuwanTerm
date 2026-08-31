@@ -1,4 +1,3 @@
-/* Host list in the sidebar plus the host editor dialog. */
 (function (App) {
   'use strict';
 

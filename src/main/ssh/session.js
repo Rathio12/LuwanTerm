@@ -10,13 +10,6 @@ const paths = require('../paths');
 
 const TERM_NAME = 'xterm-256color';
 
-/**
- * One tab's worth of remote state: the connection, its interactive shell, and
- * the SFTP / tunnel facilities multiplexed over the same connection.
- *
- * Emits `{ type, ...payload }` objects through the `event` event so the manager
- * only has to forward one stream to the renderer.
- */
 class Session extends EventEmitter {
   constructor(id, profile, handlers) {
     super();
@@ -24,9 +17,9 @@ class Session extends EventEmitter {
     this.profile = profile;
     this.status = 'connecting';
     this.connection = new SshConnection(profile, handlers);
-    /** @type {SshConnection|null} the bastion, when one is in the way */
+
     this.jump = null;
-    /** @type {SessionLog|null} only opened when logging is switched on */
+
     this.log = null;
     this.stream = null;
     this.sftp = null;
@@ -44,10 +37,6 @@ class Session extends EventEmitter {
     this.emitEvent('status', { status, detail });
   }
 
-  /**
-   * Starts a transcript when settings.json asks for one. Failing to open a
-   * log must never stop a session connecting.
-   */
   openLog() {
     const current = settings.get();
     if (!current.sessionLogging) return;
@@ -63,7 +52,6 @@ class Session extends EventEmitter {
     }
   }
 
-  /** Attaches the jump connection so it is torn down with the session. */
   useJump(connection) {
     this.jump = connection;
   }
@@ -122,10 +110,6 @@ class Session extends EventEmitter {
     });
   }
 
-  /**
-   * Runs a single command on its own channel, separate from the interactive shell.
-   * @returns {Promise<{code: number|null, stdout: string, stderr: string}>}
-   */
   exec(command) {
     return new Promise((resolve, reject) => {
       this.connection.client.exec(command, (err, stream) => {
@@ -175,7 +159,6 @@ class Session extends EventEmitter {
     };
   }
 
-  /** Tears down every channel; safe to call more than once. */
   dispose() {
     if (this.disposed) return;
     this.disposed = true;
@@ -185,7 +168,7 @@ class Session extends EventEmitter {
     if (this.stream) {
       try {
         this.stream.end();
-      } catch { /* already closed */ }
+      } catch {  }
     }
     if (this.log) {
       this.log.close(this.status);
@@ -195,7 +178,7 @@ class Session extends EventEmitter {
     if (this.jump) {
       try {
         this.jump.end();
-      } catch { /* already torn down */ }
+      } catch {  }
       this.jump = null;
     }
     this.emitEvent('disposed');

@@ -1,17 +1,5 @@
 'use strict';
 
-/**
- * Renders LICENSE into build/license.txt for the installer's licence page.
- *
- * NSIS shows the file as-is in a plain text box. Markdown syntax reads as
- * clutter there, and a UTF-8 file without a byte order mark can come out as
- * mojibake, so the typographic characters are folded to ASCII and the headings
- * are turned into something that looks deliberate.
- *
- * Generated at build time and git-ignored: LICENSE stays the only copy anyone
- * edits.
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -30,11 +18,6 @@ const ASCII = [
   [/[\u2022\u00b7]/g, '-'],
 ];
 
-/**
- * Re-wraps a paragraph to WIDTH. `indent` prefixes the first line, `hanging`
- * every line after it, so a bullet's continuation lines sit under its text
- * rather than back at the margin.
- */
 function wrap(text, indent = '', hanging = indent) {
   const words = text.split(/\s+/).filter(Boolean);
   const lines = [];

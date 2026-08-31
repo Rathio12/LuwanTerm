@@ -1,4 +1,3 @@
-/* SFTP browser for one session, mounted into the dock. */
 (function (App) {
   'use strict';
 

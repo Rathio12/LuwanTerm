@@ -1,4 +1,3 @@
-/* Shared renderer state with a minimal event bus. */
 (function (App) {
   'use strict';
 
@@ -19,7 +18,7 @@
     hosts: [],
     keys: [],
     snippets: [],
-    /** @type {Map<string, {info: object, term: object, dock: string|null, cwd: string}>} */
+
     sessions: new Map(),
     activeId: null,
     filter: '',
@@ -54,7 +53,6 @@
       return state.hosts.find((host) => host.id === id) || null;
     },
 
-    /** Sessions currently open for a given host profile. */
     sessionsForHost(hostId) {
       return [...state.sessions.values()].filter((entry) => entry.info.hostId === hostId);
     },

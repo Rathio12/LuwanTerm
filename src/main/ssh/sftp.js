@@ -6,7 +6,6 @@ const posix = path.posix;
 
 const PERM_BITS = ['x', 'w', 'r'];
 
-/** Raised when a transfer is stopped on purpose, so callers can stay quiet about it. */
 class TransferCancelled extends Error {
   constructor() {
     super('Transfer cancelled.');
@@ -15,7 +14,6 @@ class TransferCancelled extends Error {
   }
 }
 
-/** Renders a POSIX mode as `rwxr-xr-x`. */
 function rightsOf(mode) {
   let out = '';
   for (let group = 2; group >= 0; group -= 1) {
@@ -32,7 +30,6 @@ function typeOf(attrs) {
   return 'file';
 }
 
-/** Throttles progress callbacks to something the UI can keep up with. */
 function throttle(onProgress) {
   if (typeof onProgress !== 'function') return () => {};
   let last = 0;
@@ -44,12 +41,6 @@ function throttle(onProgress) {
   };
 }
 
-/**
- * SFTP surface for one SSH connection.
- *
- * Browsing runs on a long-lived channel; every transfer gets its own channel so
- * that cancelling one cannot disturb the file list or another transfer.
- */
 class SftpClient {
   constructor(client) {
     this.client = client;
@@ -58,7 +49,6 @@ class SftpClient {
     this.transfers = new Map();
   }
 
-  /** Opens a new, independent SFTP channel. */
   openChannel() {
     return new Promise((resolve, reject) => {
       this.client.sftp((err, sftp) => {
@@ -68,7 +58,6 @@ class SftpClient {
     });
   }
 
-  /** The shared channel used for listing and metadata operations. */
   ready() {
     if (this.sftp) return Promise.resolve(this.sftp);
     if (this.pending) return this.pending;
@@ -150,10 +139,6 @@ class SftpClient {
     return { path: target, entries };
   }
 
-  /**
-   * Reads a remote file as text, for comparing rather than transferring.
-   * @param {number} [limit] refuse anything larger, in bytes
-   */
   async readText(target, limit = 2 * 1024 * 1024) {
     const attrs = await this.call('stat', target);
     if (attrs.isDirectory()) throw new Error('That is a folder, not a file.');
@@ -193,7 +178,6 @@ class SftpClient {
     return { size: attrs.size, mode: attrs.mode, isDirectory: attrs.isDirectory() };
   }
 
-  /** Removes a file, or a directory and everything inside it. */
   async remove(target) {
     const attrs = await this.call('lstat', target);
     if (!attrs.isDirectory()) {
@@ -209,9 +193,6 @@ class SftpClient {
     return true;
   }
 
-  /* ---------- Transfers ---------- */
-
-  /** Registers a cancellable transfer that owns its own SFTP channel. */
   async begin(id) {
     if (this.transfers.has(id)) throw new Error('That transfer is already running.');
 
@@ -220,7 +201,7 @@ class SftpClient {
       context.cancelled = true;
       try {
         context.sftp?.end();
-      } catch { /* channel already gone */ }
+      } catch {  }
     };
 
     this.transfers.set(id, context);
@@ -242,7 +223,7 @@ class SftpClient {
     this.transfers.delete(context.id);
     try {
       context.sftp?.end();
-    } catch { /* channel already gone */ }
+    } catch {  }
   }
 
   cancel(id) {
@@ -252,7 +233,6 @@ class SftpClient {
     return true;
   }
 
-  /** Converts a channel teardown caused by cancelling into a clean signal. */
   static rethrow(context, err) {
     if (context.cancelled) throw new TransferCancelled();
     throw err;
@@ -313,10 +293,6 @@ class SftpClient {
     }
   }
 
-  /**
-   * Copies a remote directory tree into `localRoot`, reporting overall progress.
-   * Symlinks are skipped rather than followed, so a loop cannot trap the walk.
-   */
   async downloadDirectory(id, remoteRoot, localRoot, onProgress) {
     const context = await this.begin(id);
     const report = throttle(onProgress);
@@ -357,7 +333,6 @@ class SftpClient {
     }
   }
 
-  /** Enumerates a remote tree up front so progress has a real denominator. */
   async walk(context, root) {
     const files = [];
     const dirs = [];
@@ -391,7 +366,7 @@ class SftpClient {
     this.transfers.clear();
     try {
       if (this.sftp) this.sftp.end();
-    } catch { /* channel already gone */ }
+    } catch {  }
     this.sftp = null;
   }
 }
@@ -399,7 +374,7 @@ class SftpClient {
 async function removeQuietly(target) {
   try {
     await fs.promises.rm(target, { force: true });
-  } catch { /* partial file may not exist */ }
+  } catch {  }
 }
 
 module.exports = { SftpClient, TransferCancelled };

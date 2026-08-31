@@ -1,4 +1,3 @@
-/* Interactive prompts the main process raises during a connection. */
 (function (App) {
   'use strict';
 

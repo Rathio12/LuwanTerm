@@ -1,10 +1,5 @@
 'use strict';
 
-/**
- * Readers and writers for the SSH binary wire encoding (RFC 4251 section 5),
- * which PPK blobs and OpenSSH private keys are both built from.
- */
-
 class Reader {
   constructor(buffer) {
     this.buffer = buffer;
@@ -24,7 +19,6 @@ class Reader {
     return value;
   }
 
-  /** Length-prefixed byte string. */
   string() {
     const length = this.uint32();
     this.need(length);
@@ -37,10 +31,6 @@ class Reader {
     return this.string().toString('utf8');
   }
 
-  /**
-   * Multiple-precision integer. Returned exactly as stored so callers can copy
-   * it between formats without changing its value.
-   */
   mpint() {
     return this.string();
   }
@@ -75,7 +65,6 @@ class Writer {
     return this.uint32(body.length).raw(body);
   }
 
-  /** Writes an mpint, normalising leading zeroes and the sign byte. */
   mpint(value) {
     let body = Buffer.isBuffer(value) ? value : Buffer.from(value);
     let start = 0;

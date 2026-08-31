@@ -1,10 +1,5 @@
 'use strict';
 
-/**
- * The smallest thing that can be called a test harness: a name, a list of
- * checks, and an exit code. No dependency, no watch mode, no configuration.
- */
-
 const checks = [];
 let suiteName = 'suite';
 
@@ -12,18 +7,12 @@ function suite(name) {
   suiteName = name;
 }
 
-/**
- * @param {string} label what is being asserted, phrased as a fact
- * @param {boolean} passed
- * @param {string} [detail] shown either way, so a pass can still be informative
- */
 function check(label, passed, detail = '') {
   checks.push({ label, passed: Boolean(passed), detail });
   const mark = passed ? 'ok  ' : 'FAIL';
   console.log(`  ${mark} ${label}${detail ? ` :: ${detail}` : ''}`);
 }
 
-/** Asserts that `fn` throws, optionally matching a predicate on the error. */
 function throws(label, fn, matches) {
   try {
     fn();

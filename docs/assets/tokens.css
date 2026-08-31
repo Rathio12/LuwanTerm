@@ -1,12 +1,10 @@
-/* Design tokens - one place to retune the whole surface. */
 :root {
-  /* Ground */
+
   --bg-base: #0a0b12;
   --bg-deep: #06070c;
   --bg-wash-a: rgba(124, 92, 255, 0.18);
   --bg-wash-b: rgba(62, 168, 255, 0.12);
 
-  /* Glass surfaces */
   --glass: rgba(255, 255, 255, 0.045);
   --glass-strong: rgba(255, 255, 255, 0.075);
   --glass-hover: rgba(255, 255, 255, 0.085);
@@ -15,12 +13,10 @@
   --stroke-soft: rgba(255, 255, 255, 0.055);
   --stroke-strong: rgba(255, 255, 255, 0.16);
 
-  /* Ink */
   --ink: #eef0f8;
   --ink-mute: #a5abc4;
   --ink-faint: #6d7392;
 
-  /* Accents */
   --accent: #7c5cff;
   --accent-soft: rgba(124, 92, 255, 0.22);
   --accent-line: rgba(124, 92, 255, 0.55);
@@ -29,29 +25,24 @@
   --amber: #f2a33c;
   --red: #ff5c72;
 
-  /* Geometry */
   --r-sm: 8px;
   --r-md: 11px;
   --r-lg: 16px;
   --r-xl: 22px;
   --pill: 999px;
 
-  /* Depth */
   --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.28);
   --shadow-md: 0 10px 34px rgba(0, 0, 0, 0.42);
   --shadow-lg: 0 26px 70px rgba(0, 0, 0, 0.55);
   --glow: 0 0 0 1px var(--accent-line), 0 8px 26px rgba(124, 92, 255, 0.3);
 
-  /* Motion */
   --ease: cubic-bezier(0.22, 0.85, 0.28, 1);
   --fast: 130ms var(--ease);
   --slow: 260ms var(--ease);
 
-  /* Type */
   --font-ui: "Inter", "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Cascadia Code", "Consolas", ui-monospace, monospace;
 
-  /* Chrome */
   --titlebar-h: 42px;
   --sidebar-w: 268px;
   --dock-w: 460px;

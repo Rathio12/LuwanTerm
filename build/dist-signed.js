@@ -1,13 +1,5 @@
 'use strict';
 
-/**
- * Runs the normal Windows build, signed with the local self-signed certificate
- * created by build/make-cert.ps1.
- *
- * electron-builder reads the key from CSC_LINK / CSC_KEY_PASSWORD, so the
- * password never has to live in package.json.
- */
-
 const fs = require('fs');
 const path = require('path');
 const { spawnSync } = require('child_process');

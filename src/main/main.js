@@ -12,13 +12,6 @@ const discord = require('./discord');
 const config = require('./config');
 const updater = require('./updater');
 
-/**
- * `LuwanTerm.exe --provenance` prints which build this is and whether its
- * record still checks out, then exits without opening a window. Redirect it to
- * a file if you are on Windows, where a GUI process has no console of its own:
- *
- *   LuwanTerm.exe --provenance > build.txt
- */
 if (process.argv.includes('--provenance')) {
   const provenance = require('./provenance');
   const signature = provenance.verify();
@@ -101,10 +94,6 @@ if (!app.requestSingleInstanceLock()) {
   });
 }
 
-/**
- * Keeps checking while the app is open, so a window left running for days still
- * finds out about a release. Each version is only ever offered once.
- */
 function watchForUpdates() {
   updater.watch(async (update) => {
     if (!mainWindow || mainWindow.isDestroyed()) return;
@@ -119,15 +108,10 @@ function watchForUpdates() {
   });
 }
 
-/** Tells the splash window what is happening. */
 function splashState(splash, state) {
   if (splash && !splash.isDestroyed()) splash.webContents.send('splash:state', state);
 }
 
-/**
- * Asks, on the splash, whether to install a waiting update. Defaults to "not
- * now" if nobody answers, so an unattended machine still finishes booting.
- */
 function askToUpdate(splash, update) {
   return new Promise((resolve) => {
     const prompt = createUpdatePrompt(splash);
@@ -152,13 +136,6 @@ function askToUpdate(splash, update) {
   });
 }
 
-/**
- * The work that actually happens behind the loading screen: settings migration,
- * stored data, Discord, and the update check.
- *
- * @returns {Promise<boolean>} true when an update is being installed, in which
- *   case the main window is never shown
- */
 async function runBootSequence(splash, rendererReady) {
   const step = (percent, status, detail) => splashState(splash, { percent, status, detail });
 
@@ -203,11 +180,6 @@ async function runBootSequence(splash, rendererReady) {
   return false;
 }
 
-/**
- * Discord Rich Presence. Off unless the user turns it on and supplies their own
- * application id, and it never names a host unless they ask for that too - an
- * SSH client should not broadcast which machines you are logged into.
- */
 function applyDiscord(current = settings.get()) {
   if (!current.discordEnabled) {
     discord.stop();

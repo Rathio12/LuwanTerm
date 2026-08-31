@@ -24,7 +24,6 @@ const MIME_TYPES = {
   '.avif': 'image/avif',
 };
 
-/** Single-window app, so the active window is unambiguous. */
 const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
 
 function register(hooks = {}) {
@@ -68,7 +67,6 @@ function register(hooks = {}) {
     return true;
   });
 
-  /** The font catalogue the picker offers, shared with fonts/README.md. */
   handle('app:fonts', () => {
     try {
       const file = path.join(app.getAppPath(), 'fonts', 'fonts.json');
@@ -89,11 +87,6 @@ function register(hooks = {}) {
     return result.canceled ? null : result.filePaths[0];
   });
 
-  /**
-   * Reads the chosen background as a data URI. The renderer cannot open
-   * arbitrary local files itself, and inlining keeps it within the page's
-   * content security policy.
-   */
   handle('app:background', () => {
     const current = settings.get();
     if (!current.backgroundImage) return null;

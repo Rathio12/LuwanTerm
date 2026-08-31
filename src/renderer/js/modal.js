@@ -1,4 +1,3 @@
-/* Modal shell plus the small form primitives every dialog is built from. */
 (function (App) {
   'use strict';
 
@@ -36,12 +35,6 @@
 
   let openCount = 0;
 
-  /**
-   * Shows a modal and resolves with the chosen button's `value`, or null when
-   * dismissed. `onSubmit` lets a caller validate before the promise settles.
-   *
-   * @returns {Promise<any>}
-   */
   function show(config) {
     const {
       title,

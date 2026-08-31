@@ -1,4 +1,3 @@
-/* Preferences dialog and the trusted host-key list. */
 (function (App) {
   'use strict';
 
@@ -122,10 +121,6 @@
 
   const SAMPLE = 'const ok = 0O1lI; ~$>_';
 
-  /**
-   * A range input with a live readout, because a slider with no number is a
-   * guess rather than a setting.
-   */
   function slider(label, attrs, unit) {
     const input = h('input', { type: 'range', ...attrs });
     const value = h('span', { class: 'slider__value', text: `${input.value}${unit}` });
@@ -141,11 +136,6 @@
     return { element, input };
   }
 
-  /**
-   * Reports whether a font is actually installed, by checking that text
-   * measures differently in it than in each generic fallback. The browser
-   * silently substitutes a missing font, so measuring is the only way to tell.
-   */
   function isInstalled(name, ctx) {
     const probe = 'mmmmmmmmmmlliWWW';
     return ['monospace', 'serif', 'sans-serif'].some((generic) => {
@@ -156,7 +146,6 @@
     });
   }
 
-  /** Adds anything monospaced the system reports, when the browser allows it. */
   async function systemMonoFonts() {
     if (typeof window.queryLocalFonts !== 'function') return [];
     try {
@@ -169,12 +158,10 @@
     }
   }
 
-  /** The first family in a stack, which is the one actually in use. */
   function primaryFamily(stack) {
     return String(stack || '').split(',')[0].trim().replace(/^["']|["']$/g, '');
   }
 
-  /** A list of installed fonts, each rendered in itself so it can be judged. */
   function buildFonts(current, fontField) {
     const list = h('div', { class: 'fontpick' });
     const element = h('div', { class: 'field' }, [
@@ -233,7 +220,6 @@
 
   const ACCENTS = ['#7c5cff', '#3ea8ff', '#22c58b', '#f2a33c', '#ff5c8a', '#ff5c72', '#c084fc'];
 
-  /** Accent colour and how far the terminal lets the background through. */
   function buildAppearance(current) {
     let accent = current.accentColor;
 
@@ -282,7 +268,6 @@
     };
   }
 
-  /** Picks a global background image, with opacity and blur to tame it. */
   function buildBackground(current) {
     let chosen = current.backgroundImage;
 
@@ -342,7 +327,6 @@
     error: 'Could not check for updates.',
   };
 
-  /** Update status, with a manual check and a restart when one is waiting. */
   function buildUpdates() {
     const status = h('span', { class: 'note', text: UPDATE_TEXT.idle });
     const restart = h('button', {
@@ -394,7 +378,6 @@
     return { element };
   }
 
-  /** Version plus the places to report a bug or get involved. */
   function buildAbout() {
     const links = state.info.links || {};
 
@@ -426,7 +409,6 @@
     ]);
   }
 
-  /** Small embedded list so a stale or rotated host key can be forgotten. */
   async function loadKnownHosts() {
     const element = h('div', { class: 'tn__list', style: 'max-height:170px;padding:0' });
 

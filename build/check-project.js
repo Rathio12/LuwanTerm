@@ -1,10 +1,5 @@
 'use strict';
 
-/**
- * Pre-flight checks that need no dependencies installed, so CI can run them in
- * seconds. Each one targets a way this project has actually broken before.
- */
-
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
@@ -18,7 +13,6 @@ const fail = (message) => {
 };
 const pass = (message) => console.log(`  ok    ${message}`);
 
-/** Every .js file must parse. */
 function checkSyntax() {
   console.log('syntax');
   const files = [];
@@ -43,14 +37,6 @@ function checkSyntax() {
   pass(`${files.length} javascript files parse`);
 }
 
-/**
- * Every script and stylesheet the HTML references must exist. Forgetting to add
- * a <script> tag for a new renderer module breaks the app silently.
- *
- * References into node_modules are only checked when dependencies are actually
- * installed, so this runs without `npm ci`. That they are *shipped* is covered
- * by checkPackagedFiles, which needs nothing installed.
- */
 function checkHtmlReferences() {
   console.log('html references');
   const hasModules = fs.existsSync(path.join(root, 'node_modules'));
@@ -87,10 +73,6 @@ function checkHtmlReferences() {
   );
 }
 
-/**
- * Anything the packaged app loads from node_modules has to be listed in
- * build.files, or the packaged app starts and immediately fails.
- */
 function checkPackagedFiles() {
   console.log('packaging');
   const pkg = JSON.parse(fs.readFileSync(path.join(root, 'package.json'), 'utf8'));
@@ -116,7 +98,6 @@ function checkPackagedFiles() {
   pass(`${declared.length} dependencies declared, ${loaded.size} loaded by the renderer`);
 }
 
-/** Documentation links must not rot. */
 function checkDocLinks() {
   console.log('documentation');
   const files = ['README.md'];
@@ -149,7 +130,6 @@ function checkDocLinks() {
   pass(`${count} documentation links resolve`);
 }
 
-/** The icon generator must still produce a usable file. */
 function checkIcon() {
   console.log('icon');
   try {

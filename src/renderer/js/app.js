@@ -1,11 +1,8 @@
-/* Bootstrap: loads state, wires the chrome, and routes main-process events. */
 (function (App) {
   'use strict';
 
   const { h, icon, qs, qsa, debounce, formatBytes } = App.dom;
   const state = App.state;
-
-  /* ---------- Window chrome ---------- */
 
   function wireChrome() {
     qs('#win-min').onclick = () => window.term.app.minimize();
@@ -18,8 +15,6 @@
       button.title = maximized ? 'Restore' : 'Maximize';
     });
   }
-
-  /* ---------- Sidebar ---------- */
 
   const NEW_LABELS = { hosts: 'New host', keys: 'New key', snippets: 'New snippet' };
   const SEARCH_HINTS = { hosts: 'Search hosts', keys: 'Search keys', snippets: 'Search snippets' };
@@ -60,8 +55,6 @@
     qs('#empty-new-host').onclick = () => App.hosts.edit();
   }
 
-  /* ---------- Dock ---------- */
-
   function wireDock() {
     for (const button of qsa('#tab-tools .seg')) {
       button.onclick = () => App.sessions.setDock(button.dataset.dock);
@@ -92,9 +85,6 @@
     });
   }
 
-  /* ---------- Appearance ---------- */
-
-  /** Repaints the accent colour across the whole interface. */
   function applyAccent(color) {
     const root = document.documentElement;
     root.style.setProperty('--accent', color);
@@ -103,9 +93,6 @@
     root.style.setProperty('--bg-wash-a', App.dom.withAlpha(color, 0.18));
   }
 
-  /* ---------- Background ---------- */
-
-  /** Paints the user's image behind the glass, or clears it. */
   async function applyBackground() {
     const layer = qs('#backdrop');
     try {
@@ -128,8 +115,6 @@
       App.toast.error(err.message);
     }
   }
-
-  /* ---------- Transfers ---------- */
 
   const transfers = new Map();
 
@@ -181,8 +166,6 @@
       : formatBytes(payload.transferred);
   }
 
-  /* ---------- Main-process events ---------- */
-
   function routeEvent(event) {
     const entry = state.session(event.sessionId);
 
@@ -213,8 +196,6 @@
     }
   }
 
-  /* ---------- Shortcuts ---------- */
-
   function wireShortcuts() {
     window.addEventListener('keydown', (event) => {
       const keys = [...state.sessions.keys()];
@@ -243,8 +224,6 @@
       }
     });
   }
-
-  /* ---------- Boot ---------- */
 
   async function boot() {
     wireChrome();

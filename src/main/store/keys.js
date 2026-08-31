@@ -19,7 +19,6 @@ function keyFile(id) {
   return path.join(paths.keysDir(), id);
 }
 
-/** Writes the private key with owner-only permissions. */
 function writeKeyFile(id, contents) {
   fs.mkdirSync(paths.keysDir(), { recursive: true });
   fs.writeFileSync(keyFile(id), contents, { encoding: 'utf8', mode: 0o600 });
@@ -62,22 +61,12 @@ module.exports = {
     return store.read().keys.find((key) => key.id === id) || null;
   },
 
-  /**
-   * Keys found on this machine that are not already registered.
-   *
-   * Nothing here is added automatically - this only exists so the user can be
-   * shown a list and pick from it.
-   */
   async candidates() {
     const known = new Set(this.list().filter((key) => key.path).map((key) => key.path));
     const found = await discovery.scan();
     return found.filter((key) => !known.has(key.path));
   },
 
-  /**
-   * Private key material, read fresh from disk each time it is needed.
-   * Keys that are only referenced are read from wherever they live.
-   */
   privateKey(id) {
     const meta = this.get(id);
     if (!meta) throw new Error('That key is no longer available.');
@@ -90,7 +79,6 @@ module.exports = {
     }
   },
 
-  /** Registers an existing key file without copying it. */
   linkFile({ filePath, name, passphrase, savePassphrase }) {
     let contents;
     try {
@@ -151,7 +139,6 @@ module.exports = {
     return { ...meta, hasStoredPassphrase: vault.has(secretKey(id)) };
   },
 
-  /** Copies an existing key file into the managed store. */
   importFile({ filePath, name, passphrase, savePassphrase }) {
     let contents;
     try {

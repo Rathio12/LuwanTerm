@@ -1,14 +1,5 @@
 'use strict';
 
-/**
- * Assembles the published site.
- *
- * The point of this script is that the site cannot drift from the app: the
- * design tokens and the font catalogue are copied from the real sources rather
- * than duplicated by hand, so changing an accent colour in the app changes the
- * website too.
- */
-
 const fs = require('fs');
 const path = require('path');
 

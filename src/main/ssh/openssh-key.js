@@ -3,22 +3,9 @@
 const { randomBytes } = require('crypto');
 const { Reader, Writer } = require('./wire');
 
-/**
- * Builds an unencrypted OpenSSH private key blob in memory from key components.
- *
- * This exists so keys held in other container formats can be handed to ssh2
- * without ever writing a converted copy to disk.
- *
- * Format: PROTOCOL.key in the OpenSSH source tree.
- */
-
 const MAGIC = Buffer.from('openssh-key-v1\0', 'binary');
 const BLOCK = 8;
 
-/**
- * Re-orders key components into the layout OpenSSH stores inside its private
- * section. Public and private halves both come from the caller's format.
- */
 function privateFields(algorithm, publicBlob, privateBlob) {
   const pub = new Reader(publicBlob);
   const priv = new Reader(privateBlob);
@@ -78,10 +65,6 @@ function wrapPem(body) {
   return `-----BEGIN OPENSSH PRIVATE KEY-----\n${lines.join('\n')}\n-----END OPENSSH PRIVATE KEY-----\n`;
 }
 
-/**
- * @param {{algorithm: string, comment?: string, publicBlob: Buffer, privateBlob: Buffer}} key
- * @returns {string} PEM text, unencrypted
- */
 function encodePrivateKey({ algorithm, comment = '', publicBlob, privateBlob }) {
   const check = randomBytes(4).readUInt32BE(0);
 

@@ -5,17 +5,6 @@ const os = require('os');
 const path = require('path');
 const crypto = require('crypto');
 
-/**
- * Discord Rich Presence over the local IPC socket.
- *
- * Implemented directly against Discord's framing (a 4-byte opcode, a 4-byte
- * little-endian length, then JSON) so the app takes no dependency on the
- * unmaintained `discord-rpc` package.
- *
- * Every path here is fail-safe: if Discord is closed, never installed, or drops
- * the connection, this quietly does nothing. It must never delay or crash the app.
- */
-
 const CLIENT_ID = require('./config').discordClientId;
 
 const OP = { HANDSHAKE: 0, FRAME: 1, CLOSE: 2, PING: 3, PONG: 4 };
@@ -30,7 +19,6 @@ let reconnectTimer = null;
 let stopped = true;
 const startedAt = Date.now();
 
-/** Candidate socket paths, in the order Discord itself probes them. */
 function socketPath(index) {
 
   if (process.platform === 'win32') return String.raw`\\?\pipe\discord-ipc-${index}`;
@@ -62,7 +50,6 @@ function send(op, payload) {
   }
 }
 
-/** Walks discord-ipc-0..9 until one accepts a connection. */
 function connect(index = 0) {
   if (stopped || index >= MAX_PIPE) {
     if (!stopped) scheduleReconnect();
@@ -177,7 +164,6 @@ function push(presence) {
 module.exports = {
   CLIENT_ID,
 
-  /** @param {{largeImage?: string, largeText?: string, buttonLabel?: string, buttonUrl?: string}} [options] */
   start(options = {}) {
     this.stop();
     if (!CLIENT_ID) return;
@@ -186,10 +172,6 @@ module.exports = {
     connect(0);
   },
 
-  /**
-   * Sets what Discord shows. The caller decides what is safe to reveal; this
-   * module never derives text from host names on its own.
-   */
   setPresence(presence) {
     pending = presence || null;
     if (ready && pending) push(pending);
@@ -208,7 +190,7 @@ module.exports = {
     if (socket) {
       try {
         socket.destroy();
-      } catch { /* already gone */ }
+      } catch {  }
     }
     socket = null;
   },

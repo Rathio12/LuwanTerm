@@ -1,4 +1,3 @@
-/* Reusable commands that can be typed into the active session. */
 (function (App) {
   'use strict';
 

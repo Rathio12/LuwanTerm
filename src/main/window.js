@@ -5,10 +5,6 @@ const { BrowserWindow, shell } = require('electron');
 
 const DEV = process.argv.includes('--dev');
 
-/**
- * Small frameless window shown while Electron and the renderer start up.
- * It is closed once the renderer reports that it has finished loading.
- */
 function createSplash() {
   const splash = new BrowserWindow({
     width: 380,
@@ -34,10 +30,6 @@ function createSplash() {
   return splash;
 }
 
-/**
- * The update offer, as its own window so it reads as a decision rather than
- * another line of loading text. Boot waits on the answer.
- */
 function createUpdatePrompt(parent) {
   const prompt = new BrowserWindow({
     width: 440,

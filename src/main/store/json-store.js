@@ -3,16 +3,8 @@
 const fs = require('fs');
 const path = require('path');
 
-/**
- * Small synchronous JSON store with atomic writes.
- * Config files here are tiny, so sync IO keeps call sites simple and
- * removes a whole class of write-ordering bugs.
- */
 class JsonStore {
-  /**
-   * @param {() => string} resolveFile lazy path resolver (userData is not ready at require time)
-   * @param {object} fallback value used when the file is missing or corrupt
-   */
+
   constructor(resolveFile, fallback) {
     this.resolveFile = resolveFile;
     this.fallback = fallback;
@@ -56,7 +48,7 @@ class JsonStore {
   backupCorrupt(file) {
     try {
       fs.renameSync(file, `${file}.corrupt-${Date.now()}`);
-    } catch { /* nothing recoverable, defaults win */ }
+    } catch {  }
   }
 }
 

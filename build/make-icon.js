@@ -1,11 +1,5 @@
 'use strict';
 
-/**
- * Generates build/icon.ico from scratch - a rounded violet tile with the same
- * terminal mark the app uses in its titlebar. Written by hand so the build has
- * no image-tooling dependency.
- */
-
 const fs = require('fs');
 const path = require('path');
 const zlib = require('zlib');
@@ -19,10 +13,8 @@ const ACCENT_B = [75, 124, 255];
 const clamp01 = (value) => Math.min(1, Math.max(0, value));
 const lerp = (a, b, t) => a + (b - a) * t;
 
-/** Smooth 1px-wide coverage ramp, used to antialias every edge. */
 const coverage = (distance) => clamp01(0.5 - distance);
 
-/** Signed distance to a rounded rectangle centred in the canvas. */
 function roundedRectDistance(x, y, half, radius) {
   const dx = Math.abs(x - SIZE / 2) - (half - radius);
   const dy = Math.abs(y - SIZE / 2) - (half - radius);
@@ -31,7 +23,6 @@ function roundedRectDistance(x, y, half, radius) {
   return Math.sqrt(ax * ax + ay * ay) + Math.min(Math.max(dx, dy), 0) - radius;
 }
 
-/** Signed distance to a thick line segment with round caps. */
 function segmentDistance(x, y, x1, y1, x2, y2, width) {
   const vx = x2 - x1;
   const vy = y2 - y1;
@@ -74,8 +65,6 @@ function render() {
   }
   return pixels;
 }
-
-/* ---------- PNG ---------- */
 
 const CRC_TABLE = (() => {
   const table = new Int32Array(256);
@@ -126,8 +115,6 @@ function encodePng(pixels) {
     chunk('IEND', Buffer.alloc(0)),
   ]);
 }
-
-/* ---------- ICO ---------- */
 
 function encodeIco(png) {
   const header = Buffer.alloc(6);

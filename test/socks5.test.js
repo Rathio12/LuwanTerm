@@ -7,12 +7,6 @@ const { serveSocks5 } = require(path.join(__dirname, '..', 'src', 'main', 'ssh',
 
 suite('socks5');
 
-/**
- * Runs one client exchange against the SOCKS5 handler.
- *
- * @param {Buffer[]} writes what the client sends, in order, one per tick
- * @param {(host: string, port: number) => Promise<import('stream').Duplex>} connect
- */
 function exchange(writes, connect) {
   return new Promise((resolve) => {
     const server = net.createServer((socket) => serveSocks5(socket, connect));
@@ -41,7 +35,6 @@ function exchange(writes, connect) {
   });
 }
 
-/** A stand-in for a forwarded SSH channel that echoes what it receives. */
 function echoTarget() {
   const { PassThrough } = require('stream');
   const stream = new PassThrough();

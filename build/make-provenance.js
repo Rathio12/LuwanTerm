@@ -1,19 +1,5 @@
 'use strict';
 
-/**
- * Stamps the build with where it came from.
- *
- * Writes src/main/provenance.generated.json, which ships inside the asar. It
- * records the commit, the moment it was built, and a random id unique to this
- * one build. That last part is the useful bit: two binaries built from the same
- * commit still differ, so a leaked or repackaged build can be traced back to
- * the exact run that produced it.
- *
- * This is provenance, not protection. Anyone can delete the file. What it does
- * is make an unmodified copy self-identifying, and make a modified one show
- * that somebody chose to strip it.
- */
-
 const fs = require('fs');
 const path = require('path');
 const crypto = require('crypto');

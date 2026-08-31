@@ -1,14 +1,5 @@
 'use strict';
 
-/**
- * Reads .env and writes src/main/config.generated.json, which the packaged app
- * ships. Real environment variables win over the file, so CI can override a
- * value without editing anything.
- *
- * Keeping this a build step rather than a runtime read means a release cannot be
- * repointed by dropping a .env next to the executable.
- */
-
 const fs = require('fs');
 const path = require('path');
 
@@ -27,7 +18,6 @@ const KEYS = {
   LINK_DISCORD: 'discord',
 };
 
-/** Minimal .env parser: KEY=value, # comments, optional surrounding quotes. */
 function parseEnv(text) {
   const out = {};
   for (const rawLine of text.split(/\r?\n/)) {

@@ -4,16 +4,6 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-/**
- * Reads OpenSSH's own client config so hosts already defined there can be
- * imported rather than retyped.
- *
- * This understands the directives that map onto a LuwanTerm host profile and
- * ignores the rest. It is deliberately not a full implementation of
- * ssh_config: Match blocks, canonicalisation and token expansion are out of
- * scope, and a wildcard pattern is not a host you can connect to.
- */
-
 const WANTED = new Set([
   'hostname', 'user', 'port', 'identityfile', 'proxyjump', 'proxycommand', 'serveraliveinterval',
 ]);
@@ -22,16 +12,11 @@ function configPath() {
   return path.join(os.homedir(), '.ssh', 'config');
 }
 
-/** Expands a leading ~ the way ssh does. */
 function expandHome(value) {
   if (!value.startsWith('~')) return value;
   return path.join(os.homedir(), value.slice(1).replace(/^[\/]/, ''));
 }
 
-/**
- * @param {string} text contents of an ssh config file
- * @returns {Array<{alias: string, settings: object}>} in file order
- */
 function parse(text) {
   const entries = [];
 
@@ -66,13 +51,6 @@ function parse(text) {
   return entries;
 }
 
-/**
- * Turns parsed entries into things that can become host profiles.
- *
- * Patterns (`Host *`), entries with no hostname to connect to, and anything
- * driven by ProxyCommand are left out: none of them describe a single machine
- * this app could dial.
- */
 function toProfiles(entries) {
   const usable = [];
   const skipped = [];
@@ -107,10 +85,6 @@ function toProfiles(entries) {
   return { usable, skipped };
 }
 
-/**
- * Reads and interprets ~/.ssh/config.
- * @returns {{path: string, exists: boolean, usable: object[], skipped: object[]}}
- */
 function read() {
   const file = configPath();
   let text;

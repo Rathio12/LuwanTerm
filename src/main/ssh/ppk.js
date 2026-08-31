@@ -4,16 +4,6 @@ const crypto = require('crypto');
 const { createHmac, createHash, createDecipheriv, timingSafeEqual } = crypto;
 const { Reader, Writer } = require('./wire');
 
-/**
- * Reader for PuTTY private key files (.ppk), versions 2 and 3, covering every
- * key type PuTTY writes and both encrypted and unencrypted files.
- *
- * The file on disk is never modified. To authenticate, the parsed key is
- * marshalled into an in-memory OpenSSH blob, which is the format ssh2 speaks.
- *
- * Format reference: PuTTY manual, appendix C.
- */
-
 const MAC_KEY_SALT = 'putty-private-key-file-mac-key';
 const AES_BLOCK = 16;
 
@@ -26,12 +16,10 @@ class PpkError extends Error {
   }
 }
 
-/** Cheap sniff so callers can route a file to this parser. */
 function looksLikePpk(text) {
   return /^PuTTY-User-Key-File-\d+\s*:/.test(String(text).trimStart());
 }
 
-/** Splits the file into headers plus the two base64 blobs. */
 function readFields(text) {
   const lines = String(text).split(/\r?\n/);
   const headers = new Map();
@@ -81,7 +69,6 @@ function readFields(text) {
   return { version, algorithm, headers, blobs };
 }
 
-/** PPK v2: SHA-1 based key schedule, all-zero IV. */
 function deriveV2(passphrase) {
   const parts = [0, 1].map((sequence) => {
     const counter = Buffer.alloc(4);
@@ -96,7 +83,6 @@ function deriveV2(passphrase) {
   };
 }
 
-/** PPK v3: one Argon2 run yields cipher key, IV and MAC key back to back. */
 function deriveV3(passphrase, headers) {
   const flavour = String(headers.get('Key-Derivation') || 'Argon2id').toLowerCase();
   if (!['argon2i', 'argon2d', 'argon2id'].includes(flavour)) {
@@ -139,12 +125,6 @@ function deriveV3(passphrase, headers) {
   };
 }
 
-/**
- * Parses a PPK file.
- * @param {string} text file contents
- * @param {string} [passphrase]
- * @returns {{algorithm: string, comment: string, publicBlob: Buffer, privateBlob: Buffer, version: number, encrypted: boolean}}
- */
 function parse(text, passphrase = '') {
   const { version, algorithm, headers, blobs } = readFields(text);
   const encryption = (headers.get('Encryption') || 'none').trim();
@@ -204,10 +184,6 @@ function parse(text, passphrase = '') {
   return { version, algorithm, comment, publicBlob: blobs.public, privateBlob, encrypted };
 }
 
-/**
- * Reads only the public half of a PPK. PuTTY stores the public blob in the
- * clear, so an encrypted key can still be identified without its passphrase.
- */
 function readPublic(text) {
   const { version, algorithm, headers, blobs } = readFields(text);
   return {
