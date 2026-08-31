@@ -28,9 +28,6 @@ const { SIGNED_FIELDS, canonical, digestTree } = require(path.join(root, 'src', 
 function signingKey() {
   const file = path.join(root, '.provenance-key');
 
-  // An explicitly set PROVENANCE_KEY wins even when it is empty: CI sets the
-  // variable from a secret that may not exist, and "" has to mean "no key"
-  // rather than quietly falling back to a file that happens to be lying around.
   const material =
     process.env.PROVENANCE_KEY !== undefined
       ? process.env.PROVENANCE_KEY

@@ -141,14 +141,10 @@ async function main() {
   })()`);
   check('this build carries a Discord application id', presence.configured);
   check('Rich Presence is enabled', presence.enabled);
-  // Windows named pipes live under two backslashes, a dot and pipe. Building
-  // the separator from its code point keeps it intact through every quoting
-  // layer between here and the file.
+
   const SEP = String.fromCharCode(92);
   const pipePath = (index) => `${SEP}${SEP}.${SEP}pipe${SEP}discord-ipc-${index}`;
 
-  // Only meaningful when Discord is actually running. A closed Discord is a
-  // fact about this machine, not a fault in the app.
   const discordRunning = [...Array(10).keys()].some((index) => {
     try {
       return fs.existsSync(pipePath(index));

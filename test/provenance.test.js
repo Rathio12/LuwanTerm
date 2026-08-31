@@ -187,7 +187,6 @@ check(
   provenance.SIGNED_FIELDS.join(', ')
 );
 
-// A field added later must not silently fall outside the signature.
 const canonicalText = provenance.canonical(signed.record);
 check('the canonical form is one line per field',
   canonicalText.split(String.fromCharCode(10)).length === provenance.SIGNED_FIELDS.length);
