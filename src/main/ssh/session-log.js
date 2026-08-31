@@ -72,14 +72,13 @@ function clean(text) {
     }
 
     if (code === 13) {
-      // A carriage return becomes a newline, and CRLF collapses to one.
+
       if (input.charCodeAt(i + 1) === 10) i += 1;
       out += NEWLINE;
       i += 1;
       continue;
     }
 
-    // Keep newline and tab; drop the rest of the control range and DEL.
     if ((code === 10 || code === 9 || code >= 32) && code !== 127) out += input[i];
     i += 1;
   }
@@ -102,7 +101,6 @@ class SessionLog {
       fs.mkdirSync(directory, { recursive: true });
       this.stream = fs.createWriteStream(this.file, { flags: 'a' });
 
-      // A logging failure must never take the session down with it.
       this.stream.on('error', (err) => {
         console.error('[session-log] writing stopped:', err.message);
         this.stream = null;

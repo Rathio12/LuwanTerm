@@ -16,7 +16,7 @@ suite('wire');
 }
 
 {
-  // An mpint with the high bit set needs a leading zero or it reads as negative.
+
   const signed = new Writer().mpint(Buffer.from([0x81, 0x02])).done();
   check('a high-bit value gains a sign byte', new Reader(signed).mpint().equals(Buffer.from([0x00, 0x81, 0x02])));
 
@@ -28,12 +28,11 @@ suite('wire');
 }
 
 {
-  // High bit clear, so the encoding is already canonical and comes back as-is.
+
   const value = Buffer.from('7bcdef0123456789', 'hex');
   const round = new Reader(new Writer().mpint(value).done()).mpint();
   check('a canonical mpint survives a round trip', round.equals(value), round.toString('hex'));
 
-  // High bit set, so it must gain a sign byte and keep its value.
   const negative = Buffer.from('abcdef', 'hex');
   const signed = new Reader(new Writer().mpint(negative).done()).mpint();
   check(

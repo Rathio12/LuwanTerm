@@ -41,8 +41,6 @@ suite('keygen');
 throws('an unknown type is rejected', () => keygen.generate({ type: 'rot13' }));
 throws('an impossible rsa size is rejected', () => keygen.generate({ type: 'rsa', bits: 123 }));
 
-// ssh2 1.17 drops a leading zero byte from roughly one Ed25519 public key in
-// 256, producing a key nothing can read back. keygen must never return one.
 {
   const SAMPLE = 400;
   let broken = 0;

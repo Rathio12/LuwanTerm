@@ -101,8 +101,6 @@ fs.writeFileSync(path.join(root, 'fonts', 'preview.html'), html, 'utf8');
 
 /* ---------- README.md ---------- */
 
-// How much of the catalogue the website can show to someone who has none of it
-// installed. Written by build/make-webfonts.js; absent on a fresh clone.
 let servedLine = 'Some families are served directly, and Nerd Font builds are previewed in their unpatched base family.';
 try {
   const web = require(path.join(root, 'docs', 'assets', 'webfonts.json'));
@@ -110,7 +108,7 @@ try {
     `Right now ${web.families.length} of the ${catalogue.fonts.length} are served directly, and ` +
     `${Object.keys(web.aliases).length} more are Nerd Font builds previewed in their unpatched base family.`;
 } catch {
-  // The sentence above still reads correctly without the numbers.
+
 }
 
 const tables = [...groups.entries()]

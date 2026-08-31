@@ -11,6 +11,7 @@ const knownHosts = require('../store/known-hosts');
 const config = require('../config');
 const updater = require('../updater');
 const discord = require('../discord');
+const provenance = require('../provenance');
 
 const MAX_BACKGROUND_BYTES = 8 * 1024 * 1024;
 
@@ -40,9 +41,15 @@ function register(hooks = {}) {
     platform: process.platform,
     secretsAvailable: vault.available(),
     links: config.links,
-    // Rich Presence fails silently by design - Discord may simply not be
-    // running. Reporting the state is the only way to tell "off", "Discord is
-    // closed" and "this build has no application id" apart.
+
+    provenance: {
+      stamped: provenance.stamped,
+      commit: provenance.commitShort || '',
+      builtAt: provenance.builtAt || '',
+      buildId: provenance.buildId || '',
+      origin: provenance.origin || '',
+    },
+
     discord: {
       configured: Boolean(discord.CLIENT_ID),
       enabled: settings.get().discordEnabled,

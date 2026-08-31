@@ -9,8 +9,6 @@ suite('updater');
 installElectronStub();
 const updater = require(path.join(__dirname, '..', 'src', 'main', 'updater'));
 
-// A string comparison would call 1.9.0 newer than 1.10.0, which would strand
-// everyone on 1.9 forever.
 const cases = [
   ['1.1.0', '1.0.0', true, 'a minor bump is newer'],
   ['1.10.0', '1.9.0', true, '1.10.0 beats 1.9.0'],
@@ -27,8 +25,6 @@ for (const [candidate, current, expected, label] of cases) {
   check(label, updater.isNewer(candidate, current) === expected, `${candidate} vs ${current}`);
 }
 
-// Outside a packaged build there is nothing to update, and saying so is better
-// than trying and failing.
 updater.check({ userAsked: true }).then((result) => {
   check('an unpackaged build reports updates as disabled', result === null);
   check('and says why', updater.state().status === 'disabled', updater.state().reason);

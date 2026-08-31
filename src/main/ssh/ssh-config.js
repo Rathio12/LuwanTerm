@@ -34,15 +34,13 @@ function expandHome(value) {
  */
 function parse(text) {
   const entries = [];
-  // One Host line can name several aliases, and everything that follows applies
-  // to all of them, so this tracks a group rather than a single entry.
+
   let current = [];
 
   for (const rawLine of String(text).split(/\r?\n/)) {
     const line = rawLine.trim();
     if (!line || line.startsWith('#')) continue;
 
-    // Directives are "Key value" or "Key=value", and keys are case-insensitive.
     const match = /^([A-Za-z][A-Za-z0-9-]*)[\s=]+(.+)$/.exec(line);
     if (!match) continue;
 
@@ -60,7 +58,7 @@ function parse(text) {
 
     if (!current.length || !WANTED.has(key)) continue;
     for (const entry of current) {
-      // First occurrence wins, which is how ssh itself resolves duplicates.
+
       if (entry.settings[key] === undefined) entry.settings[key] = value;
     }
   }

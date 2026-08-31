@@ -1,15 +1,5 @@
 'use strict';
 
-// Works out which catalogue families Google Fonts can serve, so the website can
-// preview a font the visitor has not installed. The css2 endpoint needs no API
-// key and answers 400 for a family it does not host, which makes it a reliable
-// existence check. Run this again when fonts/fonts.json grows:
-//
-//   node build/make-webfonts.js
-//
-// Nothing here touches the app - fonts/fonts.json stays the single catalogue,
-// and the result lands in docs/assets/webfonts.json for the site alone.
-
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
@@ -18,8 +8,6 @@ const root = path.join(__dirname, '..');
 const catalogue = require(path.join(root, 'fonts', 'fonts.json')).fonts;
 const target = path.join(root, 'docs', 'assets', 'webfonts.json');
 
-// Google hosts a display serif called Lemon that has nothing to do with the
-// bitmap font of the same name, so previewing it would show the wrong face.
 const COLLISIONS = new Set(['Lemon']);
 
 const normalise = (name) => name.toLowerCase().replace(/[^a-z0-9]/g, '');
@@ -49,8 +37,6 @@ async function main() {
     });
   }
 
-  // A Nerd Font is its base family plus icon glyphs, so the base face is an
-  // honest preview of the letterforms. Match by stripping the patch suffix.
   const served = families.map((name) => ({ name, key: normalise(name) }));
   const aliases = {};
   for (const font of catalogue) {

@@ -32,7 +32,6 @@ throws(
 );
 check('the right passphrase is accepted', keys.setPassphrase(rsa.id, 'pw') === true);
 
-// Adding a key you already have, both ways round.
 const loose = path.join(dir, 'loose.key');
 fs.writeFileSync(loose, keys.privateKey(ed.id));
 
@@ -44,7 +43,6 @@ const linked = keys.linkFile({ filePath: loose, name: 'linked' });
 check('a linked key keeps its path', linked.source === 'linked' && linked.path === loose);
 check('and is read from where it lives', keys.privateKey(linked.id).includes('OPENSSH PRIVATE KEY'));
 
-// An encrypted key can be registered without unlocking it now.
 const lockedFile = path.join(dir, 'locked.key');
 fs.writeFileSync(lockedFile, keys.privateKey(rsa.id));
 const locked = keys.linkFile({ filePath: lockedFile, name: 'locked' });
@@ -58,7 +56,6 @@ const host = hosts.save({
 });
 check('a host can point at a key', host.keyId === ed.id);
 
-// Removing must never delete a file the app did not create.
 keys.remove(linked.id);
 check('removing a linked key leaves the file alone', fs.existsSync(loose));
 keys.remove(rsa.id);

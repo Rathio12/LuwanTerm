@@ -112,8 +112,6 @@ module.exports = {
       return null;
     }
 
-    // Two checks at once would race the state machine and could offer the same
-    // update twice, so a second caller joins the first.
     if (inFlight) return inFlight;
 
     manual = userAsked;
@@ -162,7 +160,7 @@ module.exports = {
 
     recheckTimer = setInterval(async () => {
       const update = await this.check({ userAsked: false });
-      // Only mention a version once, however many times it is seen.
+
       if (update && update.version !== offered) {
         offered = update.version;
         try {

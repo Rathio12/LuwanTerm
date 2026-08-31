@@ -12,6 +12,30 @@ const discord = require('./discord');
 const config = require('./config');
 const updater = require('./updater');
 
+/**
+ * `LuwanTerm.exe --provenance` prints which build this is and whether its
+ * record still checks out, then exits without opening a window. Redirect it to
+ * a file if you are on Windows, where a GUI process has no console of its own:
+ *
+ *   LuwanTerm.exe --provenance > build.txt
+ */
+if (process.argv.includes('--provenance')) {
+  const provenance = require('./provenance');
+  const signature = provenance.verify();
+  const tree = provenance.checkTree();
+
+  process.stdout.write(`${String(provenance)}
+`);
+  process.stdout.write(`  signature: ${signature.state} - ${signature.detail}
+`);
+  process.stdout.write(`  files:     ${tree.ok ? 'intact' : 'CHANGED'} - ${tree.detail}
+`);
+  if (provenance.record) process.stdout.write(`${JSON.stringify(provenance.record, null, 2)}
+`);
+
+  app.exit(signature.state === 'verified' && tree.ok ? 0 : 1);
+}
+
 const SPLASH_MIN_MS = 700;
 const SPLASH_TIMEOUT_MS = 8000;
 
@@ -192,8 +216,7 @@ function applyDiscord(current = settings.get()) {
   discord.start({
     largeImage: config.discordLargeImage,
     largeText: 'LuwanTerm',
-    // Discord shows at most two buttons and drops any without a url, so this is
-    // a preference order rather than a list: the first two that are configured win.
+
     buttons: [
       { label: 'See GitHub', url: config.links.github },
       { label: 'View page', url: config.links.website },

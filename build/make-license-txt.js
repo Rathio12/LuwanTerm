@@ -21,8 +21,6 @@ const target = path.join(__dirname, 'license.txt');
 
 const WIDTH = 78;
 
-// NSIS reads the file as ANSI unless it is told otherwise, so anything outside
-// ASCII risks rendering as noise on someone's machine.
 const ASCII = [
   [/[\u2018\u2019\u201a\u201b]/g, "'"],
   [/[\u201c\u201d\u201e\u201f]/g, '"'],
@@ -60,8 +58,6 @@ function wrap(text, indent = '', hanging = indent) {
 function render(markdown) {
   const out = [];
 
-  // A block is a paragraph or a bullet, gathered across however many source
-  // lines it was wrapped over, and re-wrapped once as a unit.
   let block = null;
 
   const flush = () => {
@@ -80,7 +76,6 @@ function render(markdown) {
     for (const [pattern, replacement] of ASCII) line = line.replace(pattern, replacement);
     line = line.replace(/\*\*/g, '');
 
-    // Tables are a reading aid in the markdown; they do not survive a text box.
     if (/^\s*\|/.test(line)) continue;
 
     if (!line.trim()) {
@@ -110,7 +105,6 @@ function render(markdown) {
       continue;
     }
 
-    // A continuation of whatever came before, or the start of a paragraph.
     if (block) block.text.push(line.trim());
     else block = { text: [line.trim()], indent: '', hanging: '' };
   }

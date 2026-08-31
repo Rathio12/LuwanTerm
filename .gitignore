@@ -8,7 +8,10 @@ out/
 build/certs/
 .env
 src/main/config.generated.json
+src/main/provenance.generated.json
 build/license.txt
+.provenance-key
+PROVENANCE.local.md
 
 # Personal scratch files - notes for working on this, not part of it
 TODO.md

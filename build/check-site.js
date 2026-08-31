@@ -1,10 +1,5 @@
 'use strict';
 
-// Loads docs/ in a hidden Electron window and drives the font list the way a
-// visitor would, so the demo wiring is checked rather than assumed.
-//
-//   npx electron build/check-site.js
-
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
@@ -44,15 +39,14 @@ app.on('ready', async () => {
   const window = new BrowserWindow({ show: false, width: 1280, height: 900 });
   const errors = [];
   window.webContents.on('console-message', (event) => {
-    // Electron warns about its own harness window having no CSP. That is about
-    // this checker, not about the page under test.
+
     if (event.level !== 'error' && event.level !== 'warning') return;
     if (event.message.includes('Electron Security Warning')) return;
     errors.push(event.message);
   });
 
   await window.loadURL(`http://127.0.0.1:${port}/index.html`);
-  // The list is built from a fetch plus a canvas measurement pass.
+
   await window.webContents.executeJavaScript(
     'new Promise((r) => { const t = setInterval(() => { if (document.querySelectorAll(".frow").length) { clearInterval(t); r(); } }, 50); setTimeout(() => { clearInterval(t); r(); }, 15000); })'
   );
@@ -80,7 +74,6 @@ app.on('ready', async () => {
     `${summary.options} options in ${summary.optgroups} groups`);
   check('one font starts selected', summary.using === 1);
 
-  // Click a web-served row and confirm the demo follows it.
   const clicked = await window.webContents.executeJavaScript(`(async () => {
     const row = document.querySelector('.frow.web:not(.is-using)');
     const before = document.querySelector('.demo').style.getPropertyValue('--demo-font');
@@ -103,7 +96,6 @@ app.on('ready', async () => {
   check('the picker follows the click', clicked.select === clicked.name);
   check('web fonts are fetched', clicked.links > 0, `${clicked.links} stylesheets`);
 
-  // And the reverse: choosing in the picker marks the row.
   const chosen = await window.webContents.executeJavaScript(`(async () => {
     const select = document.getElementById('demoFont');
     const option = [...select.options].find((o) => o.value !== select.value);

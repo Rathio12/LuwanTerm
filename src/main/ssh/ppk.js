@@ -114,8 +114,6 @@ function deriveV3(passphrase, headers) {
   const salt = Buffer.from(String(headers.get('Argon2-Salt') || ''), 'hex');
   if (!salt.length) throw new PpkError('The PPK file has no Argon2 salt.');
 
-  // Looked up at call time rather than destructured, so a runtime without it
-  // produces an explanation instead of "argon2Sync is not a function".
   if (typeof crypto.argon2Sync !== 'function') {
     throw new PpkError(
       'Encrypted PPK version 3 files need Argon2, which requires Node 24 or newer. ' +

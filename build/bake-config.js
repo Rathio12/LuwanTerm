@@ -14,10 +14,6 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 
-// Paths are overridable so the test suite can bake into a temp directory rather
-// than clobbering the developer's own .env and generated config - an interrupted
-// run used to leave both in a mess. This is a build-time convenience only; it
-// says nothing about the packaged app, which reads the baked file and nothing else.
 const target = process.env.LUWAN_CONFIG_OUT || path.join(root, 'src', 'main', 'config.generated.json');
 const envFile = process.env.LUWAN_ENV_FILE || path.join(root, '.env');
 const exampleFile = process.env.LUWAN_ENV_EXAMPLE || path.join(root, '.env.example');
@@ -58,10 +54,6 @@ const read = (file) => (fs.existsSync(file) ? parseEnv(fs.readFileSync(file, 'ut
 
 const fromFile = read(envFile);
 
-// .env is not committed, so a fresh clone - and every CI build - would otherwise
-// bake an empty config and ship a release with no Discord id and no links. The
-// committed .env.example holds the project's own public values, so it stands in
-// as the last resort. Anything private belongs in a real environment variable.
 const fromExample = read(exampleFile);
 
 const config = {};

@@ -1,11 +1,5 @@
 'use strict';
 
-// Boots the real app against a throwaway profile and inspects the running UI
-// over the DevTools protocol, so renderer changes are checked rather than
-// assumed. Node's built-in WebSocket does the talking - no extra dependency.
-//
-//   node build/check-app.js
-
 const { spawn } = require('child_process');
 const fs = require('fs');
 const os = require('os');
@@ -69,7 +63,7 @@ async function main() {
 
   const child = spawn(electron, ['.', `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`], {
     cwd: root,
-    // The app refuses to start if it thinks it is a plain Node process.
+
     env: { ...process.env, ELECTRON_RUN_AS_NODE: undefined },
     stdio: 'ignore',
   });
@@ -81,7 +75,7 @@ async function main() {
       const list = await targets();
       page = list.find((target) => target.type === 'page' && /index\.html/.test(target.url));
     } catch {
-      // Not listening yet.
+
     }
   }
   if (!page) {
@@ -92,10 +86,6 @@ async function main() {
 
   const client = await connect(page.webSocketDebuggerUrl);
 
-  // The main window stays hidden behind the splash until the boot sequence has
-  // finished, which includes a network call to check for updates. Sleeping a
-  // fixed amount races that, and a hidden page cannot be driven at all -
-  // queryLocalFonts refuses outright and Chromium throttles its timers.
   const ready = await client.evaluate(`new Promise((resolve) => {
     const started = Date.now();
     const tick = setInterval(() => {
@@ -126,7 +116,6 @@ async function main() {
   check('the window boots', boot.app && boot.api);
   check('the globe icon is in the sprite', boot.sprite);
 
-  // Open Settings the way a user does and read the buttons it renders.
   const about = await client.evaluate(`(async () => {
     document.querySelector('#btn-settings').click();
     await new Promise((r) => setTimeout(r, 1200));
@@ -140,8 +129,7 @@ async function main() {
   check('the GitHub button is still there', about.buttons.includes('Source on GitHub'));
   check('the website link is the Pages site',
     about.links.website === 'https://rathio12.github.io/LuwanTerm/', about.links.website);
-  // Rich Presence: whether this build can do it at all, and whether it managed
-  // to reach a running Discord client.
+
   const presence = await client.evaluate(`(async () => {
     await new Promise((r) => setTimeout(r, 2500));
     return (await window.term.app.info()).discord;
@@ -154,9 +142,6 @@ async function main() {
   check('the GitHub link is the repo',
     about.links.github === 'https://github.com/Rathio12/LuwanTerm', about.links.github);
 
-  // The settings font picker: it lists the catalogue entries it can measure,
-  // plus anything the Local Font Access API reports. A broken filter here shows
-  // up as an empty list, which is what a mangled regex once caused.
   const fonts = await client.evaluate(`(async () => {
     await new Promise((r) => setTimeout(r, 1200));
     const picker = document.querySelector('.fontpick');
@@ -173,9 +158,6 @@ async function main() {
     `${fonts.count} fonts: ${fonts.sample.join(', ')}`);
   check('the local font API is reachable', fonts.api);
 
-  // Ask the system directly, so a permission problem shows up here rather than
-  // being swallowed by the catch that keeps the picker working without it. The
-  // filtering happens in Node so the regex is not escaped through two layers.
   const local = await client.evaluate(`(async () => {
     if (typeof window.queryLocalFonts !== 'function') return { ok: false, why: 'no api' };
     try {
@@ -194,8 +176,7 @@ async function main() {
 
   client.close();
   child.kill();
-  // The app may still hold files in the profile for a moment; losing a temp
-  // directory is not worth failing a check over.
+
   await wait(500);
   try {
     fs.rmSync(profile, { recursive: true, force: true });

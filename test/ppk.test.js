@@ -49,7 +49,7 @@ for (const [type, options] of TYPES) {
         if (recovered instanceof Error) throw recovered;
 
         const samePublic = recovered.getPublicSSH().equals(truth.getPublicSSH());
-        // The real proof: sign with the recovered key, verify with the original.
+
         const verified = truth.verify(MESSAGE, recovered.sign(MESSAGE)) === true;
         check(label, samePublic && verified && parsed.comment === options.comment);
       } catch (err) {
@@ -59,8 +59,6 @@ for (const [type, options] of TYPES) {
   }
 }
 
-// ssh2 parses PPK v2 RSA itself, which independently confirms our framing,
-// key schedule and MAC conventions rather than testing us against ourselves.
 {
   const original = generateKeyPairSync('rsa', { bits: 2048, comment: 'anchor' });
   const truth = parseKey(original.private);
@@ -115,9 +113,6 @@ for (const [type, options] of TYPES) {
   check('an openssh key is not mistaken for one', ppk.looksLikePpk(common.publicBlob.toString()) === false);
 }
 
-// Argon2 arrived in Node 24. On anything older, an encrypted v3 file must say
-// so rather than dying with "argon2Sync is not a function", which is what CI
-// produced when it was pinned to Node 22.
 {
   const crypto = require('crypto');
   const parts = decodeOpenSsh(generateKeyPairSync('ed25519', { comment: 'argon' }).private);

@@ -41,7 +41,7 @@ const rendered = (result) =>
 }
 
 {
-  // Line numbers must track each side separately or the gutter lies.
+
   const result = diffLines('keep\nold\ntail', 'keep\nnew\ntail');
   const lines = flat(result);
   const removed = lines.find((l) => l.type === 'remove');
@@ -52,7 +52,7 @@ const rendered = (result) =>
 }
 
 {
-  // Windows line endings must not make every line look changed.
+
   const result = diffLines('a\r\nb\r\nc', 'a\nb\nc');
   check('mixed line endings are not a difference', result.identical, `+${result.added} -${result.removed}`);
 }

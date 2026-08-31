@@ -83,8 +83,6 @@ function diffLines(left, right, options = {}) {
     b = b.slice(0, MAX_LINES);
   }
 
-  // Shared head and tail never need comparing, and removing them is what keeps
-  // the quadratic step small on real files.
   let head = 0;
   while (head < a.length && head < b.length && a[head] === b[head]) head += 1;
 
@@ -102,8 +100,7 @@ function diffLines(left, right, options = {}) {
 
   let middle;
   if (middleA.length * middleB.length > MAX_AREA) {
-    // Too big to align line by line; report it as a wholesale replacement
-    // rather than spending minutes on a matrix.
+
     middle = [
       ...middleA.map((text) => ({ type: 'remove', text })),
       ...middleB.map((text) => ({ type: 'add', text })),

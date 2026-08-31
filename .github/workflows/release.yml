@@ -90,6 +90,10 @@ jobs:
         env:
           CSC_LINK: ${{ secrets.WINDOWS_CERT_BASE64 }}
           CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+          # Signs the build's provenance record, so a genuine release can be
+          # told apart from a repackaged one. Absent, the build is still stamped
+          # but unsigned - which is what a fork's own build looks like.
+          PROVENANCE_KEY: ${{ secrets.PROVENANCE_KEY }}
         run: npm run dist
 
       - name: Report what was produced

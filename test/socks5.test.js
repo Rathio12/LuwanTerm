@@ -100,7 +100,7 @@ function echoTarget() {
   }
 
   {
-    // BIND is not implemented and must be refused rather than half-handled.
+
     const bind = Buffer.from([0x05, 0x02, 0x00, 0x01, 127, 0, 0, 1, 0x00, 0x50]);
     const reply = await exchange([greeting, bind], async () => echoTarget());
     check('an unsupported command is refused', reply.length >= 4 && reply[3] === 0x07, reply.toString('hex'));
@@ -115,7 +115,7 @@ function echoTarget() {
   }
 
   {
-    // Split across packets: the parser must wait rather than misread a partial.
+
     const request = Buffer.from([0x05, 0x01, 0x00, 0x01, 8, 8, 8, 8, 0x00, 0x35]);
     let asked = null;
     await exchange(

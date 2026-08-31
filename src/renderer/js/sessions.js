@@ -157,7 +157,6 @@
     const entry = state.sessions.get(key);
     if (!entry) return;
 
-    // A close the user asked for must never be undone by reconnecting.
     entry.userClosed = true;
     clearTimeout(entry.reconnectTimer);
 

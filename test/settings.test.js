@@ -10,8 +10,6 @@ suite('settings');
 
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'luwanterm-settings-'));
 
-// A settings file written by an older build: missing everything added since,
-// and carrying a key that has been removed.
 fs.writeFileSync(
   path.join(dir, 'settings.json'),
   JSON.stringify({

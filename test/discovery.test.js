@@ -14,7 +14,7 @@ const ssh = path.join(home, '.ssh');
 fs.mkdirSync(ssh, { recursive: true });
 
 installElectronStub(home);
-// discovery reads os.homedir() at scan time, so this has to be in place first.
+
 os.homedir = () => home;
 
 const keygen = require(path.join(__dirname, '..', 'src', 'main', 'ssh', 'keygen'));
@@ -43,7 +43,6 @@ fs.writeFileSync(
   writePpk({ version: 2, algorithm: ppk2.algorithm, comment: 'ppk2@box', publicBlob: ppk2.publicBlob, privateBlob: ppk2.privateBlob })
 );
 
-// Things that live in .ssh but are never private keys.
 fs.writeFileSync(path.join(ssh, 'known_hosts'), 'github.com ssh-ed25519 AAAA\n');
 fs.writeFileSync(path.join(ssh, 'config'), 'Host *\n  User root\n');
 fs.writeFileSync(path.join(ssh, 'authorized_keys'), `${plain.publicKey}\n`);
