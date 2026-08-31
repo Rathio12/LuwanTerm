@@ -72,3 +72,19 @@ Pushing a version that has no release yet builds, tags and publishes it. See
 
 Do not open a public issue for a vulnerability. [SECURITY.md](SECURITY.md)
 explains how to report one privately.
+
+## Licensing of contributions
+
+There is **no CLA and no copyright assignment**. You keep the copyright in what
+you write.
+
+By opening a pull request you license your contribution under the
+[LuwanTerm Licence](LICENSE) — the same terms everyone else gets it under — and
+you confirm it is yours to give: that you wrote it, or otherwise have the right
+to submit it.
+
+The licence is source-available rather than OSI open source: free to use
+anywhere including at work, free to fork and republish, but **not for sale**,
+and not for use against people. [guides/licence.md](guides/licence.md) explains
+what that means in practice. If a contribution would only make sense under
+different terms, say so in the pull request rather than leaving it implicit.

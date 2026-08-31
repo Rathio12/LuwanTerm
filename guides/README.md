@@ -27,6 +27,7 @@ Start here. Each guide stands on its own — read the one you need.
 | --- | --- |
 | [Security](../SECURITY.md) | What is protected, what is not, and how to report a problem |
 | [Contributing](../CONTRIBUTING.md) | Setup, the checks, and the house style |
+| [Licence](licence.md) | What you may and may not do with it, in plain English |
 | [Changelog](../CHANGELOG.md) | What changed in each release |
 
 ## Changing it

@@ -1,0 +1,205 @@
+# LuwanTerm Licence
+
+Version 1.0
+
+Copyright (c) 2026 LuwanIO
+
+## What this means, in short
+
+This summary is here so you do not have to be a lawyer to know where you stand.
+It is not the licence. The terms below are.
+
+- **Use it for anything.** At home, at work, in a company, on a client's
+  servers, in a data centre. Being paid for your job does not make your use of
+  LuwanTerm a problem.
+- **Read it, change it, share it.** Fork it, patch it, publish your fork, hand a
+  copy to a colleague.
+- **Contributions are welcome**, and you keep the copyright in what you write.
+- **You may not sell it.** Not the software, not a paid product built around it,
+  not a paid service that is really just this with a login, not paid support for
+  it. If money is changing hands for LuwanTerm, that is not allowed.
+- **You may not use it to hurt people.** Breaking into machines you have no
+  right to, surveilling or harassing anyone, or trampling on human rights ends
+  your licence immediately.
+
+This is **source-available**, not open source as the Open Source Initiative
+defines it, because a licence cannot restrict what you use software for and
+still meet that definition. Everything is public and forkable. It is just not
+for sale.
+
+## Terms
+
+### 1. Definitions
+
+**"This software"** means LuwanTerm, in source or compiled form, together with
+the documentation, configuration and assets distributed with it, and any part of
+it.
+
+**"You"** means the individual or legal entity exercising rights under this
+licence. **"Your"** has the matching meaning.
+
+**"The licensor"** means the copyright holder named above and every contributor
+who has licensed their contribution under these terms.
+
+**"Sell"** means to supply, or offer to supply, this software or access to it,
+or anything whose value depends substantially on it, in exchange for money or
+other consideration. Being paid for your own time and work, on something that is
+not this software, is not selling it.
+
+**"Contribution"** means any work you deliberately submit to the licensor for
+inclusion in this software.
+
+### 2. Acceptance
+
+To exercise any right under this licence, you must accept it. These terms are
+conditions of the rights granted, and a limit on them. If you do not accept
+these terms, you have no rights to this software.
+
+### 3. Copyright licence
+
+The licensor grants you a worldwide, royalty-free, non-exclusive licence to use,
+run, copy, display, modify and prepare derivative works of this software, for
+any purpose, subject to sections 7 and 8.
+
+Your purpose may be a commercial one. Using this software in the course of a
+business, in paid employment, for a client, or to run infrastructure you are
+paid to run, is expressly permitted. Section 7 restricts selling this software,
+not working for a living with it.
+
+### 4. Distribution licence
+
+The licensor grants you a worldwide, royalty-free, non-exclusive licence to
+distribute this software, and works derived from it, subject to sections 7 and
+8, and provided you comply with section 9.
+
+### 5. Changes and new works
+
+You may make changes and build new works based on this software. Your changes
+and new works are covered by this licence to the extent they contain any of this
+software, and you must license them under these same terms when you distribute
+them. What you write that stands entirely apart from this software is yours to
+license as you wish.
+
+### 6. Patent licence
+
+The licensor grants you a worldwide, royalty-free, non-exclusive patent licence
+under patents the licensor can license, to make, use, sell, offer for sale,
+import and otherwise exploit this software, subject to sections 7, 8 and 12.
+
+### 7. No selling
+
+**You may not sell this software.** In particular, you may not:
+
+1. sell copies of it, or charge a fee, subscription or royalty for it or for
+   access to it;
+2. include it in a product, bundle, distribution or device that is offered for
+   a fee, where this software is part of what is being paid for;
+3. operate it, or its functionality, as part of a hosted or managed service that
+   is offered for a fee;
+4. charge for support, maintenance, hosting, installation, integration or
+   customisation of this software;
+5. put any part of it behind a payment, licence key, subscription or paywall; or
+6. accept money or other consideration from anyone in exchange for any of the
+   rights granted by this licence.
+
+This does not stop you being paid for your own work. A consultant who sets up a
+client's servers and uses LuwanTerm to do it is paid for the setup, not for
+LuwanTerm, and is fine. A consultant who charges that client for LuwanTerm, or
+for a support contract covering it, is not.
+
+Voluntary donations to the licensor, and to contributors for their own work, are
+not selling.
+
+### 8. Acceptable use
+
+This software must not be used to harm people. You may not use it, or anything
+built from it:
+
+1. to access, interfere with, disrupt or extract data from any computer,
+   network, account or system without the clear authorisation of whoever is
+   entitled to give it;
+2. to surveil, track, profile or monitor any person without their informed
+   consent, or to build or operate a system whose purpose is to do so;
+3. to harass, stalk, threaten, intimidate, defame or incite violence against any
+   person or group;
+4. to deprive any person of, or infringe, their human or legal rights,
+   including the rights set out in the Universal Declaration of Human Rights,
+   the International Covenant on Civil and Political Rights, the ILO Declaration
+   on Fundamental Principles and Rights at Work, and the UN Convention on the
+   Rights of the Child, as those instruments are applied to conduct within your
+   control;
+5. to discriminate against any person on the basis of a characteristic protected
+   under the law that applies to you;
+6. in connection with forced labour, human trafficking, or the exploitation of
+   children; or
+7. for any purpose that is unlawful where you are, or where the affected people
+   are.
+
+This software is a tool for administering systems you are responsible for.
+Testing the security of a system you have written permission to test is
+authorised use under paragraph 1; testing one you do not is not.
+
+### 9. Notices
+
+You must keep this licence file, the copyright notice above, and any attribution
+notices, with every copy of this software or of a work derived from it. If you
+distribute a modified version, you must state clearly that you changed it, and
+must not present it as the original.
+
+### 10. Contributions
+
+Contributions are welcome and are the point of publishing this.
+
+1. You keep the copyright in what you contribute.
+2. By submitting a contribution, you license it to the licensor and to everyone
+   else under these same terms, and you grant the same patent licence described
+   in section 6 for it.
+3. You confirm that the contribution is yours to give: that you wrote it, or
+   have the right to submit it, and that submitting it does not breach anyone
+   else's rights or an agreement you are under.
+4. Contributions are accepted on the same footing as everything else here. No
+   contributor is asked to assign copyright, and no contributor gains the right
+   to relicense anyone else's work.
+
+### 11. No other rights
+
+These terms do not grant any rights other than those expressly stated. They do
+not license any trade mark, service mark, or the name LuwanTerm, other than as
+required to comply with section 9. They do not imply any obligation on the
+licensor to support, maintain, or continue publishing this software.
+
+### 12. Patent defence
+
+If you make any written claim that this software infringes or contributes to
+infringement of a patent, your patent licence under section 6 ends immediately.
+If your company makes such a claim, your patent licence ends immediately for
+work on behalf of your company.
+
+### 13. Violations
+
+The first time you are found to have breached these terms, your licence is
+reinstated automatically if you stop the breach within 30 days of becoming aware
+of it, or of being notified, whichever is earlier. Any second or later breach
+ends your licence permanently.
+
+A breach of section 8 ends your licence immediately, with no cure period.
+
+### 14. No warranty
+
+**This software is provided "as is", without warranty of any kind**, express or
+implied, including the warranties of merchantability, fitness for a particular
+purpose, title and non-infringement.
+
+### 15. No liability
+
+**To the fullest extent the law allows, this software comes with absolutely no
+liability.** In no event will the licensor be liable to you for any damages of
+any kind arising out of this licence or the use of this software, whether in
+contract, tort or otherwise, even if advised of the possibility of such damages.
+
+### 16. Third-party components
+
+This software depends on separate works (Electron, ssh2, xterm.js and others),
+each distributed under its own licence, listed in the packages themselves. This
+licence covers LuwanTerm's own code and assets. It does not change, restrict or
+extend the terms of anything it depends on.

@@ -8,6 +8,7 @@ out/
 build/certs/
 .env
 src/main/config.generated.json
+build/license.txt
 
 # Personal scratch files - notes for working on this, not part of it
 TODO.md

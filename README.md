@@ -13,6 +13,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 ![Terminal](https://img.shields.io/badge/terminal-xterm.js-57F287?style=flat-square)
 ![PuTTY](https://img.shields.io/badge/PuTTY%20.ppk-v2%20%2B%20v3-5865F2?style=flat-square)
 ![Sessions](https://img.shields.io/badge/sessions-unlimited-2B2D31?style=flat-square)
+[![Licence](https://img.shields.io/badge/licence-source--available%2C%20not%20for%20sale-f2a33c?style=flat-square)](https://github.com/Rathio12/LuwanTerm/blob/main/LICENSE)
 [![Tests](https://img.shields.io/badge/tests-196%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
 [![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FRathio12%2FLuwanTerm%2Fbadge&style=flat-square&color=7c5cff)](https://github.com/Rathio12/LuwanTerm)
 [![Release](https://img.shields.io/github/v/release/Rathio12/LuwanTerm?style=flat-square&label=release&color=3ea8ff)](https://github.com/Rathio12/LuwanTerm/releases/latest)
@@ -91,4 +92,23 @@ Everything lives in **[guides/](guides/)**:
 
 ## Licence
 
-UNLICENSED — private project.
+[**LuwanTerm Licence 1.0**](LICENSE) — source-available, free to use, not for
+sale. In short:
+
+| | |
+| --- | --- |
+| Use it anywhere, including at work or for a client | **Yes** |
+| Read, fork, modify and republish it | **Yes** |
+| Contribute, and keep the copyright in what you wrote | **Yes** |
+| Sell it, or a paid product, service or support built on it | **No** |
+| Use it to break into systems, surveil or harass people | **No** |
+
+Being paid for your own work is fine — a consultant using LuwanTerm on a
+client's servers is paid for the setup, not for LuwanTerm. Charging that client
+*for LuwanTerm* is what the licence forbids.
+
+This is deliberately **source-available rather than OSI open source**: an
+OSI-approved licence cannot restrict what you use the software for, and these
+restrictions are the point. Everything is public and forkable — it is just not
+for sale. See [the licence guide](guides/licence.md) for what that means in
+practice.

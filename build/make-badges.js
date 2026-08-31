@@ -105,6 +105,7 @@ const badges = [
   `![Terminal](${badge('terminal', 'xterm.js', '57F287')})`,
   `![PuTTY](${badge('PuTTY .ppk', 'v2 + v3', '5865F2')})`,
   `![Sessions](${badge('sessions', 'unlimited', '2B2D31')})`,
+  `[![Licence](${badge('licence', 'source-available, not for sale', 'f2a33c')})](https://github.com/${REPO}/blob/main/LICENSE)`,
 ];
 
 const invite = discordInvite();

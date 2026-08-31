@@ -1,0 +1,131 @@
+'use strict';
+
+/**
+ * Renders LICENSE into build/license.txt for the installer's licence page.
+ *
+ * NSIS shows the file as-is in a plain text box. Markdown syntax reads as
+ * clutter there, and a UTF-8 file without a byte order mark can come out as
+ * mojibake, so the typographic characters are folded to ASCII and the headings
+ * are turned into something that looks deliberate.
+ *
+ * Generated at build time and git-ignored: LICENSE stays the only copy anyone
+ * edits.
+ */
+
+const fs = require('fs');
+const path = require('path');
+
+const root = path.join(__dirname, '..');
+const source = path.join(root, 'LICENSE');
+const target = path.join(__dirname, 'license.txt');
+
+const WIDTH = 78;
+
+// NSIS reads the file as ANSI unless it is told otherwise, so anything outside
+// ASCII risks rendering as noise on someone's machine.
+const ASCII = [
+  [/[\u2018\u2019\u201a\u201b]/g, "'"],
+  [/[\u201c\u201d\u201e\u201f]/g, '"'],
+  [/[\u2013\u2014]/g, '-'],
+  [/\u2026/g, '...'],
+  [/\u00a0/g, ' '],
+  [/[\u2022\u00b7]/g, '-'],
+];
+
+/**
+ * Re-wraps a paragraph to WIDTH. `indent` prefixes the first line, `hanging`
+ * every line after it, so a bullet's continuation lines sit under its text
+ * rather than back at the margin.
+ */
+function wrap(text, indent = '', hanging = indent) {
+  const words = text.split(/\s+/).filter(Boolean);
+  const lines = [];
+  let line = '';
+  let prefix = indent;
+
+  for (const word of words) {
+    const candidate = line ? `${line} ${word}` : `${prefix}${word}`;
+    if (line && candidate.length > WIDTH) {
+      lines.push(line);
+      prefix = hanging;
+      line = `${prefix}${word}`;
+    } else {
+      line = candidate;
+    }
+  }
+  if (line.trim()) lines.push(line);
+  return lines;
+}
+
+function render(markdown) {
+  const out = [];
+
+  // A block is a paragraph or a bullet, gathered across however many source
+  // lines it was wrapped over, and re-wrapped once as a unit.
+  let block = null;
+
+  const flush = () => {
+    if (!block) return;
+    out.push(...wrap(block.text.join(' '), block.indent, block.hanging));
+    block = null;
+  };
+
+  const blank = () => {
+    flush();
+    if (out.length && out[out.length - 1] !== '') out.push('');
+  };
+
+  for (const raw of markdown.split(/\r?\n/)) {
+    let line = raw;
+    for (const [pattern, replacement] of ASCII) line = line.replace(pattern, replacement);
+    line = line.replace(/\*\*/g, '');
+
+    // Tables are a reading aid in the markdown; they do not survive a text box.
+    if (/^\s*\|/.test(line)) continue;
+
+    if (!line.trim()) {
+      blank();
+      continue;
+    }
+
+    const heading = /^(#{1,6})\s+(.*)$/.exec(line);
+    if (heading) {
+      blank();
+      const text = heading[2];
+      out.push(heading[1].length === 1 ? text.toUpperCase() : text);
+      out.push((heading[1].length === 1 ? '=' : '-').repeat(text.length));
+      out.push('');
+      continue;
+    }
+
+    const bullet = /^(\s*)([-*]|\d+\.)\s+(.*)$/.exec(line);
+    if (bullet) {
+      flush();
+      const marker = /^\d/.test(bullet[2]) ? bullet[2] : '-';
+      block = {
+        text: [`${marker} ${bullet[3]}`],
+        indent: bullet[1],
+        hanging: `${bullet[1]}${' '.repeat(marker.length + 1)}`,
+      };
+      continue;
+    }
+
+    // A continuation of whatever came before, or the start of a paragraph.
+    if (block) block.text.push(line.trim());
+    else block = { text: [line.trim()], indent: '', hanging: '' };
+  }
+  flush();
+
+  return `${out.join('\r\n').replace(/(\r\n){3,}/g, '\r\n\r\n')}\r\n`;
+}
+
+const text = render(fs.readFileSync(source, 'utf8'));
+
+const outside = [...text].filter((character) => character.charCodeAt(0) > 126);
+if (outside.length) {
+  console.error(`license.txt still contains non-ASCII: ${[...new Set(outside)].join(' ')}`);
+  process.exit(1);
+}
+
+fs.writeFileSync(target, text, 'ascii');
+console.log(`license.txt written: ${text.split('\r\n').length} lines, ASCII only`);
