@@ -100,6 +100,125 @@ async function loadFonts() {
     fragment.append(element);
   }
   list.replaceChildren(fragment);
+
+  setUpDemo(rows.filter((row) => row.installed).map((row) => row.name));
+}
+
+
+/* ---------- Interactive demo ---------- */
+
+const LF = String.fromCharCode(10);
+const BULLET = String.fromCharCode(9679);
+
+const ACCENTS = ['#7c5cff', '#3ea8ff', '#22c58b', '#f2a33c', '#ff5c8a', '#c084fc'];
+
+/** A short, plausible session, written once and reused as the demo content. */
+const TRANSCRIPT = [
+  ['t-prompt', 'root@prod-web'], ['t-dim', ':'], ['t-path', '~'], [null, '$ systemctl status nginx'],
+  ['br'],
+  ['t-ok', '  ' + BULLET + ' nginx.service'], [null, ' - A high performance web server'],
+  ['br'],
+  ['t-dim', '     Loaded: '], [null, 'loaded (/lib/systemd/system/nginx.service; enabled)'],
+  ['br'],
+  ['t-dim', '     Active: '], ['t-ok', 'active (running)'], ['t-dim', ' since Mon 09:14:22 UTC'],
+  ['br'], ['br'],
+  ['t-prompt', 'root@prod-web'], ['t-dim', ':'], ['t-path', '~'], [null, '$ df -h /var'],
+  ['br'],
+  ['t-dim', 'Filesystem      Size  Used Avail Use% Mounted on'],
+  ['br'],
+  [null, '/dev/sda1        98G   71G   22G  '], ['t-warn', '77%'], [null, '  /var'],
+  ['br'], ['br'],
+  ['t-prompt', 'root@prod-web'], ['t-dim', ':'], ['t-path', '~'], [null, '$ tail -n2 /var/log/app.log'],
+  ['br'],
+  ['t-dim', '09:41:02 '], ['t-ok', 'INFO '], [null, 'worker 3 accepted 1,204 requests'],
+  ['br'],
+  ['t-dim', '09:41:07 '], ['t-warn', 'WARN '], [null, 'pool at 82% capacity'],
+  ['br'], ['br'],
+  ['t-prompt', 'root@prod-web'], ['t-dim', ':'], ['t-path', '~'], [null, '$ '], ['cursor'],
+];
+
+function paintTranscript(target) {
+  const fragment = document.createDocumentFragment();
+  for (const [kind, text] of TRANSCRIPT) {
+    if (kind === 'br') {
+      fragment.append(document.createTextNode(LF));
+      continue;
+    }
+    if (kind === 'cursor') {
+      const cursor = document.createElement('span');
+      cursor.className = 't-cursor';
+      fragment.append(cursor);
+      continue;
+    }
+    if (!kind) {
+      fragment.append(document.createTextNode(text));
+      continue;
+    }
+    const span = document.createElement('span');
+    span.className = kind;
+    span.textContent = text;
+    fragment.append(span);
+  }
+  target.replaceChildren(fragment);
+}
+
+/**
+ * Wires the demo controls. Everything writes a CSS variable on the demo root,
+ * which is how the app applies these settings too.
+ */
+function setUpDemo(installedFonts) {
+  const demo = document.querySelector('.demo');
+  const term = document.getElementById('demoTerm');
+  if (!demo || !term) return;
+
+  paintTranscript(term);
+
+  const fontSelect = document.getElementById('demoFont');
+  const families = installedFonts.length ? installedFonts : ['monospace'];
+  for (const name of families) {
+    const option = document.createElement('option');
+    option.value = name;
+    option.textContent = name;
+    option.style.fontFamily = `"${name}", monospace`;
+    fontSelect.append(option);
+  }
+
+  // Prefer something the app itself would default to, when it is available.
+  const preferred = families.find((n) => /jetbrains|cascadia|consol/i.test(n)) || families[0];
+  fontSelect.value = preferred;
+  demo.style.setProperty('--demo-font', `"${preferred}", monospace`);
+
+  fontSelect.addEventListener('change', () => {
+    demo.style.setProperty('--demo-font', `"${fontSelect.value}", monospace`);
+  });
+
+  const size = document.getElementById('demoSize');
+  const sizeValue = document.getElementById('demoSizeValue');
+  size.addEventListener('input', () => {
+    demo.style.setProperty('--demo-size', `${size.value}px`);
+    sizeValue.textContent = `${size.value}px`;
+  });
+
+  const opacity = document.getElementById('demoOpacity');
+  const opacityValue = document.getElementById('demoOpacityValue');
+  opacity.addEventListener('input', () => {
+    demo.style.setProperty('--demo-term', `rgba(6, 7, 12, ${opacity.value / 100})`);
+    opacityValue.textContent = `${opacity.value}%`;
+  });
+
+  const accents = document.getElementById('demoAccents');
+  ACCENTS.forEach((colour, index) => {
+    const swatch = document.createElement('button');
+    swatch.type = 'button';
+    swatch.className = `swatch${index === 0 ? ' is-on' : ''}`;
+    swatch.style.background = colour;
+    swatch.title = colour;
+    swatch.addEventListener('click', () => {
+      demo.style.setProperty('--demo-accent', colour);
+      for (const other of accents.children) other.classList.toggle('is-on', other === swatch);
+    });
+    accents.append(swatch);
+  });
 }
 
 loadRelease();

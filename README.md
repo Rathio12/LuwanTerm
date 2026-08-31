@@ -40,6 +40,13 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 - **Updates itself** — checks GitHub releases, downloads in the background, offers a restart.
 - **Secrets in the OS keychain** — never written to disk in the clear. If the platform can't encrypt, nothing is stored at all.
 
+## Try it without installing
+
+The [website](https://rathio12.github.io/LuwanTerm/) has a working copy of the
+interface: pick any monospace font you have installed, change the size, the
+accent and the terminal opacity, and watch it apply. It offers only the fonts on
+your machine, using the same check the app runs.
+
 ## Quick start
 
 ```bash

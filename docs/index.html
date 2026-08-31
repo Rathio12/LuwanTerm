@@ -25,6 +25,7 @@
   </div>
   <nav class="titlebar__nav">
     <a href="#features">Features</a>
+    <a href="#demo">Try it</a>
     <a href="#fonts">Fonts</a>
     <a href="#start">Get started</a>
     <a href="https://github.com/Rathio12/LuwanTerm">GitHub</a>
@@ -56,6 +57,64 @@
     <div class="card"><h3><span class="dot"></span>PuTTY .ppk files</h3><p>Versions 2 and 3, every key type, encrypted or not. Read where they live and never rewritten or converted.</p></div>
     <div class="card"><h3><span class="dot dot--c"></span>Host key pinning</h3><p>Fingerprints recorded on first use and checked every time, with a loud warning if one ever changes.</p></div>
     <div class="card"><h3><span class="dot dot--g"></span>Secrets in the keychain</h3><p>Passwords and passphrases are encrypted by Windows. If that is unavailable, nothing is written at all.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="demo">
+  <h2>Try it here</h2>
+  <p class="lede">
+    A working copy of the interface. Change the font, the size, the accent and how
+    far the terminal lets the background through - exactly the settings the app
+    has. Only fonts installed on this machine are offered, which is how the app
+    picks them too.
+  </p>
+
+  <div class="demo">
+    <div class="demo__controls">
+      <label class="ctl">
+        <span class="ctl__label">Font</span>
+        <select id="demoFont" class="ctl__select"></select>
+      </label>
+
+      <label class="ctl">
+        <span class="ctl__label">Size <b id="demoSizeValue">14px</b></span>
+        <input id="demoSize" class="ctl__range" type="range" min="11" max="22" step="1" value="14" />
+      </label>
+
+      <label class="ctl">
+        <span class="ctl__label">Terminal opacity <b id="demoOpacityValue">100%</b></span>
+        <input id="demoOpacity" class="ctl__range" type="range" min="30" max="100" step="1" value="100" />
+      </label>
+
+      <div class="ctl">
+        <span class="ctl__label">Accent</span>
+        <div class="swatches" id="demoAccents"></div>
+      </div>
+    </div>
+
+    <div class="demo__app" id="demoApp">
+      <div class="demo__titlebar">
+        <span class="brand-mark brand-mark--sm"><svg viewBox="0 0 24 24"><path d="m5 7 4 4-4 4M12 16h7"/></svg></span>
+        <span class="demo__name">LuwanTerm</span>
+        <span class="demo__tabs">
+          <span class="demo__tab is-active"><i class="demo__dot"></i>prod-web</span>
+          <span class="demo__tab"><i class="demo__dot demo__dot--c"></i>db-01</span>
+        </span>
+      </div>
+
+      <div class="demo__body">
+        <aside class="demo__side">
+          <div class="demo__search">Search hosts</div>
+          <div class="demo__group">Production</div>
+          <div class="demo__host is-live"><i class="demo__dot"></i><span>prod-web<small>root@10.0.0.5</small></span></div>
+          <div class="demo__host"><i class="demo__dot demo__dot--c"></i><span>db-01<small>postgres@10.0.0.9</small></span></div>
+          <div class="demo__group">Staging</div>
+          <div class="demo__host"><i class="demo__dot demo__dot--g"></i><span>staging<small>deploy@staging</small></span></div>
+        </aside>
+
+        <div class="demo__term" id="demoTerm"></div>
+      </div>
+    </div>
   </div>
 </section>
 
