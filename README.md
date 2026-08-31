@@ -62,6 +62,14 @@ Or grab a build:
 npm run dist     # installer + portable exe in dist/
 ```
 
+## Getting help
+
+Questions go to **[Discussions](https://github.com/Rathio12/LuwanTerm/discussions)**,
+bugs to [issues](https://github.com/Rathio12/LuwanTerm/issues/new/choose), and
+anything security-related [privately](https://github.com/Rathio12/LuwanTerm/security/advisories/new)
+rather than in public. [SUPPORT.md](SUPPORT.md) says which is which, and what
+this project does and does not promise.
+
 ## Contributing and security
 
 [SECURITY.md](SECURITY.md) is worth a read before trusting this with real
@@ -82,6 +90,7 @@ Everything lives in **[guides/](guides/)**:
 | [Configuration](guides/configuration.md) | `.env` build settings versus user settings |
 | [Building](guides/building.md) | Installer, portable, icon, the build config |
 | [Code signing](guides/signing.md) | Why Windows complains and what actually fixes it |
+| [Releasing](guides/releasing.md) | Cutting a version, what gets attached, the secrets it reads |
 | [Discord presence](guides/discord.md) | Turning it on, and what it does and doesn't reveal |
 | [Make it your own](guides/customising.md) | Rebranding, retheming, adding a panel or an IPC call |
 | [Architecture](guides/architecture.md) | How the pieces fit, for anyone changing the code |

@@ -1,16 +1,32 @@
 # The Sponsor button on the repository page.
 #
 # The licence forbids selling LuwanTerm but explicitly allows donations, so this
-# is the one place money is welcome. Every line is optional - delete the ones
-# you do not use, and the button only appears when at least one resolves.
+# is the one place money is welcome.
+#
+# TWO THINGS ARE NEEDED. This file is only one of them:
+#
+#   1. At least one line below, uncommented and filled in.
+#   2. Settings -> General -> Features -> tick "Sponsorships", then
+#      "Set up sponsor button". Without that the button never appears, however
+#      correct this file is.
 #
 # github: needs an account enrolled at https://github.com/sponsors - until you
-# enrol, the button links to a page that does not exist yet.
+# enrol, the button links to a page that does not exist yet. Every other
+# platform below works as soon as you have an account there.
+#
+# One username per platform, except github (up to four, plus one organisation)
+# and custom (up to four URLs). A URL containing a colon must be quoted.
 
 github: [Rathio12]
 
-# ko_fi: your-name
-# buy_me_a_coffee: your-name
-# liberapay: your-name
-# polar: your-name
-# custom: ['https://example.com/donate']
+# ko_fi: username
+# buy_me_a_coffee: username
+# liberapay: username
+# patreon: username
+# open_collective: username
+# polar: username
+# issuehunt: username
+# thanks_dev: u/gh/Rathio12
+# community_bridge: project-name
+# tidelift: npm/luwan-term
+# custom: ["https://www.paypal.me/username"]
