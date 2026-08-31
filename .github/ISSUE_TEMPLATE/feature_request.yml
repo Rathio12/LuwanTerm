@@ -1,0 +1,26 @@
+name: Feature request
+description: Suggest something LuwanTerm should do
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What are you trying to do
+      description: >
+        The problem, rather than the solution. Knowing what you are actually
+        trying to achieve often leads somewhere better than the first idea.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: How you work around it today
+      description: Including "I use a different client for this", which is useful to know.
