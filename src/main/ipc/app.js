@@ -10,6 +10,7 @@ const snippets = require('../store/snippets');
 const knownHosts = require('../store/known-hosts');
 const config = require('../config');
 const updater = require('../updater');
+const discord = require('../discord');
 
 const MAX_BACKGROUND_BYTES = 8 * 1024 * 1024;
 
@@ -39,6 +40,14 @@ function register(hooks = {}) {
     platform: process.platform,
     secretsAvailable: vault.available(),
     links: config.links,
+    // Rich Presence fails silently by design - Discord may simply not be
+    // running. Reporting the state is the only way to tell "off", "Discord is
+    // closed" and "this build has no application id" apart.
+    discord: {
+      configured: Boolean(discord.CLIENT_ID),
+      enabled: settings.get().discordEnabled,
+      connected: discord.isConnected(),
+    },
   }));
 
   handle('app:open-external', async (url) => {

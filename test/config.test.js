@@ -25,6 +25,11 @@ const root = path.join(__dirname, '..');
 const bake = path.join(root, 'build', 'bake-config.js');
 const example = path.join(root, '.env.example');
 
+// config.generated.json is git-ignored, so on a clean checkout it does not
+// exist at all. What matters is that this suite leaves it exactly as it found it.
+const shipped = path.join(root, 'src', 'main', 'config.generated.json');
+const shippedBefore = fs.existsSync(shipped) ? fs.readFileSync(shipped, 'utf8') : null;
+
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'luwanterm-config-'));
 const out = path.join(dir, 'config.generated.json');
 const envFile = path.join(dir, '.env');
@@ -105,7 +110,9 @@ check('the app exposes a presence image', typeof config.discordLargeImage === 's
 
 // The developer's own files were never in play.
 check('the real .env was not touched', !fs.existsSync(path.join(dir, 'absent')));
-check('the shipped config was not rewritten', fs.existsSync(path.join(root, 'src', 'main', 'config.generated.json')));
+const shippedAfter = fs.existsSync(shipped) ? fs.readFileSync(shipped, 'utf8') : null;
+check('the shipped config was left exactly as it was', shippedAfter === shippedBefore,
+  shippedBefore === null ? 'absent, as on a clean checkout' : 'unchanged');
 
 fs.rmSync(dir, { recursive: true, force: true });
 

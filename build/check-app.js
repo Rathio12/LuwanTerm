@@ -70,7 +70,7 @@ async function main() {
   const child = spawn(electron, ['.', `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`], {
     cwd: root,
     // The app refuses to start if it thinks it is a plain Node process.
-    env: { ...process.env, ELECTRON_RUN_AS_NODE: undefined, LUWAN_SKIP_UPDATE: '1' },
+    env: { ...process.env, ELECTRON_RUN_AS_NODE: undefined },
     stdio: 'ignore',
   });
 
@@ -91,7 +91,31 @@ async function main() {
   }
 
   const client = await connect(page.webSocketDebuggerUrl);
-  await wait(1500);
+
+  // The main window stays hidden behind the splash until the boot sequence has
+  // finished, which includes a network call to check for updates. Sleeping a
+  // fixed amount races that, and a hidden page cannot be driven at all -
+  // queryLocalFonts refuses outright and Chromium throttles its timers.
+  const ready = await client.evaluate(`new Promise((resolve) => {
+    const started = Date.now();
+    const tick = setInterval(() => {
+      if (document.visibilityState === 'visible' && window.App && window.term) {
+        clearInterval(tick);
+        resolve(true);
+      } else if (Date.now() - started > 60000) {
+        clearInterval(tick);
+        resolve(false);
+      }
+    }, 200);
+  })`);
+  check('the window becomes visible', ready);
+  if (!ready) {
+    client.close();
+    child.kill();
+    console.log('');
+    console.log('the app never finished booting');
+    process.exit(1);
+  }
 
   const boot = await client.evaluate(`(() => ({
     app: Boolean(window.App),
@@ -116,6 +140,17 @@ async function main() {
   check('the GitHub button is still there', about.buttons.includes('Source on GitHub'));
   check('the website link is the Pages site',
     about.links.website === 'https://rathio12.github.io/LuwanTerm/', about.links.website);
+  // Rich Presence: whether this build can do it at all, and whether it managed
+  // to reach a running Discord client.
+  const presence = await client.evaluate(`(async () => {
+    await new Promise((r) => setTimeout(r, 2500));
+    return (await window.term.app.info()).discord;
+  })()`);
+  check('this build carries a Discord application id', presence.configured);
+  check('Rich Presence is enabled', presence.enabled);
+  check('Rich Presence reached Discord', presence.connected,
+    presence.connected ? 'connected' : 'no running Discord client on this machine');
+
   check('the GitHub link is the repo',
     about.links.github === 'https://github.com/Rathio12/LuwanTerm', about.links.github);
 
