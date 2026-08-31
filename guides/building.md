@@ -135,7 +135,7 @@ Two workflows live in [`.github/workflows/`](../.github/workflows).
 
 ### CI - every push and pull request
 
-Two jobs.
+Three jobs.
 
 **Checks** runs on Ubuntu with **no `npm ci`**, so it finishes in seconds:
 
@@ -149,11 +149,22 @@ Two jobs.
   drift from the app unnoticed
 - no signing material or `.env` has been committed
 
-**Tests** installs dependencies and runs `npm test`, the 11 suites in
+**Tests** installs dependencies and runs `npm test`, the 12 suites in
 [`test/`](../test). The result is written to the run summary as a table, so a
 failure names the suite without opening the log.
 
-Run both locally with `npm run check`.
+**Website** runs [`build/check-site.js`](../build/check-site.js), which loads
+`docs/` in a real Electron window and drives the font list: that the rows are
+clickable, that clicking one changes the demo, and that the picker and the list
+stay in step. None of that is provable by a syntax check. `xvfb` supplies a
+display, and the job sets the setuid bit on `chrome-sandbox` first - npm cannot
+set it when it unpacks Electron, and Chromium aborts rather than run unsandboxed.
+
+Run the first two locally with `npm run check`, and the third with
+`npm run check-site`. There is also [`build/check-app.js`](../build/check-app.js),
+which boots the app itself and inspects the running UI over the DevTools
+protocol; it stays out of CI because its results depend on which fonts the
+machine has.
 
 ### Release — automatic, on a version bump
 

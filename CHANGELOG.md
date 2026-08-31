@@ -1,5 +1,34 @@
 # Changelog
 
+## 1.6.6
+
+**Discord Rich Presence actually works now.** It never did in a downloaded
+build. `.env` is git-ignored, so every release built by CI baked an empty
+config - and an empty client id disables presence outright and drops the About
+links with it. `.env.example` is now the last fallback, after real environment
+variables and `.env`. Separately, the presence image asked for an art asset that
+was never uploaded, so nothing was drawn; it is a URL now, which Discord fetches
+through its own proxy.
+
+**The Settings font list was empty for the wrong reason.** Its filter had literal
+backspace characters where `\b` was meant, so it matched no font family at all
+and quietly discarded everything the system reported.
+
+**A View page button**, in Settings and on the presence card, pointing at the
+website. `LINK_WEBSITE` joins the baked configuration.
+
+**The website's font list is interactive.** Click any font and the demo terminal
+switches to it. Fonts you have not installed are no longer dead rows either: 45
+of the 193 families load from Google Fonts, and 13 Nerd Font builds preview in
+their unpatched base family, each fetched only when its row scrolls into view.
+Rows now name their catalogue group, so a CJK system face in a list of coding
+fonts explains itself.
+
+**Checks:** 196, up from 174. `test/config.test.js` covers the build config
+precedence so an unconfigured release cannot ship again, and two Electron
+harnesses drive the real UI - `build/check-site.js` runs the website in CI,
+`build/check-app.js` boots the app and inspects it over the DevTools protocol.
+
 ## 1.6.5
 
 - Guides moved into `guides/`, leaving `docs/` to hold only the published

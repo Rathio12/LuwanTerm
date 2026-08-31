@@ -100,7 +100,7 @@ function discordInvite() {
 
 const badges = [
   `![Electron](${badge('electron', `${electronVersion()}+`, '2B2D31', '&logo=electron&logoColor=white')})`,
-  `![Node](${badge('node', '22+', '339933', '&logo=nodedotjs&logoColor=white')})`,
+  `![Node](${badge('node', `${(pkg.engines.node || '').replace(/[^0-9.]/g, '')}+`, '339933', '&logo=nodedotjs&logoColor=white')})`,
   `![ssh2](${badge('ssh2', `${clean(deps.ssh2)}`, '7c5cff')})`,
   `![Terminal](${badge('terminal', 'xterm.js', '57F287')})`,
   `![PuTTY](${badge('PuTTY .ppk', 'v2 + v3', '5865F2')})`,
