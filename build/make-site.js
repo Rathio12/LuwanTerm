@@ -13,7 +13,7 @@ const fs = require('fs');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const assets = path.join(root, 'site', 'assets');
+const assets = path.join(root, 'docs', 'assets');
 const images = path.join(assets, 'images');
 
 fs.mkdirSync(images, { recursive: true });

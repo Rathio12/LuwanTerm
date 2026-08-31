@@ -117,6 +117,17 @@ because the project path contains a space. ssh2 falls back to its pure-JS
 implementation and works fine. Move the project to a path without spaces if you
 want it built.
 
+## The website
+
+`docs/` holds the published site and nothing else; the written guides are in
+`guides/`. `node build/make-site.js` copies the app's `tokens.css`, the font
+catalogue and the screenshots into `docs/assets`, so the site cannot drift from
+the app - change an accent colour in the app and the website follows.
+
+GitHub Pages can serve it either way: **Settings, Pages, deploy from a branch,
+`main` and `/docs`**, because the assets are committed; or **GitHub Actions**,
+which runs `make-site.js` first and is the safer choice if you edit tokens.
+
 ## Releasing with GitHub Actions
 
 Two workflows live in [`.github/workflows/`](../.github/workflows).

@@ -2,8 +2,9 @@
 
 ## 1.6.5
 
-- Guides moved out of `docs/` into `guides/`, so markdown, the website and build
-  output no longer share a folder.
+- Guides moved into `guides/`, leaving `docs/` to hold only the published
+  website. GitHub Pages can serve it either straight from the branch or through
+  the workflow, since the assets are committed.
 - The website carries the app's titlebar and reuses its tokens directly, so the
   page and the program read as one thing rather than two.
 
