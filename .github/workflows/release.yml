@@ -105,7 +105,6 @@ jobs:
           name: LuwanTerm-windows
           path: |
             dist/*.exe
-            dist/*.blockmap
             dist/latest.yml
           retention-days: 30
 
@@ -120,16 +119,30 @@ jobs:
           echo "publishing $TAG"
 
           assets=()
-          for file in dist/*.exe dist/*.blockmap dist/latest.yml; do
+          for file in dist/*.exe dist/latest.yml; do
             [ -f "$file" ] && assets+=("$file")
           done
           echo "attaching: ${assets[*]}"
 
+          node build/release-notes.js "$TAG" > release-notes.md
+          echo "release notes:"
+          sed 's/^/  /' release-notes.md
+
           if gh release view "$TAG" > /dev/null 2>&1; then
-            echo "release exists, replacing its assets"
+            echo "release exists, replacing its assets and notes"
             gh release upload "$TAG" "${assets[@]}" --clobber
+            gh release edit "$TAG" --notes-file release-notes.md
+
+            # Releases published before the blockmap was dropped still carry
+            # one. NSIS installers embed their own block map, so the separate
+            # file was never used for differential updates - it is only clutter
+            # in the download list.
+            for stale in $(gh release view "$TAG" --json assets --jq '.assets[].name | select(endswith(".blockmap"))'); do
+              echo "removing stale asset $stale"
+              gh release delete-asset "$TAG" "$stale" --yes
+            done
           else
-            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --generate-notes --latest
+            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --notes-file release-notes.md --latest
           fi
 
           gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'

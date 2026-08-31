@@ -1,0 +1,16 @@
+# The Sponsor button on the repository page.
+#
+# The licence forbids selling LuwanTerm but explicitly allows donations, so this
+# is the one place money is welcome. Every line is optional - delete the ones
+# you do not use, and the button only appears when at least one resolves.
+#
+# github: needs an account enrolled at https://github.com/sponsors - until you
+# enrol, the button links to a page that does not exist yet.
+
+github: [Rathio12]
+
+# ko_fi: your-name
+# buy_me_a_coffee: your-name
+# liberapay: your-name
+# polar: your-name
+# custom: ['https://example.com/donate']
