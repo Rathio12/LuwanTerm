@@ -79,8 +79,34 @@ edited afterwards — `--provenance` reports the files as CHANGED.
 
 The private key never enters the repository. It lives in `.provenance-key`
 locally (git-ignored) and in the `PROVENANCE_KEY` repository secret for
-releases. Losing it costs nothing but the ability to sign; rotate by generating
-a new pair and replacing the public key in `src/main/provenance.js`.
+releases.
+
+**Releases are unsigned until that secret exists.** The workflow passes
+`PROVENANCE_KEY` through to the build, and an absent or empty value means the
+build stamps itself `unsigned` rather than failing - which is the right
+behaviour for a fork, but not what you want for your own releases. Set it once:
+
+```bash
+gh secret set PROVENANCE_KEY --repo Rathio12/LuwanTerm < .provenance-key
+```
+
+The key is passed from the file so it never appears in your shell history.
+
+**`.provenance-key` is the only copy.** It is git-ignored, so it is not in any
+clone, any backup of the repository, or any release. Keep a copy somewhere safe.
+Losing it does not break anything already signed - every build that shipped can
+still be verified against the public key in `src/main/provenance.js` - but you
+cannot sign anything new, and rotating means generating a new pair, replacing
+the public key, and accepting that old builds verify against the old one only.
+
+To rotate:
+
+```bash
+node -e "const c=require('crypto');const{privateKey,publicKey}=c.generateKeyPairSync('ed25519');require('fs').writeFileSync('.provenance-key',privateKey.export({format:'der',type:'pkcs8'}).toString('base64'));console.log(publicKey.export({format:'der',type:'spki'}).toString('base64'))"
+```
+
+That prints the new public key. Put it in `PUBLIC_KEY` in
+`src/main/provenance.js`, and update the repository secret.
 
 ## The writing
 
