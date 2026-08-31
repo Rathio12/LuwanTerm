@@ -52,6 +52,11 @@ you first connect.
 They work directly — **version 2 and version 3, every key type, encrypted or
 not.** Point at a `.ppk` and use it.
 
+Encrypted version 3 files use Argon2, which the app gets from the Node that
+Electron bundles, so a released build always has it. Only a source checkout on
+Node older than 24 would not, and it says so plainly rather than failing
+obscurely.
+
 Nothing is converted. The file stays a `.ppk` and is never rewritten. When you
 connect, the key is decoded in memory into the form the SSH layer expects, and
 the passphrase is consumed there rather than being handed on.
