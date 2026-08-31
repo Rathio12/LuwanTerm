@@ -115,4 +115,37 @@ for (const [type, options] of TYPES) {
   check('an openssh key is not mistaken for one', ppk.looksLikePpk(common.publicBlob.toString()) === false);
 }
 
+// Argon2 arrived in Node 24. On anything older, an encrypted v3 file must say
+// so rather than dying with "argon2Sync is not a function", which is what CI
+// produced when it was pinned to Node 22.
+{
+  const crypto = require('crypto');
+  const parts = decodeOpenSsh(generateKeyPairSync('ed25519', { comment: 'argon' }).private);
+  const encrypted = writePpk({
+    version: 3,
+    algorithm: parts.algorithm,
+    comment: 'argon',
+    publicBlob: parts.publicBlob,
+    privateBlob: parts.privateBlob,
+    passphrase: 'pw',
+  });
+
+  const real = crypto.argon2Sync;
+  delete crypto.argon2Sync;
+  try {
+    ppk.parse(encrypted, 'pw');
+    check('a runtime without Argon2 explains itself', false, 'it parsed anyway');
+  } catch (err) {
+    check(
+      'a runtime without Argon2 explains itself',
+      /Node 24/.test(err.message) && !/not a function/.test(err.message),
+      err.message
+    );
+  } finally {
+    crypto.argon2Sync = real;
+  }
+
+  check('and works again once it is back', ppk.parse(encrypted, 'pw').algorithm === 'ssh-ed25519');
+}
+
 done();

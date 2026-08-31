@@ -2,7 +2,8 @@
 
 ## Requirements
 
-Node 20+ and npm. Windows for the Windows targets — electron-builder can't make
+Node 24 or newer, and npm. Encrypted PuTTY v3 keys need `crypto.argon2Sync`,
+which landed in Node 24 and is what Electron 44 bundles. Windows for the Windows targets — electron-builder can't make
 an NSIS installer from Linux or macOS without extra tooling.
 
 ```bash

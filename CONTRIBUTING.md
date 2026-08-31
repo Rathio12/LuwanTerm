@@ -7,7 +7,10 @@ npm install
 npm start        # or npm run dev for renderer logs and devtools
 ```
 
-Node 20+ and Windows for the Windows build targets. That is the whole setup —
+**Node 24 or newer**, and Windows for the Windows build targets. Node 24 is
+not arbitrary: encrypted PuTTY v3 keys need `crypto.argon2Sync`, which
+arrived in 24, and it is the version Electron 44 bundles - so the tests run
+on the same runtime as the app. That is the whole setup —
 there is no bundler, no watch task, and no code generation step. Edit a file and
 restart.
 

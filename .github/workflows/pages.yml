@@ -34,7 +34,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       # Copies the app's own tokens, the font catalogue and the screenshots into
       # docs/assets, so the published site can never drift from the app.

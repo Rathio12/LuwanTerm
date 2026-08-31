@@ -15,7 +15,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
 
       # No `npm ci` here on purpose: these checks need nothing installed, so
       # they finish in seconds and give fast feedback on an obvious mistake.
@@ -60,7 +60,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '24'
           cache: npm
 
       # The suites exercise ssh2 and the key parsers, so these do need the
