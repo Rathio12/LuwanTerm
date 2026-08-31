@@ -74,9 +74,15 @@
   }
 
   /** Opens a new session for a stored host profile. */
-  async function open(hostId) {
+  /**
+   * @param {string} hostId
+   * @param {{attempts?: number}} [options] carries the retry count across a
+   *   reconnect so it does not restart from zero each time
+   * @returns {Promise<boolean>} whether a session came up
+   */
+  async function open(hostId, options = {}) {
     const host = state.hostById(hostId);
-    if (!host) return;
+    if (!host) return false;
 
     const key = `local_${Math.random().toString(36).slice(2, 9)}`;
     const entry = {
@@ -88,6 +94,9 @@
       tunnels: null,
       dock: null,
       cwd: host.defaultPath || '.',
+      attempts: options.attempts || 0,
+      userClosed: false,
+      reconnectTimer: null,
     };
 
     state.sessions.set(key, entry);
@@ -99,7 +108,7 @@
 
       if (!state.sessions.has(key)) {
         window.term.ssh.disconnect(info.id).catch(() => {});
-        return;
+        return false;
       }
 
       state.sessions.delete(key);
@@ -112,11 +121,13 @@
       renderTabs();
       activate(info.id);
       App.toast.ok(`Connected to ${host.name}`);
+      return true;
     } catch (err) {
       state.sessions.delete(key);
       if (state.activeId === key) state.activeId = null;
       renderTabs();
       App.toast.error(err.message);
+      return false;
     }
   }
 
@@ -137,11 +148,20 @@
     entry.term.focus();
   }
 
-  async function close(key) {
+  /**
+   * @param {string} key
+   * @param {{silent?: boolean}} [options] skip the confirmation, used when a
+   *   reconnect is replacing the session rather than the user closing it
+   */
+  async function close(key, options = {}) {
     const entry = state.sessions.get(key);
     if (!entry) return;
 
-    if (state.settings.confirmOnClose && entry.info.status === 'ready') {
+    // A close the user asked for must never be undone by reconnecting.
+    entry.userClosed = true;
+    clearTimeout(entry.reconnectTimer);
+
+    if (!options.silent && state.settings.confirmOnClose && entry.info.status === 'ready') {
       const confirmed = await App.modal.confirm({
         title: 'Close session',
         message: `Disconnect from ${entry.host.name}? Any tunnels on this session are closed too.`,
@@ -165,11 +185,53 @@
     renderTabs();
   }
 
+  /**
+   * Re-dials a session that dropped on its own.
+   *
+   * Driven entirely by settings.json - `autoReconnect`, `autoReconnectAttempts`
+   * and `autoReconnectDelaySeconds` - so it adds nothing to the interface. The
+   * existing disconnected overlay just says what is happening.
+   */
+  function scheduleReconnect(entry) {
+    const { autoReconnect, autoReconnectAttempts, autoReconnectDelaySeconds } = state.settings;
+    if (!autoReconnect || entry.userClosed) return false;
+
+    entry.attempts = (entry.attempts || 0) + 1;
+    if (entry.attempts > autoReconnectAttempts) return false;
+
+    const seconds = autoReconnectDelaySeconds;
+    entry.term?.setOverlay({
+      spinner: true,
+      title: 'Reconnecting',
+      message: `Attempt ${entry.attempts} of ${autoReconnectAttempts}, in ${seconds}s.`,
+    });
+
+    clearTimeout(entry.reconnectTimer);
+    entry.reconnectTimer = setTimeout(async () => {
+      if (entry.userClosed) return;
+      const hostId = entry.host.id;
+      const attempts = entry.attempts;
+
+      await close(entry.key, { silent: true });
+      const reopened = await open(hostId, { attempts });
+      if (!reopened) {
+        App.toast.error(`Could not reconnect to ${entry.host.name}.`);
+      }
+    }, seconds * 1000);
+
+    return true;
+  }
+
   function markStatus(entry, status, detail) {
     entry.info = { ...entry.info, status };
     if (status === 'ready') {
+      entry.attempts = 0;
       entry.term?.setOverlay(null);
     } else if (status === 'closed' || status === 'error') {
+      if (scheduleReconnect(entry)) {
+        renderTabs();
+        return;
+      }
       entry.term?.setOverlay({
         title: status === 'error' ? 'Connection failed' : 'Disconnected',
         message: detail || 'The session is no longer connected.',

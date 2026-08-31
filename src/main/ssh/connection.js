@@ -136,7 +136,12 @@ class SshConnection extends EventEmitter {
       });
   }
 
-  connect(credentials = {}) {
+  /**
+   * @param {object} credentials
+   * @param {import('stream').Duplex} [sock] an already-open channel to the
+   *   server, used when reaching it through a jump host
+   */
+  connect(credentials = {}, sock = null) {
     const auth = this.buildAuth(credentials);
 
     return new Promise((resolve, reject) => {
@@ -178,7 +183,8 @@ class SshConnection extends EventEmitter {
           keepaliveCountMax: 3,
           tryKeyboard: true,
           hostVerifier: (keyBlob, cb) => this.hostVerifier(keyBlob, cb),
-          ident: `LuwanTerm_1.0 (${os.platform()})`,
+          ident: `LuwanTerm (${os.platform()})`,
+          ...(sock ? { sock } : {}),
           ...auth,
         });
     });

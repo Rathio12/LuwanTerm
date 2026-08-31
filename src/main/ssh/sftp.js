@@ -150,6 +150,29 @@ class SftpClient {
     return { path: target, entries };
   }
 
+  /**
+   * Reads a remote file as text, for comparing rather than transferring.
+   * @param {number} [limit] refuse anything larger, in bytes
+   */
+  async readText(target, limit = 2 * 1024 * 1024) {
+    const attrs = await this.call('stat', target);
+    if (attrs.isDirectory()) throw new Error('That is a folder, not a file.');
+    if (attrs.size > limit) {
+      throw new Error(
+        `That file is ${(attrs.size / 1048576).toFixed(1)} MB. Comparing is limited to ${limit / 1048576} MB.`
+      );
+    }
+
+    const sftp = await this.ready();
+    return new Promise((resolve, reject) => {
+      const chunks = [];
+      const stream = sftp.createReadStream(target);
+      stream.on('data', (chunk) => chunks.push(chunk));
+      stream.on('error', (err) => reject(new Error(`Could not read ${target}: ${err.message}`)));
+      stream.on('close', () => resolve(Buffer.concat(chunks).toString('utf8')));
+    });
+  }
+
   async mkdir(dir) {
     await this.call('mkdir', dir);
     return true;

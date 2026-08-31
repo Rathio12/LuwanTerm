@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>LuwanTerm - a clean SSH client for Windows</title>
+<meta name="description" content="Tabbed SSH terminals, SFTP and port forwarding in one window. Native PuTTY .ppk support, host key pinning, and secrets in the OS keychain." />
+<meta property="og:title" content="LuwanTerm" />
+<meta property="og:description" content="A clean SSH client for Windows - tabbed terminals, SFTP and port forwarding in one window." />
+<meta property="og:image" content="https://rathio12.github.io/LuwanTerm/assets/images/app.png" />
+<link rel="icon" href="assets/images/icon.png" />
+<link rel="stylesheet" href="assets/tokens.css" />
+<link rel="stylesheet" href="assets/site.css" />
+</head>
+<body>
+
+<header class="wrap">
+  <img class="mark" src="assets/images/icon.png" alt="LuwanTerm" />
+  <h1>LuwanTerm</h1>
+  <p class="tagline">Tabbed SSH terminals, SFTP and port forwarding in one window. Your PuTTY keys work as they are.</p>
+
+  <div class="cta">
+    <a class="btn btn--primary" id="download" href="https://github.com/Rathio12/LuwanTerm/releases/latest">Download for Windows</a>
+    <a class="btn btn--ghost" id="portable" href="https://github.com/Rathio12/LuwanTerm/releases/latest">Portable exe</a>
+    <a class="btn btn--ghost" href="https://github.com/Rathio12/LuwanTerm">Source</a>
+  </div>
+  <p class="meta" id="meta">Fetching the latest release...</p>
+
+  <img class="shot" src="assets/images/app.png" alt="LuwanTerm main window" />
+</header>
+
+<section class="wrap">
+  <h2>What it does</h2>
+  <p class="lede">Everything a terminal, a file browser and a tunnel manager would do, without three separate windows.</p>
+  <div class="grid">
+    <div class="card"><h3><span class="dot"></span>Tabbed terminals</h3><p>xterm.js with GPU rendering, a find bar and copy-on-select. Each tab keeps its own scrollback and pty size.</p></div>
+    <div class="card"><h3><span class="dot dot--c"></span>SFTP built in</h3><p>Browse, upload, download whole folders, rename and delete over the same connection. Transfers show progress and can be cancelled.</p></div>
+    <div class="card"><h3><span class="dot dot--g"></span>Port forwarding</h3><p>Local, remote and a real SOCKS5 proxy, with a live connection count for each tunnel.</p></div>
+    <div class="card"><h3><span class="dot"></span>PuTTY .ppk files</h3><p>Versions 2 and 3, every key type, encrypted or not. Read where they live and never rewritten or converted.</p></div>
+    <div class="card"><h3><span class="dot dot--c"></span>Host key pinning</h3><p>Fingerprints recorded on first use and checked every time, with a loud warning if one ever changes.</p></div>
+    <div class="card"><h3><span class="dot dot--g"></span>Secrets in the keychain</h3><p>Passwords and passphrases are encrypted by Windows. If that is unavailable, nothing is written at all.</p></div>
+  </div>
+</section>
+
+<section class="wrap">
+  <h2>Fonts</h2>
+  <p class="lede">
+    LuwanTerm knows <span class="fcount" id="total">193</span> monospace families and shows you the ones you have,
+    each rendered in its own face. <strong id="installed">Checking what you have...</strong>
+    This list is live - it runs the same check the app does.
+  </p>
+  <div class="fonts" id="fontlist"></div>
+</section>
+
+<section class="wrap">
+  <h2>Getting started</h2>
+  <p class="lede">Download and run. If Windows warns about an unknown publisher, that is expected: the builds are signed with a self-signed certificate, which is the honest limit of what a free one can do.</p>
+  <pre>git clone https://github.com/Rathio12/LuwanTerm.git
+cd LuwanTerm
+npm install
+npm start</pre>
+
+  <table>
+    <tr><th>Guide</th><th>What's in it</th></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/getting-started.md">Getting started</a></td><td>First connection, host profiles, tabs, shortcuts</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/keys.md">SSH keys</a></td><td>Generating, adding your own, .ppk, installing on a server</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/sftp.md">SFTP</a></td><td>Transfers, folder downloads, cancelling</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/tunnels.md">Tunnels</a></td><td>Local, remote and SOCKS5, with worked examples</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/configuration.md">Configuration</a></td><td>Build settings versus user settings</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/signing.md">Code signing</a></td><td>Why Windows warns and what actually fixes it</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/customising.md">Make it your own</a></td><td>Rebranding, retheming, adding a panel</td></tr>
+    <tr><td><a href="https://github.com/Rathio12/LuwanTerm/blob/main/docs/architecture.md">Architecture</a></td><td>How it fits together, for anyone changing the code</td></tr>
+  </table>
+</section>
+
+<footer class="wrap">
+  <p>
+    <a href="https://github.com/Rathio12/LuwanTerm">GitHub</a>
+    <a href="https://github.com/Rathio12/LuwanTerm/releases">Releases</a>
+    <a href="https://github.com/Rathio12/LuwanTerm/issues/new">Report a bug</a>
+    <a href="https://github.com/Rathio12/LuwanTerm/blob/main/SECURITY.md">Security</a>
+  </p>
+  <p>Built with Electron, ssh2 and xterm.js.</p>
+</footer>
+
+<script src="assets/site.js"></script>
+</body>
+</html>

@@ -4,6 +4,9 @@ const { EventEmitter } = require('events');
 const { SshConnection } = require('./connection');
 const { SftpClient } = require('./sftp');
 const { TunnelManager } = require('./tunnels');
+const { SessionLog } = require('./session-log');
+const settings = require('../store/settings');
+const paths = require('../paths');
 
 const TERM_NAME = 'xterm-256color';
 
@@ -21,6 +24,10 @@ class Session extends EventEmitter {
     this.profile = profile;
     this.status = 'connecting';
     this.connection = new SshConnection(profile, handlers);
+    /** @type {SshConnection|null} the bastion, when one is in the way */
+    this.jump = null;
+    /** @type {SessionLog|null} only opened when logging is switched on */
+    this.log = null;
     this.stream = null;
     this.sftp = null;
     this.tunnels = null;
@@ -37,7 +44,31 @@ class Session extends EventEmitter {
     this.emitEvent('status', { status, detail });
   }
 
-  async start(credentials, size = {}) {
+  /**
+   * Starts a transcript when settings.json asks for one. Failing to open a
+   * log must never stop a session connecting.
+   */
+  openLog() {
+    const current = settings.get();
+    if (!current.sessionLogging) return;
+
+    try {
+      this.log = new SessionLog(paths.logsDir(), this.profile, {
+        keepAnsi: current.sessionLogKeepAnsi,
+      });
+      this.emitEvent('logging', { file: this.log.file });
+    } catch (err) {
+      console.error('[session] logging unavailable:', err.message);
+      this.log = null;
+    }
+  }
+
+  /** Attaches the jump connection so it is torn down with the session. */
+  useJump(connection) {
+    this.jump = connection;
+  }
+
+  async start(credentials, size = {}, sock = null) {
     this.connection.on('banner', (message) => this.emitEvent('banner', { message }));
     this.connection.on('error', (err) => {
       this.setStatus('error', err.message);
@@ -48,13 +79,14 @@ class Session extends EventEmitter {
       this.dispose();
     });
 
-    await this.connection.connect(credentials);
+    await this.connection.connect(credentials, sock);
 
     this.sftp = new SftpClient(this.connection.client);
     this.tunnels = new TunnelManager(this.connection.client, (type, payload) =>
       this.emitEvent(type, payload)
     );
 
+    this.openLog();
     await this.openShell(size);
     this.setStatus('ready');
 
@@ -72,8 +104,14 @@ class Session extends EventEmitter {
           return;
         }
         this.stream = stream;
-        stream.on('data', (chunk) => this.emitEvent('data', { chunk }));
-        stream.stderr.on('data', (chunk) => this.emitEvent('data', { chunk }));
+        stream.on('data', (chunk) => {
+          this.emitEvent('data', { chunk });
+          if (this.log) this.log.write(chunk);
+        });
+        stream.stderr.on('data', (chunk) => {
+          this.emitEvent('data', { chunk });
+          if (this.log) this.log.write(chunk);
+        });
         stream.on('close', () => {
           this.stream = null;
           this.setStatus('closed', 'Shell session ended.');
@@ -149,7 +187,17 @@ class Session extends EventEmitter {
         this.stream.end();
       } catch { /* already closed */ }
     }
+    if (this.log) {
+      this.log.close(this.status);
+      this.log = null;
+    }
     this.connection.end();
+    if (this.jump) {
+      try {
+        this.jump.end();
+      } catch { /* already torn down */ }
+      this.jump = null;
+    }
     this.emitEvent('disposed');
   }
 

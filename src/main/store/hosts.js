@@ -30,6 +30,7 @@ function normalize(input, existing = {}) {
     username,
     auth: ['password', 'key', 'agent'].includes(input.auth) ? input.auth : 'password',
     keyId: String(input.keyId || '').trim(),
+    jumpHost: String(input.jumpHost || '').trim(),
     privateKeyPath: String(input.privateKeyPath || '').trim(),
     group: String(input.group || '').trim(),
     color: ACCENTS.includes(input.color) ? input.color : existing.color || ACCENTS[0],

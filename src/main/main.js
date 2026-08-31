@@ -63,7 +63,10 @@ if (!app.requestSingleInstanceLock()) {
     });
 
     const updating = await runBootSequence(splash, rendererReady);
-    if (!updating) reveal();
+    if (updating) return;
+
+    reveal();
+    watchForUpdates();
 
     app.on('activate', () => {
       if (BrowserWindow.getAllWindows().length !== 0) return;
@@ -71,6 +74,24 @@ if (!app.requestSingleInstanceLock()) {
       mainWindow.once('ready-to-show', () => mainWindow.show());
       manager.attach(mainWindow.webContents);
     });
+  });
+}
+
+/**
+ * Keeps checking while the app is open, so a window left running for days still
+ * finds out about a release. Each version is only ever offered once.
+ */
+function watchForUpdates() {
+  updater.watch(async (update) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (!(await askToUpdate(mainWindow, update))) return;
+
+    try {
+      await updater.download();
+      updater.install();
+    } catch (err) {
+      mainWindow.webContents.send('update:state', { status: 'error', message: err.message });
+    }
   });
 }
 
@@ -198,6 +219,7 @@ function updatePresence() {
 }
 
 app.on('before-quit', () => {
+  updater.stopWatching();
   discord.stop();
   manager.closeAll();
 });

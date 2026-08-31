@@ -16,17 +16,38 @@ const { app } = require('electron');
  */
 
 const CHECK_TIMEOUT_MS = 7000;
+const RECHECK_EVERY_MS = 6 * 60 * 60 * 1000;
 
 let updater = null;
 let notify = () => {};
 let state = { status: 'idle' };
 let manual = false;
+let inFlight = null;
+let recheckTimer = null;
+let offered = null;
 
 const isPortable = () => Boolean(process.env.PORTABLE_EXECUTABLE_DIR);
 
 function setState(next) {
   state = next;
   notify(state);
+}
+
+/**
+ * Compares dotted versions numerically, so 1.10.0 is correctly newer than 1.9.0
+ * where a string comparison would say otherwise.
+ */
+function isNewer(candidate, current) {
+  const parse = (v) => String(v).split('.').map((part) => Number.parseInt(part, 10) || 0);
+  const a = parse(candidate);
+  const b = parse(current);
+
+  for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
+    const left = a[i] || 0;
+    const right = b[i] || 0;
+    if (left !== right) return left > right;
+  }
+  return false;
 }
 
 function describe(err) {
@@ -67,6 +88,7 @@ function load() {
 }
 
 module.exports = {
+  isNewer,
   /** @param {(state: object) => void} onState */
   attach(onState) {
     notify = typeof onState === 'function' ? onState : () => {};
@@ -90,31 +112,73 @@ module.exports = {
       return null;
     }
 
+    // Two checks at once would race the state machine and could offer the same
+    // update twice, so a second caller joins the first.
+    if (inFlight) return inFlight;
+
     manual = userAsked;
     const current = app.getVersion();
 
-    try {
-      const result = await Promise.race([
-        instance.checkForUpdates(),
-        new Promise((resolve) => setTimeout(() => resolve(null), timeout)),
-      ]);
+    inFlight = (async () => {
+      try {
+        const result = await Promise.race([
+          instance.checkForUpdates(),
+          new Promise((resolve) => setTimeout(() => resolve(null), timeout)),
+        ]);
 
-      const version = result && result.updateInfo && result.updateInfo.version;
-      if (!version || version === current) {
-        setState({ status: 'current', version: current });
+        const version = result && result.updateInfo && result.updateInfo.version;
+        if (!version) {
+          if (userAsked) setState({ status: 'error', message: 'GitHub did not answer in time.' });
+          else setState({ status: 'idle' });
+          return null;
+        }
+
+        if (!isNewer(version, current)) {
+          setState({ status: 'current', version: current });
+          return null;
+        }
+
+        setState({ status: isPortable() ? 'available-portable' : 'available', version });
+        return { version, current, canInstall: !isPortable() };
+      } catch (err) {
+        if (userAsked) setState({ status: 'error', message: describe(err) });
+        else setState({ status: 'idle' });
         return null;
+      } finally {
+        inFlight = null;
       }
+    })();
 
-      setState({
-        status: isPortable() ? 'available-portable' : 'available',
-        version,
-      });
-      return { version, current, canInstall: !isPortable() };
-    } catch (err) {
-      if (userAsked) setState({ status: 'error', message: describe(err) });
-      else setState({ status: 'idle' });
-      return null;
-    }
+    return inFlight;
+  },
+
+  /**
+   * Re-checks periodically so a long-running window still notices a release.
+   * @param {(update: object) => void} onFound called once per new version
+   */
+  watch(onFound) {
+    clearInterval(recheckTimer);
+    if (!app.isPackaged) return;
+
+    recheckTimer = setInterval(async () => {
+      const update = await this.check({ userAsked: false });
+      // Only mention a version once, however many times it is seen.
+      if (update && update.version !== offered) {
+        offered = update.version;
+        try {
+          onFound(update);
+        } catch (err) {
+          console.error('[updater] notify failed:', err.message);
+        }
+      }
+    }, RECHECK_EVERY_MS);
+
+    if (recheckTimer.unref) recheckTimer.unref();
+  },
+
+  stopWatching() {
+    clearInterval(recheckTimer);
+    recheckTimer = null;
   },
 
   /**

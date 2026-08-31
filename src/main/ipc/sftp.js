@@ -7,6 +7,7 @@ const crypto = require('crypto');
 const { BrowserWindow, dialog, shell } = require('electron');
 const { handle } = require('./helpers');
 const { TransferCancelled } = require('../ssh/sftp');
+const { diffLines } = require('../diff');
 
 const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
 const newTransferId = () => crypto.randomBytes(4).toString('hex');
@@ -123,6 +124,54 @@ function register(manager) {
       uploaded.push(name);
     }
     return uploaded;
+  });
+
+  handle('sftp:read-text', async (sessionId, target) => sftpOf(sessionId).sftp.readText(target));
+
+  /**
+   * Compares a remote file with one on this machine. The local side is chosen
+   * through a dialog, since the renderer cannot open files itself.
+   */
+  handle('sftp:compare-local', async (sessionId, remotePath) => {
+    const session = sftpOf(sessionId);
+    const name = posix.basename(remotePath);
+
+    const picked = await dialog.showOpenDialog(mainWindow(), {
+      title: `Compare "${name}" with a local file`,
+      properties: ['openFile'],
+      buttonLabel: 'Compare',
+    });
+    if (picked.canceled) return null;
+
+    const localPath = picked.filePaths[0];
+    const [remote, local] = await Promise.all([
+      session.sftp.readText(remotePath),
+      fs.promises.readFile(localPath, 'utf8'),
+    ]);
+
+    return {
+      leftLabel: `${session.profile.name}:${remotePath}`,
+      rightLabel: localPath,
+      ...diffLines(remote, local),
+    };
+  });
+
+  /** Compares the same path on two different servers. */
+  handle('sftp:compare-remote', async (sessionId, remotePath, otherSessionId, otherPath) => {
+    const left = sftpOf(sessionId);
+    const right = sftpOf(otherSessionId);
+    const target = otherPath || remotePath;
+
+    const [a, b] = await Promise.all([
+      left.sftp.readText(remotePath),
+      right.sftp.readText(target),
+    ]);
+
+    return {
+      leftLabel: `${left.profile.name}:${remotePath}`,
+      rightLabel: `${right.profile.name}:${target}`,
+      ...diffLines(a, b),
+    };
   });
 
   handle('sftp:reveal', async (localPath) => {

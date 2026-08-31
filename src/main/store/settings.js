@@ -17,6 +17,11 @@ const DEFAULTS = {
   backgroundBlur: 0,
   terminalOpacity: 100,
   accentColor: '#7c5cff',
+  sessionLogging: false,
+  sessionLogKeepAnsi: false,
+  autoReconnect: false,
+  autoReconnectAttempts: 3,
+  autoReconnectDelaySeconds: 5,
   discordEnabled: true,
 
   discordShowHost: false,
@@ -30,6 +35,8 @@ const CLAMP = {
   backgroundOpacity: [0, 100],
   backgroundBlur: [0, 40],
   terminalOpacity: [20, 100],
+  autoReconnectAttempts: [1, 20],
+  autoReconnectDelaySeconds: [1, 300],
 };
 
 function coerce(patch) {

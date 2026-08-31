@@ -1,0 +1,778 @@
+{
+  "note": "Font families LuwanTerm can detect and preview. These are names, not bundled files - see fonts/README.md.",
+  "sample": "const ok = 0O1lI; ~$>_ => != <=",
+  "fonts": [
+    {
+      "name": "JetBrains Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Fira Code",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Fira Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Source Code Pro",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "IBM Plex Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Hack",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Inconsolata",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Inconsolata Go",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Iosevka",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Iosevka Term",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Victor Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Cascadia Code",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Cascadia Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Cascadia Next",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Roboto Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Ubuntu Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Ubuntu Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "DejaVu Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Liberation Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Noto Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "PT Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Space Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Anonymous Pro",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Share Tech Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Overpass Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Red Hat Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Martian Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Geist Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Commit Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Departure Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Intel One Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Maple Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Recursive Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Lilex",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monofur",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monoid",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Mononoki",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Cousine",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Cutive Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Nanum Gothic Coding",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Oxygen Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Syne Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "VT323",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Xanh Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "B612 Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Azeret Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "DM Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Fragment Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Chivo Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Sometype Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Spline Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Kode Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Workbench",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Fantasque Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Hasklig",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Go Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Envy Code R",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Hermit",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Camingo Code",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Luculent",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "ProFont",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Agave",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Aurulent Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Edlo",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Meslo LG S",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Meslo LG M",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Meslo LG L",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Sudo",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Verily Serif Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Bitstream Vera Sans Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Nimbus Mono PS",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "FreeMono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Luxi Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Sarasa Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monaspace Neon",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monaspace Argon",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monaspace Xenon",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monaspace Radon",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Monaspace Krypton",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "0xProto",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Gintronic",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Reddit Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Server Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Zed Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Adwaita Mono",
+      "group": "Open source coding fonts"
+    },
+    {
+      "name": "Terminus",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Tamsyn",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Gohu GohuFont",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "ProggyClean",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "ProggyCleanTT",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "ProggyVector",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Scientifica",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Cozette",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Creep",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Curie",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Spleen",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Tewi",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Unifont",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Zpix",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Dina",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Fixedsys Excelsior",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Peep",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Siji",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Lemon",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "Berkelium",
+      "group": "Bitmap and pixel fonts"
+    },
+    {
+      "name": "JetBrainsMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "FiraCode Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "FiraMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Hack Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "MesloLGS NF",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "MesloLGM NF",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "MesloLGL NF",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "CaskaydiaCove Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "CaskaydiaMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "SauceCodePro Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "DroidSansMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "UbuntuMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "UbuntuSans Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "InconsolataGo Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Iosevka Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "IosevkaTerm Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "VictorMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "RobotoMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "SpaceMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "DejaVuSansMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "BlexMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Terminess Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "ProggyClean Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Monofur Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Mononoki Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Hasklug Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "AnonymicePro Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "GoMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Lilex Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "ComicShannsMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Agave Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Arimo Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "AurulentSansMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "BigBlueTerminal Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "CodeNewRoman Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Cousine Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "DaddyTimeMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "EnvyCodeR Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Gohu Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Hermit Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Inconsolata Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "IntelOneMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Lekton Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "LiberationMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Noto Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "OpenDyslexicM Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Overpass Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "ShareTechMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Tinos Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "ZedMono Nerd Font",
+      "group": "Nerd Font patched"
+    },
+    {
+      "name": "Consolas",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Courier New",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Courier",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Lucida Console",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Lucida Sans Typewriter",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Menlo",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Monaco",
+      "group": "System and vendor"
+    },
+    {
+      "name": "SF Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "SFMono-Regular",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Andale Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Terminal",
+      "group": "System and vendor"
+    },
+    {
+      "name": "MS Gothic",
+      "group": "System and vendor"
+    },
+    {
+      "name": "NSimSun",
+      "group": "System and vendor"
+    },
+    {
+      "name": "SimSun-ExtB",
+      "group": "System and vendor"
+    },
+    {
+      "name": "MingLiU",
+      "group": "System and vendor"
+    },
+    {
+      "name": "MingLiU-ExtB",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Osaka-Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Segoe UI Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Apple SD Gothic Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Droid Sans Mono",
+      "group": "System and vendor"
+    },
+    {
+      "name": "Roboto Mono for Powerline",
+      "group": "System and vendor"
+    },
+    {
+      "name": "MonoLisa",
+      "group": "Commercial"
+    },
+    {
+      "name": "Berkeley Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "Operator Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "Dank Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "PragmataPro",
+      "group": "Commercial"
+    },
+    {
+      "name": "Input Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "Triplicate Code",
+      "group": "Commercial"
+    },
+    {
+      "name": "Nitti",
+      "group": "Commercial"
+    },
+    {
+      "name": "Cartograph CF",
+      "group": "Commercial"
+    },
+    {
+      "name": "Comic Code",
+      "group": "Commercial"
+    },
+    {
+      "name": "Pitch",
+      "group": "Commercial"
+    },
+    {
+      "name": "S\u00f6hne Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "Gintronic Pro",
+      "group": "Commercial"
+    },
+    {
+      "name": "Rec Mono",
+      "group": "Commercial"
+    },
+    {
+      "name": "TX-02",
+      "group": "Commercial"
+    },
+    {
+      "name": "Codelia",
+      "group": "Commercial"
+    },
+    {
+      "name": "iA Writer Mono",
+      "group": "Commercial"
+    }
+  ]
+}

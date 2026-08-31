@@ -1,0 +1,212 @@
+/*
+ * Site layout. Every colour, radius, shadow and easing comes from the app's own
+ * tokens.css, which build/make-site.js copies in, so the two cannot drift.
+ */
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--bg-base);
+  font-family: var(--font-ui);
+  font-size: 15px;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The same ambient wash the app paints behind its glass. */
+body::before {
+  content: "";
+  position: fixed;
+  inset: -30%;
+  z-index: -1;
+  background:
+    radial-gradient(48% 42% at 18% 8%, var(--bg-wash-a), transparent 65%),
+    radial-gradient(42% 46% at 88% 92%, var(--bg-wash-b), transparent 62%),
+    linear-gradient(160deg, var(--bg-base), var(--bg-deep));
+}
+
+.wrap { width: min(1060px, 92vw); margin: 0 auto; }
+a { color: var(--cyan); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: var(--stroke-strong);
+  border-radius: var(--pill);
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* ---------- Hero ---------- */
+
+header { padding: 88px 0 8px; text-align: center; }
+
+.mark {
+  width: 88px;
+  height: 88px;
+  border-radius: var(--r-xl);
+  box-shadow: 0 18px 48px rgba(124, 92, 255, 0.42);
+}
+
+h1 {
+  font-size: clamp(40px, 7vw, 62px);
+  margin: 20px 0 8px;
+  letter-spacing: -1.4px;
+  font-weight: 700;
+}
+
+.tagline {
+  font-size: clamp(15px, 2.3vw, 19px);
+  color: var(--ink-mute);
+  margin: 0 auto 28px;
+  max-width: 48ch;
+}
+
+.cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* Buttons are the app's, down to the gradient and the lift on press. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 22px;
+  border-radius: var(--r-md);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 550;
+  transition: background var(--fast), border-color var(--fast), color var(--fast), transform var(--fast), filter var(--fast);
+}
+.btn:hover { text-decoration: none; }
+.btn:active { transform: translateY(1px); }
+
+.btn--primary {
+  color: #fff;
+  background: linear-gradient(140deg, var(--accent), #5b6cff);
+  box-shadow: 0 8px 26px rgba(124, 92, 255, 0.38);
+}
+.btn--primary:hover { filter: brightness(1.09); }
+
+.btn--ghost { background: var(--glass-strong); border-color: var(--stroke-soft); color: var(--ink-mute); }
+.btn--ghost:hover { background: var(--glass-hover); color: var(--ink); }
+
+.meta { font-size: 12.5px; color: var(--ink-faint); margin-top: 14px; min-height: 20px; }
+
+.shot {
+  display: block;
+  width: 100%;
+  margin: 48px auto 0;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--stroke);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ---------- Sections ---------- */
+
+section { padding: 76px 0; }
+h2 { font-size: clamp(25px, 4vw, 33px); margin: 0 0 8px; letter-spacing: -0.6px; }
+.lede { color: var(--ink-mute); margin: 0 0 34px; max-width: 66ch; }
+
+.grid { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(268px, 1fr)); }
+
+/* The same glass panel the sidebar and dock use. */
+.card {
+  padding: 21px 23px;
+  border-radius: var(--r-lg);
+  background: var(--glass);
+  border: 1px solid var(--stroke);
+  backdrop-filter: blur(22px) saturate(150%);
+  transition: background var(--fast), border-color var(--fast), transform var(--fast);
+}
+.card:hover { background: var(--glass-strong); border-color: var(--stroke-strong); transform: translateY(-2px); }
+.card h3 { margin: 0 0 7px; font-size: 15.5px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.card p { margin: 0; font-size: 13.5px; color: var(--ink-mute); }
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--pill);
+  background: var(--dot, var(--accent));
+  box-shadow: 0 0 10px color-mix(in srgb, var(--dot, var(--accent)) 70%, transparent);
+  flex: none;
+}
+.dot--c { --dot: var(--cyan); }
+.dot--g { --dot: var(--green); }
+.dot--a { --dot: var(--amber); }
+
+code { font-family: var(--font-mono); font-size: 0.92em; color: var(--ink); }
+
+pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--stroke-soft);
+  border-radius: var(--r-md);
+  padding: 17px 19px;
+  overflow-x: auto;
+  font-size: 13px;
+  font-family: var(--font-mono);
+  color: #c8cde0;
+}
+
+/* ---------- Font preview ---------- */
+
+.fonts {
+  display: grid;
+  gap: 2px;
+  max-height: 470px;
+  overflow-y: auto;
+  padding: 7px;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--stroke-soft);
+  background: rgba(0, 0, 0, 0.24);
+}
+
+.frow {
+  display: grid;
+  grid-template-columns: 220px 1fr 100px;
+  gap: 14px;
+  align-items: center;
+  padding: 9px 12px;
+  border-radius: var(--r-sm);
+  border: 1px solid transparent;
+  transition: background var(--fast);
+}
+.frow:hover { background: var(--glass-strong); }
+.frow.installed { border-color: var(--stroke-soft); }
+.frow.missing { opacity: 0.3; }
+
+.fname { font-weight: 550; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.fsample { font-size: 13.5px; color: var(--ink-mute); white-space: nowrap; overflow: hidden; }
+.ftag { font-size: 10px; text-align: right; text-transform: uppercase; letter-spacing: 0.6px; color: var(--green); }
+.frow.missing .ftag { color: var(--ink-faint); }
+.fcount { color: var(--accent); font-weight: 650; }
+
+/* ---------- Table ---------- */
+
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 10px 13px; border-bottom: 1px solid var(--stroke-soft); }
+th {
+  color: var(--ink-faint);
+  font-weight: 600;
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.9px;
+}
+tr:last-child td { border-bottom: 0; }
+
+footer {
+  padding: 46px 0 68px;
+  border-top: 1px solid var(--stroke-soft);
+  color: var(--ink-faint);
+  font-size: 13px;
+  text-align: center;
+}
+footer a { margin: 0 10px; }
+
+@media (max-width: 640px) {
+  header { padding-top: 56px; }
+  .frow { grid-template-columns: 1fr; gap: 2px; }
+  .ftag { text-align: left; }
+}

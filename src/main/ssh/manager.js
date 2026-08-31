@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const { Session } = require('./session');
+const { SshConnection } = require('./connection');
 const hosts = require('../store/hosts');
 const vault = require('../store/vault');
 const keys = require('../store/keys');
@@ -126,6 +127,59 @@ class SessionManager {
     };
   }
 
+  /**
+   * Resolves a jumpHost value, which is either the id of another saved host or
+   * an ssh-style `[user@]host[:port]` string.
+   */
+  resolveJumpProfile(value, target) {
+    const saved = hosts.get(value);
+    if (saved) return saved;
+
+    const match = /^(?:([^@]+)@)?([^:]+)(?::(\d+))?$/.exec(String(value).trim());
+    if (!match) throw new Error(`"${value}" is not a usable jump host.`);
+
+    const port = Number.parseInt(match[3], 10);
+    return {
+      id: `jump:${value}`,
+      name: value,
+      host: match[2],
+      port: Number.isInteger(port) ? port : 22,
+      username: match[1] || target.username,
+      auth: 'agent',
+      keepaliveSeconds: 30,
+    };
+  }
+
+  /**
+   * Opens the bastion and asks it to reach the target, returning the channel
+   * the real connection will run over.
+   *
+   * @returns {Promise<{connection: SshConnection, sock: import('stream').Duplex}>}
+   */
+  async openJump(profile) {
+    const jumpProfile = this.resolveJumpProfile(profile.jumpHost, profile);
+    const credentials = await this.resolveCredentials(jumpProfile);
+
+    const connection = new SshConnection(jumpProfile, this.handlers());
+    try {
+      await connection.connect(credentials);
+    } catch (err) {
+      throw new Error(`Jump host ${jumpProfile.name}: ${err.message}`);
+    }
+
+    const sock = await new Promise((resolve, reject) => {
+      connection.client.forwardOut('127.0.0.1', 0, profile.host, profile.port, (err, stream) => {
+        if (err) reject(new Error(`Jump host could not reach ${profile.host}:${profile.port} - ${err.message}`));
+        else resolve(stream);
+      });
+    }).catch((err) => {
+      connection.end();
+      throw err;
+    });
+
+    return { connection, sock };
+  }
+
   async create({ hostId, size }) {
     const profile = hosts.get(hostId);
     if (!profile) throw new Error('Host profile no longer exists.');
@@ -138,7 +192,14 @@ class SessionManager {
       session.on('event', (event) => this.dispatch(event));
 
       try {
-        const info = await session.start(credentials, size);
+        let sock = null;
+        if (profile.jumpHost) {
+          const jump = await this.openJump(profile);
+          session.useJump(jump.connection);
+          sock = jump.sock;
+        }
+
+        const info = await session.start(credentials, size, sock);
         this.sessions.set(id, session);
         this.persistSecret(profile, credentials);
         this.notifyChange();

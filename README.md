@@ -6,6 +6,21 @@
 
 A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding in one window.
 
+<!-- badges -->
+![Electron](https://img.shields.io/badge/electron-44%2B-2B2D31?style=flat-square&logo=electron&logoColor=white)
+![Node](https://img.shields.io/badge/node-22%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+![ssh2](https://img.shields.io/badge/ssh2-1.17.0-7c5cff?style=flat-square)
+![Terminal](https://img.shields.io/badge/terminal-xterm.js-57F287?style=flat-square)
+![PuTTY](https://img.shields.io/badge/PuTTY%20.ppk-v2%20%2B%20v3-5865F2?style=flat-square)
+![Sessions](https://img.shields.io/badge/sessions-unlimited-2B2D31?style=flat-square)
+[![Tests](https://img.shields.io/badge/tests-172%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
+[![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FRathio12%2FLuwanTerm%2Fbadge&style=flat-square&color=7c5cff)](https://github.com/Rathio12/LuwanTerm)
+[![Release](https://img.shields.io/github/v/release/Rathio12/LuwanTerm?style=flat-square&label=release&color=3ea8ff)](https://github.com/Rathio12/LuwanTerm/releases/latest)
+[![Downloads](https://img.shields.io/github/downloads/Rathio12/LuwanTerm/total?style=flat-square&color=f2a33c)](https://github.com/Rathio12/LuwanTerm/releases)
+[![CI](https://img.shields.io/github/actions/workflow/status/Rathio12/LuwanTerm/ci.yml?style=flat-square&label=CI&branch=main)](https://github.com/Rathio12/LuwanTerm/actions/workflows/ci.yml)
+<!-- /badges -->
+
+
 </div>
 
 <div align="center">

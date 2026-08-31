@@ -65,6 +65,70 @@ This is a build step rather than a runtime read on purpose. If the app read
 If the renderer needs it, pass it through `app:info` in
 `src/main/ipc/app.js` — the renderer has no direct access to config.
 
+## Settings with no control in the app
+
+A few things are deliberately editable only in `settings.json`. They are the
+sort of thing you decide once, and two of them record or re-establish
+connections on your behalf, which should be a considered choice rather than a
+toggle flipped by accident.
+
+Close LuwanTerm before editing the file, or your changes will be overwritten on
+exit. It lives in `%APPDATA%\LuwanTerm\settings.json`.
+
+### Session logging
+
+Writes everything a session prints to a file, for audit or for working out what
+happened later.
+
+```json
+{
+  "sessionLogging": true,
+  "sessionLogKeepAnsi": false
+}
+```
+
+Logs go to `%APPDATA%\LuwanTerm\logs\`, one file per session, named after the
+host and the time it started. Escape sequences are stripped by default so the
+result is readable; set `sessionLogKeepAnsi` to `true` to keep the raw stream
+with its colours.
+
+> A transcript contains everything on your screen, which can include secrets you
+> typed or files you printed. Treat the log directory as sensitive.
+
+### Reconnecting automatically
+
+Re-dials a session that drops on its own. A session **you** closed is never
+reconnected.
+
+```json
+{
+  "autoReconnect": true,
+  "autoReconnectAttempts": 3,
+  "autoReconnectDelaySeconds": 5
+}
+```
+
+The existing disconnected panel reports each attempt. When the attempts run out
+it stops and leaves the Reconnect button, rather than retrying forever.
+
+### Jump hosts
+
+Set on a host rather than globally, in `hosts.json`. The value is either the id
+of another saved host or an ssh-style address:
+
+```json
+{
+  "name": "internal-db",
+  "host": "10.10.0.4",
+  "jumpHost": "gateway.example.com"
+}
+```
+
+LuwanTerm opens the jump host first, asks it to reach the target, and runs the
+real session over that channel. Both connections close together. This is the
+same idea as OpenSSH's `ProxyJump`, and importing `~/.ssh/config` fills it in
+from any `ProxyJump` lines it finds.
+
 ## User settings
 
 Everything in the Settings dialog, stored in `settings.json` under `userData`.

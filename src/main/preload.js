@@ -98,6 +98,10 @@ contextBridge.exposeInMainWorld('term', {
     cancel: (sessionId, transferId) => call('sftp:cancel', sessionId, transferId),
     upload: (sessionId, remoteDir) => call('sftp:upload', sessionId, remoteDir),
     reveal: (localPath) => call('sftp:reveal', localPath),
+    readText: (sessionId, target) => call('sftp:read-text', sessionId, target),
+    compareLocal: (sessionId, remotePath) => call('sftp:compare-local', sessionId, remotePath),
+    compareRemote: (sessionId, remotePath, otherSessionId, otherPath) =>
+      call('sftp:compare-remote', sessionId, remotePath, otherSessionId, otherPath),
     onProgress: (cb) => subscribe('sftp:progress', cb),
   },
 

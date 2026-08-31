@@ -14,4 +14,5 @@ module.exports = {
   vaultFile: () => path.join(root(), 'vault.dat'),
   keysFile: () => path.join(root(), 'keys.json'),
   keysDir: () => path.join(root(), 'keys'),
+  logsDir: () => path.join(root(), 'logs'),
 };
