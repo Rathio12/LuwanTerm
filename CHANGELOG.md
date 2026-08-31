@@ -1,5 +1,40 @@
 # Changelog
 
+## 1.7.0
+
+**A licence.** The project was marked `UNLICENSED` while being published as open
+source, which meant nobody actually had permission to use, fork or contribute to
+it. The [LuwanTerm Licence 1.0](LICENSE) grants what was always intended, and
+withholds the two things that were not.
+
+You may use it for **any** purpose - at home, at work, for a client, across a
+company - and read, fork, modify and republish it. Contributions need no CLA and
+no copyright assignment: you keep the copyright in what you write.
+
+You may not **sell** it: not copies, not a paid product it forms part of, not a
+hosted service, not a support contract, not a paywalled feature. Being paid for
+your own work is a different thing - a consultant using LuwanTerm on a client's
+servers is paid for the setup, not for LuwanTerm.
+
+You may not use it **against people**. Unauthorised access, surveillance,
+harassment, discrimination and human rights abuses end the licence immediately,
+with no cure period. The standard is named rather than left to interpretation:
+the Universal Declaration of Human Rights, the ICCPR, the ILO Declaration on
+Fundamental Principles and Rights at Work, and the Convention on the Rights of
+the Child. For a remote access tool the line is authorisation - testing a system
+you have written permission to test is fine, testing one you do not is not.
+
+This is **source-available, not OSI open source**, and says so plainly wherever
+it appears. An OSI-approved licence cannot restrict what software is used for,
+and these restrictions are the point. [The licence guide](guides/licence.md) is
+honest about what that costs: no recognised licence label on GitHub, no GPL
+compatibility, and no distribution packaging. Every runtime dependency is MIT,
+so nothing conflicts.
+
+The installer now shows the terms and asks you to accept them.
+`build/make-license-txt.js` renders `LICENSE` into plain ASCII for that page at
+build time, so the markdown stays the only copy anyone edits.
+
 ## 1.6.6
 
 **Discord Rich Presence actually works now.** It never did in a downloaded
