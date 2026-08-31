@@ -66,6 +66,14 @@ jobs:
       - name: Install
         run: npm ci
 
+      # Chromium refuses to start rather than run unsandboxed, and npm cannot
+      # set a setuid bit when it unpacks Electron. This is the fix Electron
+      # documents for Linux CI.
+      - name: Let Chromium sandbox itself
+        run: |
+          sudo chown root:root node_modules/electron/dist/chrome-sandbox
+          sudo chmod 4755 node_modules/electron/dist/chrome-sandbox
+
       # Drives the published page in a real Electron window: the font list is
       # built from a fetch, a canvas measurement pass and click handlers, none of
       # which a syntax check can prove. xvfb gives the runner a display.
