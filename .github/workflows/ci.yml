@@ -66,8 +66,14 @@ jobs:
       - name: Install
         run: npm ci
 
-      # Chromium refuses to start rather than run unsandboxed, and npm cannot
-      # set a setuid bit when it unpacks Electron. This is the fix Electron
+      # npm ci skips the postinstall that fetches the binary, so dist/ does not
+      # exist yet. Fetch it here rather than on first run, so the next step has
+      # something to change.
+      - name: Fetch the Electron binary
+        run: node node_modules/electron/install.js
+
+      # Chromium refuses to start rather than run unsandboxed, and npm cannot set
+      # a setuid bit when it unpacks the archive. This is the fix Electron
       # documents for Linux CI.
       - name: Let Chromium sandbox itself
         run: |
