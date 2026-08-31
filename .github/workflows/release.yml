@@ -80,6 +80,10 @@ jobs:
       - name: Project checks
         run: node build/check-project.js
 
+      # A release that fails its own suites should never reach anyone.
+      - name: Tests
+        run: npm test
+
       # Signs the build when the certificate secrets exist, and produces an
       # unsigned build when they do not. See guides/signing.md.
       - name: Build installer and portable

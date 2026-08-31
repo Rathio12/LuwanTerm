@@ -132,21 +132,27 @@ which runs `make-site.js` first and is the safer choice if you edit tokens.
 
 Two workflows live in [`.github/workflows/`](../.github/workflows).
 
-### CI — every push and pull request
+### CI - every push and pull request
 
-Runs [`build/check-project.js`](../build/check-project.js) on Ubuntu with **no
-`npm ci`**, so it finishes in seconds. It checks:
+Two jobs.
+
+**Checks** runs on Ubuntu with **no `npm ci`**, so it finishes in seconds:
 
 - every `.js` file parses
-- every `<script>` and `<link>` in the HTML resolves — catches a renderer module
+- every `<script>` and `<link>` in the HTML resolves, catching a renderer module
   added without its script tag
-- everything the renderer loads from `node_modules` is listed in `build.files`,
-  and every dependency is covered
+- everything the renderer loads from `node_modules` is a real dependency
 - documentation links do not rot
-- `build/icon.ico` matches what the generator produces
-- no signing material has been committed
+- `build/icon.ico` still matches its generator
+- `docs/assets` still matches the app's tokens, so the published site cannot
+  drift from the app unnoticed
+- no signing material or `.env` has been committed
 
-Run the same thing locally with `npm run check`.
+**Tests** installs dependencies and runs `npm test`, the 11 suites in
+[`test/`](../test). The result is written to the run summary as a table, so a
+failure names the suite without opening the log.
+
+Run both locally with `npm run check`.
 
 ### Release — automatic, on a version bump
 

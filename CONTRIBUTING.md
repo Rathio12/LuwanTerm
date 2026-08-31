@@ -17,8 +17,8 @@ restart.
 npm run check
 ```
 
-That runs [`build/check-project.js`](build/check-project.js), which is what CI
-runs. It verifies every file parses, every `<script>` and `<link>` in the HTML
+That runs [`build/check-project.js`](build/check-project.js) and then the test
+suites, which is what CI runs. It verifies every file parses, every `<script>` and `<link>` in the HTML
 resolves, everything the renderer loads is a real dependency, documentation
 links are not broken, and no signing material has been committed.
 

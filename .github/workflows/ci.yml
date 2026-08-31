@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  checks:
     name: Checks
     runs-on: ubuntu-latest
     steps:
@@ -17,24 +17,68 @@ jobs:
         with:
           node-version: '22'
 
-      # Deliberately no `npm ci`: these checks need no dependencies, so CI
-      # stays fast and cheap. Anything needing Electron belongs in Release.
+      # No `npm ci` here on purpose: these checks need nothing installed, so
+      # they finish in seconds and give fast feedback on an obvious mistake.
       - name: Project checks
         run: node build/check-project.js
 
       - name: Icon is committed and current
         run: |
+          node build/make-icon.js
           if ! git diff --quiet -- build/icon.ico build/icon.png; then
             echo "build/icon.ico is out of date - run: npm run make-icon"
             git --no-pager diff --stat -- build/icon.ico build/icon.png
             exit 1
           fi
-          echo "icon matches the generator output"
+          echo "the committed icon matches the generator"
+
+      # The site is generated from the app's tokens. If someone changes a colour
+      # and forgets to rebuild, the published page quietly drifts.
+      - name: Site assets are current
+        run: |
+          node build/make-site.js
+          if ! git diff --quiet -- docs/assets; then
+            echo "docs/assets is out of date - run: npm run make-site"
+            git --no-pager diff --stat -- docs/assets
+            exit 1
+          fi
+          echo "the published site matches the app"
 
       - name: No secrets committed
         run: |
-          if git ls-files | grep -Ei 'certs/|\.pfx$|password\.txt$'; then
-            echo "signing material must never be committed"
+          if git ls-files | grep -Ei 'certs/|\.pfx$|password\.txt$|^\.env$'; then
+            echo "signing material and .env must never be committed"
             exit 1
           fi
           echo "no signing material in the tree"
+
+  tests:
+    name: Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+
+      # The suites exercise ssh2 and the key parsers, so these do need the
+      # dependencies. Electron is not launched, so a Linux runner is fine.
+      - name: Install
+        run: npm ci
+
+      - name: Run the suites
+        run: npm test
+
+      - name: Summarise
+        if: always()
+        run: |
+          if [ -f test/results.json ]; then
+            node -e "
+              const r = require('./test/results.json');
+              const rows = r.suites.map(s => '| ' + s.name + ' | ' + s.passed + ' | ' + s.failed + ' |').join('\n');
+              console.log('| Suite | Passed | Failed |\n| --- | --- | --- |\n' + rows);
+              console.log('\n**' + r.passed + ' of ' + r.total + ' checks passed.**');
+            " >> "$GITHUB_STEP_SUMMARY"
+          fi
