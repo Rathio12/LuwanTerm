@@ -50,3 +50,56 @@ satisfy SmartScreen. See [code signing](signing.md).
 Anything else on offer - obfuscating the binary, padding it, splitting it - is
 what actual malware does to dodge detection, and doing it would deserve the
 flag.
+
+## Check it yourself
+
+Do not take "it is a false positive" from the person who wrote it. Three ways
+to check, in ascending order of how convinced you should be:
+
+**1. The checksum.** Every release lists the SHA-256 of each file. Compare:
+
+```powershell
+Get-FileHash .\LuwanTerm-1.8.3-setup.exe -Algorithm SHA256
+```
+
+If it matches the release notes, the file is the one that was published. That
+rules out tampering in transit, not much else.
+
+**2. The build record.** Run `LuwanTerm.exe --provenance`. It prints the exact
+commit the binary was built from, the moment it was built, a digest of every
+source file inside it, and whether that record is signed by the project's key.
+If the files do not match the digest, it says so.
+
+**3. The source.** All of it is [here](https://github.com/Rathio12/LuwanTerm),
+the build is a GitHub Actions workflow you can read, and every release names the
+commit it came from. Build it yourself and compare - `npm install && npm run dist`.
+
+## What it does and does not do
+
+An SSH client legitimately does things that look alarming out of context: it
+opens network connections, reads private keys, forwards ports, and starts a
+child process for the PuTTY agent helper (`pagent.exe`, shipped by the `ssh2`
+library it uses).
+
+It does not: phone home, collect telemetry, send anything anywhere you did not
+point it at, or run anything downloaded at runtime. The only network requests it
+makes on its own are the update check against the GitHub releases API and, if
+you enable it, the local Discord socket. Both are refusable -
+[policy files](enterprise.md) can switch features off, and Rich Presence is a
+setting.
+
+## Reporting a false positive
+
+If a scanner blocks it and you would like that fixed, the vendor is the one who
+can fix it. Most take submissions:
+
+- **Trapmine** - through their contact form
+- **Microsoft Defender** - <https://www.microsoft.com/wdsi/filesubmission>
+- Most others have a "submit a false positive" page
+
+Include the SHA-256 from the release notes and a link to the release. Reports
+from users carry more weight than reports from the person who published the
+file.
+
+If you find something that is not a false positive, that is a security issue -
+[report it privately](../SECURITY.md), not in a public issue.

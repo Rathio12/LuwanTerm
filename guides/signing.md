@@ -95,36 +95,12 @@ npm run dist:signed
 
 ## When a scanner flags a build
 
-It will happen, and it does not mean anything is wrong with the code. A typical
-result on VirusTotal is **1 of 67** engines objecting, with a verdict like
-`Malicious.moderate.ml.score` - a machine-learning guess, not a signature match
-for known malware. Every engine that matters reads it clean.
+That has its own page: **[Antivirus and SmartScreen](antivirus.md)** covers what
+the verdict means, why an unsigned Electron application attracts one, and how
+somebody can verify a download for themselves.
 
-Four things about this app make heuristic scanners uneasy, none of them a
-defect:
-
-1. **It is unsigned, or signed with a certificate no authority vouches for.**
-   This is the single largest factor and the only one fully under your control.
-2. **The portable build is a 108 MB executable that unpacks itself and runs
-   another program.** That is the exact shape of a dropper. The installer scores
-   better than the portable build for this reason alone.
-3. **It is remote access software** that ships an agent helper (`pagent.exe`).
-   Models weight that category heavily, because real malware lives there too.
-4. **Nobody has downloaded it yet.** Prevalence is an input; a binary the world
-   has never seen is treated with more suspicion than one it has.
-
-What actually reduces flags, in order of effect:
-
-| | |
-| --- | --- |
-| A certificate from a real authority (OV, or EV for immediate SmartScreen standing) | Large. The only real fix. |
-| Signing consistently with the same key, release after release | Moderate, and free - see below. |
-| Age and download count | Moderate, and only time buys it. |
-| Reporting the false positive to the vendor that flagged it | Small, but worth doing once. |
-| Shipping the installer rather than the portable build | Small. |
-
-Nothing here is a reason to change the program. Do not restructure code to
-please a heuristic - you will make it worse and learn nothing.
+The short version, because it belongs here too: signing is the largest lever you
+have over it, and the section below is why that lever was not connected.
 
 ## Releases were going out unsigned
 
