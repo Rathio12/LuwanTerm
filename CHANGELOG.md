@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.8.1
+
+**The app could not be opened once an update existed.** On boot it checks for a
+newer version and, finding one, opens a prompt asking whether to install it -
+and waits for the answer before carrying on. That prompt was drawn *underneath*
+the splash screen. Both windows are always-on-top and the splash won, covering
+the prompt almost exactly: 448x294 of prompt at one position, 388x264 of splash
+sitting over the middle of it, hiding both buttons.
+
+So there was nothing to click, the promise never settled, and the app sat on
+"Starting LuwanTerm" indefinitely. It only began happening when 1.8.0 was
+published and there was finally an update to be offered.
+
+Three changes, because one of them should have been there from the start:
+
+- The splash hides while the question is on screen, and comes back afterwards.
+  They can no longer overlap at all.
+- The prompt raises itself above every other window and takes focus, and shows
+  itself after three seconds even if the event it normally waits for never
+  arrives.
+- **Ninety seconds and boot carries on regardless.** A prompt nobody answers now
+  means "not now" rather than an application that never starts. A prompt that
+  fails to load settles the same way, immediately.
+
+The download that follows a yes is also guarded now: if it stops making progress
+for two minutes, the update is abandoned and the app starts normally instead of
+sitting on a stalled progress bar.
+
 ## 1.8.0
 
 **Policy files, for deploying to a fleet.** `policy.json` decides what the app
