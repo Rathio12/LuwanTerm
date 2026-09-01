@@ -6,7 +6,6 @@
   const EARLIEST_SESSION = 8;
   const AFTER_DAYS = 3;
   const CHANCE = 0.15;
-  const DEFER_SESSIONS = 25;
   const DELAY_MIN_MS = 20000;
   const DELAY_MAX_MS = 90000;
 
@@ -43,6 +42,7 @@
     if (App.modal.isOpen()) return;
 
     const links = (await window.term.app.info()).links || {};
+    const repo = links.github || '';
     const open = (url) => {
       if (url) window.term.app.openExternal(url).catch(() => {});
     };
@@ -52,35 +52,35 @@
       iconName: 'terminal',
       content: h('div', { class: 'row' }, [
         h('p', {
-          text: 'It is free, it always will be, and it is not for sale. The only thing it '
-            + 'asks for is a star, or a hand with the code.',
+          text: 'It is free, it always will be, and it is not for sale. A star is the only '
+            + 'thing it asks for.',
         }),
         h('span', {
           class: 'note',
-          text: 'Asked once. Whichever button you pick, this will not come back.',
+          text: 'Asked once. Close this and it will not come back.',
         }),
       ]),
       buttons: [
-        { label: 'Not now', value: 'later' },
-        { label: 'Contribute', value: 'contribute' },
-        { label: 'Star it', value: 'star', primary: true },
+        { label: 'View on GitHub', value: 'view' },
+        { label: 'Give it a star', value: 'star', primary: true },
       ],
     });
 
     if (choice === 'star') {
-      open(links.github);
+      open(repo);
       await window.term.settings.set({ starPromptState: 'starred' });
       App.toast.info('Thank you.');
       return;
     }
-    if (choice === 'contribute') {
-      open(links.github ? `${links.github}/blob/main/CONTRIBUTING.md` : '');
-      await window.term.settings.set({ starPromptState: 'contributing' });
+
+    if (choice === 'view') {
+      open(repo);
+      await window.term.settings.set({ starPromptState: 'viewed' });
       return;
     }
 
-    await window.term.settings.set({ starPromptState: 'pending', starPromptSessions: -DEFER_SESSIONS });
+    await window.term.settings.set({ starPromptState: 'dismissed' });
   }
 
-  App.supportPrompt = { noteSession };
+  App.supportPrompt = { noteSession, ask };
 })();

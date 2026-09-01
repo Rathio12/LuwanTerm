@@ -212,6 +212,32 @@ async function main() {
     local.ok ? `${local.families.length} families` : local.why);
   check('the monospace filter matches real families', mono.length > 0, mono.slice(0, 5).join(', '));
 
+  const prompt = await client.evaluate(`(async () => {
+    for (const open of document.querySelectorAll('.modal .modal__head .iconbtn')) open.click();
+    await new Promise((r) => setTimeout(r, 400));
+
+    const shown = App.supportPrompt.ask();
+    await new Promise((r) => setTimeout(r, 600));
+    const modal = document.querySelector('.modal');
+    const result = {
+      open: Boolean(modal),
+      title: modal ? modal.querySelector('h2').textContent.trim() : '',
+      buttons: modal ? [...modal.querySelectorAll('.modal__foot button')].map((b) => b.textContent.trim()) : [],
+      closer: Boolean(modal && modal.querySelector('.modal__head .iconbtn')),
+    };
+    if (modal) modal.querySelector('.modal__head .iconbtn').click();
+    await shown;
+    result.settled = (await window.term.settings.get()).starPromptState;
+    return result;
+  })()`);
+
+  check('the support prompt opens', prompt.open, prompt.title);
+  check('it offers exactly two buttons', prompt.buttons.length === 2, prompt.buttons.join(', '));
+  check('one of them stars the project', prompt.buttons.some((label) => /star/i.test(label)));
+  check('the other opens GitHub', prompt.buttons.some((label) => /github/i.test(label)));
+  check('there is an X to dismiss it', prompt.closer);
+  check('the X settles it for good', prompt.settled === 'dismissed', prompt.settled);
+
   client.close();
   child.kill();
 
