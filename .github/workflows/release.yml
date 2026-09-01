@@ -100,6 +100,14 @@ jobs:
         shell: bash
         run: ls -lh dist/*.exe
 
+      # electron-builder logs "signing with signtool.exe" even when no
+      # certificate was supplied, and produces an unsigned binary anyway. Every
+      # release up to 1.8.3 went out unsigned without anyone noticing.
+      - name: Check the binaries are signed
+        env:
+          EXPECT_SIGNED: ${{ secrets.WINDOWS_CERT_BASE64 != '' && '1' || '0' }}
+        run: node build/check-signature.js
+
       - uses: actions/upload-artifact@v7
         with:
           name: LuwanTerm-windows

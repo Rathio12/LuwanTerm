@@ -92,3 +92,47 @@ $env:CSC_LINK = "C:\path\to\real.pfx"
 $env:CSC_KEY_PASSWORD = "..."
 npm run dist:signed
 ```
+
+## When a scanner flags a build
+
+That has its own page: **[Antivirus and SmartScreen](antivirus.md)** covers what
+the verdict means, why an unsigned Electron application attracts one, and how
+somebody can verify a download for themselves.
+
+The short version, because it belongs here too: signing is the largest lever you
+have over it, and the section below is why that lever was not connected.
+
+## Releases were going out unsigned
+
+Until 1.8.4 every published build was **completely unsigned**, and the build log
+said otherwise. electron-builder prints `signing with signtool.exe` for each
+artifact whether or not a certificate exists, and when `CSC_LINK` is empty it
+produces an unsigned binary and reports success.
+
+Two repository secrets fix it, and the workflow already reads them:
+
+```bash
+gh secret set WINDOWS_CERT_BASE64 --repo Rathio12/LuwanTerm < cert.b64
+gh secret set WINDOWS_CERT_PASSWORD --repo Rathio12/LuwanTerm
+```
+
+Where `cert.b64` comes from the `.pfx` you already have:
+
+```powershell
+[Convert]::ToBase64String([IO.File]::ReadAllBytes("build\certs\luwanterm.pfx")) |
+  Set-Content cert.b64 -NoNewline
+```
+
+Delete `cert.b64` afterwards. Never commit it, and never paste the password
+anywhere but the secret.
+
+`build/check-signature.js` now runs after every release build. It reads the
+Authenticode status of every executable produced, and **fails the release** if a
+certificate was supplied but the output came out unsigned. Without a certificate
+it reports the situation plainly and carries on, so a fork can still build.
+
+Check any binary yourself:
+
+```powershell
+Get-AuthenticodeSignature "C:\path\to\LuwanTerm.exe" | Format-List Status, StatusMessage
+```

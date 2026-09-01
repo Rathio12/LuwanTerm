@@ -39,6 +39,12 @@ for what it needs; the two things that save the most time are:
 Do not paste host names, usernames or key material. None of it is needed, and
 an issue is public forever.
 
+## "My antivirus flagged it"
+
+**[Read this first](guides/antivirus.md).** It covers what the flag usually is,
+why an unsigned Electron app attracts one, and three ways to verify the download
+yourself rather than taking anyone's word for it.
+
 ## "It should also…"
 
 **[Start a discussion in Ideas](https://github.com/Rathio12/LuwanTerm/discussions/categories/ideas)**

@@ -21,6 +21,7 @@ Start here. Each guide stands on its own — read the one you need.
 | --- | --- |
 | [Building](building.md) | Installer and portable builds, the icon, build config |
 | [Code signing](signing.md) | Why Windows warns, and what genuinely fixes it |
+| [Antivirus](antivirus.md) | Why a scanner may flag it, and how to check for yourself |
 | [Releasing](releasing.md) | Cutting a version, what gets attached, and the secrets it reads |
 
 ## The project
