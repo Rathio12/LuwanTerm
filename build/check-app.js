@@ -147,6 +147,22 @@ async function main() {
 
   check('settings opens', about.open, `${about.buttons.length} buttons`);
   check('a View page button is offered', about.buttons.includes('View page'));
+
+  const beta = await client.evaluate(`(async () => {
+    const labels = [...document.querySelectorAll('.modal label')].map((l) => l.textContent.trim());
+    const box = [...document.querySelectorAll('.modal input[type=checkbox]')]
+      .find((input) => (input.closest('label') || {}).textContent?.includes('beta'));
+    const notes = [...document.querySelectorAll('.modal .note')].map((n) => n.textContent);
+    return {
+      offered: Boolean(box),
+      checked: Boolean(box && box.checked),
+      warned: notes.some((text) => /unstable|break|beta builds go out/i.test(text)),
+      labels: labels.filter((l) => /update/i.test(l)),
+    };
+  })()`);
+  check('a beta build toggle is offered', beta.offered, beta.labels.join(' | '));
+  check('it is off by default', !beta.checked);
+  check('and it warns what beta means', beta.warned);
   check('the GitHub button is still there', about.buttons.includes('Source on GitHub'));
   check('the website link is the Pages site',
     about.links.website === 'https://rathio12.github.io/LuwanTerm/', about.links.website);

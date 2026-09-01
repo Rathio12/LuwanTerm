@@ -1,5 +1,54 @@
 # Changelog
 
+## 1.8.0
+
+**Policy files, for deploying to a fleet.** `policy.json` decides what the app
+may do, and is read both from the user's data directory and from beside the
+executable. Where both exist the machine copy can only *tighten* the user one: a
+capability is permitted when both allow it, a requirement applies when either
+demands it, and the shorter of two timeouts wins. There is no arrangement of a
+user policy that loosens a machine one.
+
+It can withdraw password, agent or keyboard-interactive authentication, switch
+off SFTP or port forwarding, force session logging on, restrict which key types
+authenticate, hold hosts to an allowlist or a blocklist, and require that a host
+key already be known - which turns an unrecognised key from a prompt into a
+refusal. Nothing is editable from inside the app.
+
+**An audit trail.** `logs/audit.jsonl` records sessions opening and closing,
+host keys trusted, accepted, rejected or refused, transfers, tunnels, and
+connections policy turned away. One JSON object per line, appended synchronously
+so a crash cannot lose the tail, rotated at 8 MB and kept for five generations.
+Everything passes through a redactor first: passwords, passphrases, key material
+and tokens never reach the file at any nesting depth. Nothing is sent anywhere -
+it is a file, and moving it somewhere is up to you.
+
+[The guide](guides/enterprise.md) is honest about the boundary. Policy
+configures this application on a machine its user may own; controls that survive
+a hostile user live on the server.
+
+**Agent authentication works on Windows.** It never has. The OpenSSH agent was
+looked for at a path written `'\\.\pipe\openssh-ssh-agent'`, and because the two
+characters after a backslash there are not escape sequences, JavaScript dropped
+those backslashes outright. Every agent authentication fell through to Pageant,
+so anyone running the built-in Windows agent rather than PuTTY's was told no
+agent existed.
+
+**A prompt asking for a star**, once. It waits for at least eight sessions and
+three days, then appears with a small chance on a qualifying session, well after
+the session settles so it never lands mid-keystroke. Two buttons and an X in the
+corner; whichever you pick, it never returns.
+
+**Beta builds, if you want them.** Settings now offers a toggle beside the
+update controls that points the updater at prereleases as well as releases. It
+says plainly what that means: beta builds get the same tests a release does, but
+they are the version things break in, and going back means installing an older
+build by hand. Off unless you turn it on.
+
+**Also:** Dependabot no longer opens pull requests for minor and patch bumps of
+GitHub Actions, where the noise trains you to merge without looking. npm is
+deliberately untouched - patch releases are where security fixes arrive.
+
 ## 1.7.2
 
 **Every build is now marked.** `provenance.generated.json` ships inside the

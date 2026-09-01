@@ -368,10 +368,32 @@
     window.term.updates.state().then(describe).catch(() => {});
     const stop = window.term.updates.onState(describe);
 
+    const beta = form.check('Include beta builds', state.settings.betaUpdates);
+    const betaBox = beta.querySelector('input');
+    betaBox.addEventListener('change', async () => {
+      try {
+        await window.term.settings.set({ betaUpdates: betaBox.checked });
+        App.toast.info(betaBox.checked
+          ? 'Beta builds are now offered. Check for updates to look for one.'
+          : 'Back to stable builds only.');
+      } catch (err) {
+        betaBox.checked = !betaBox.checked;
+        App.toast.error(err.message);
+      }
+    });
+
     const element = h('div', { class: 'field' }, [
       h('label', { text: `Updates - you are running ${state.info.version}` }),
       h('div', { class: 'about__links' }, [check, restart]),
       status,
+      beta,
+      h('span', {
+        class: 'note',
+        text: 'Beta builds go out before they are finished. They get the same tests as a '
+          + 'release, but they are the version things break in - and going back means '
+          + 'installing an older build by hand. Leave this off unless you want to help find '
+          + 'what is broken.',
+      }),
     ]);
 
     element.dispose = stop;

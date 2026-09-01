@@ -44,6 +44,18 @@ function describe(err) {
   return message;
 }
 
+function applyChannel() {
+  if (!updater) return;
+  let beta = false;
+  try {
+    beta = Boolean(require('./store/settings').get().betaUpdates);
+  } catch {
+    beta = false;
+  }
+  updater.allowPrerelease = beta;
+  updater.channel = beta ? 'beta' : 'latest';
+}
+
 function load() {
   if (updater) return updater;
   try {
@@ -54,6 +66,7 @@ function load() {
 
   updater.autoDownload = false;
   updater.autoInstallOnAppQuit = true;
+  applyChannel();
 
   updater.on('checking-for-update', () => setState({ status: 'checking' }));
   updater.on('update-not-available', () => setState({ status: 'current', version: app.getVersion() }));
@@ -70,6 +83,7 @@ function load() {
 }
 
 module.exports = {
+  applyChannel,
   isNewer,
 
   attach(onState) {
@@ -83,6 +97,7 @@ module.exports = {
     }
 
     const instance = load();
+    applyChannel();
     if (!instance) {
       setState({ status: 'error', message: 'The updater component is missing from this build.' });
       return null;

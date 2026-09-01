@@ -23,6 +23,7 @@ const DEFAULTS = {
   autoReconnect: false,
   autoReconnectAttempts: 3,
   autoReconnectDelaySeconds: 5,
+  betaUpdates: false,
   starPromptState: 'pending',
   starPromptSessions: 0,
   starPromptFirstRunAt: 0,
