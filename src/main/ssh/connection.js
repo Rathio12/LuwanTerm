@@ -11,11 +11,11 @@ const keygen = require('./keygen');
 
 const READY_TIMEOUT_MS = 20000;
 
+const OPENSSH_AGENT_PIPE = String.raw`\\.\pipe\openssh-ssh-agent`;
+
 function defaultAgent() {
   if (process.platform === 'win32') {
-    return fs.existsSync('\\.\pipe\openssh-ssh-agent')
-      ? '\\.\pipe\openssh-ssh-agent'
-      : 'pageant';
+    return fs.existsSync(OPENSSH_AGENT_PIPE) ? OPENSSH_AGENT_PIPE : 'pageant';
   }
   return process.env.SSH_AUTH_SOCK || null;
 }
