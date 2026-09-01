@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.8.4
+
+**Every release so far went out unsigned.** Not weakly signed - unsigned,
+`Get-AuthenticodeSignature` reporting `NotSigned` on the binaries people
+downloaded. electron-builder prints `signing with signtool.exe` for each
+artifact whether or not a certificate exists, so the build logs looked correct
+while the certificate secrets had never been set.
+
+`build/check-signature.js` now runs after every release build, reads the
+Authenticode status of everything produced, and **fails the release** if a
+certificate was supplied but the output came out unsigned. With no certificate
+it says so plainly and carries on, so a fork can still build. The situation that
+hid this for eight releases cannot repeat.
+
+This is also the honest answer to a scanner flagging a download. An unsigned
+Electron binary that unpacks itself and speaks SSH is heuristic bait; a single
+machine-learning verdict out of sixty-seven engines is the expected result, not
+evidence of a problem. [The signing guide](guides/signing.md) sets out what
+actually reduces it and in what order, and what is not worth doing.
+
+Also fills in the product metadata the installer embeds - homepage, repository
+and copyright were all absent.
+
 ## 1.8.3
 
 **A guard against the mistake 1.8.2 fixed.** Three policy settings had shipped

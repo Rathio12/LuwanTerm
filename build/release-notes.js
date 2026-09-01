@@ -2,6 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const root = path.join(__dirname, '..');
 const REPO = 'Rathio12/LuwanTerm';
@@ -27,6 +28,19 @@ function previousTag(changelog, version) {
   return index >= 0 && versions[index + 1] ? `v${versions[index + 1]}` : '';
 }
 
+function checksums(version) {
+  const dist = path.join(root, 'dist');
+  if (!fs.existsSync(dist)) return [];
+
+  return fs.readdirSync(dist)
+    .filter((name) => name.endsWith('.exe') && name.includes(version))
+    .sort()
+    .map((name) => ({
+      name,
+      hash: crypto.createHash('sha256').update(fs.readFileSync(path.join(dist, name))).digest('hex'),
+    }));
+}
+
 function build(version) {
   const changelog = fs.readFileSync(path.join(root, 'CHANGELOG.md'), 'utf8');
   const section = sectionFor(changelog, version);
@@ -48,6 +62,19 @@ function build(version) {
   ];
   parts.push(downloads.join('\n'));
 
+  const sums = checksums(version);
+  if (sums.length) {
+    parts.push([
+      '**Verify what you downloaded** - SHA-256:',
+      '',
+      '```',
+      ...sums.map((entry) => `${entry.hash}  ${entry.name}`),
+      '```',
+      '',
+      'On Windows: `Get-FileHash .' + String.fromCharCode(92) + 'LuwanTerm-' + version + '-setup.exe -Algorithm SHA256`',
+    ].join(String.fromCharCode(10)));
+  }
+
   if (previous) {
     parts.push(`**Full changelog:** [${previous}...v${version}](https://github.com/${REPO}/compare/${previous}...v${version})`);
   }
@@ -60,4 +87,4 @@ if (require.main === module) {
   process.stdout.write(build(version.replace(/^v/, '')));
 }
 
-module.exports = { build, sectionFor, previousTag };
+module.exports = { build, sectionFor, previousTag, checksums };
