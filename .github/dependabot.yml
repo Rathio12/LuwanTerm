@@ -15,3 +15,14 @@ updates:
     directory: /
     schedule:
       interval: monthly
+    # Only major versions are worth a pull request here. A minor or patch bump
+    # to an action is almost always internal to it, and the noise trains you to
+    # merge without looking - which is the opposite of what pinning is for.
+    #
+    # Deliberately not applied to npm above: patch releases are where security
+    # fixes arrive, and silencing those would be a mistake.
+    ignore:
+      - dependency-name: '*'
+        update-types:
+          - version-update:semver-minor
+          - version-update:semver-patch

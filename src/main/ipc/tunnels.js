@@ -1,6 +1,8 @@
 'use strict';
 
 const { handle } = require('./helpers');
+const policy = require('../policy');
+const audit = require('../audit');
 
 function register(manager) {
   const tunnelsOf = (sessionId) => {
@@ -10,8 +12,16 @@ function register(manager) {
   };
 
   handle('tunnels:list', (sessionId) => tunnelsOf(sessionId).list());
-  handle('tunnels:open', (sessionId, config) => tunnelsOf(sessionId).open(config));
-  handle('tunnels:close', (sessionId, tunnelId) => tunnelsOf(sessionId).close(tunnelId));
+  handle('tunnels:open', (sessionId, config) => {
+    if (!policy.allows('allowTunnels')) throw new Error('Port forwarding is disabled by policy.');
+    const opened = tunnelsOf(sessionId).open(config);
+    audit.record('tunnel.open', { sessionId, ...config });
+    return opened;
+  });
+  handle('tunnels:close', (sessionId, tunnelId) => {
+    audit.record('tunnel.close', { sessionId, tunnelId });
+    return tunnelsOf(sessionId).close(tunnelId);
+  });
 }
 
 module.exports = { register };

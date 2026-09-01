@@ -2,6 +2,7 @@
 
 const { JsonStore } = require('./json-store');
 const paths = require('../paths');
+const policy = require('../policy');
 
 const DEFAULTS = {
   fontFamily: 'JetBrains Mono, Cascadia Code, Consolas, monospace',
@@ -22,6 +23,9 @@ const DEFAULTS = {
   autoReconnect: false,
   autoReconnectAttempts: 3,
   autoReconnectDelaySeconds: 5,
+  starPromptState: 'pending',
+  starPromptSessions: 0,
+  starPromptFirstRunAt: 0,
   discordEnabled: true,
 
   discordShowHost: false,
@@ -73,15 +77,20 @@ function migrate() {
   return clean;
 }
 
+function enforce(current) {
+  if (!policy.requires('requireSessionLogging')) return current;
+  return { ...current, sessionLogging: true };
+}
+
 module.exports = {
   DEFAULTS,
 
   get() {
     if (!migrated) {
       migrated = true;
-      return migrate();
+      return enforce(migrate());
     }
-    return store.read();
+    return enforce(store.read());
   },
 
   set(patch) {

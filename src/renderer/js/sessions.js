@@ -205,6 +205,7 @@
     if (status === 'ready') {
       entry.attempts = 0;
       entry.term?.setOverlay(null);
+      App.supportPrompt?.noteSession();
     } else if (status === 'closed' || status === 'error') {
       if (scheduleReconnect(entry)) {
         renderTabs();

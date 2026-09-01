@@ -8,12 +8,15 @@ const { BrowserWindow, dialog, shell } = require('electron');
 const { handle } = require('./helpers');
 const { TransferCancelled } = require('../ssh/sftp');
 const { diffLines } = require('../diff');
+const policy = require('../policy');
+const audit = require('../audit');
 
 const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
 const newTransferId = () => crypto.randomBytes(4).toString('hex');
 
 function register(manager) {
   const sftpOf = (sessionId) => {
+    if (!policy.allows('allowSftp')) throw new Error('File transfer is disabled by policy.');
     const session = manager.get(sessionId);
     if (!session.sftp) throw new Error('SFTP is not available on this session.');
     return session;
@@ -28,13 +31,18 @@ function register(manager) {
   };
 
   async function runTransfer(sessionId, transferId, name, direction, work) {
+    const host = (manager.get(sessionId).profile || {}).host || '';
     try {
       const result = await work();
       settle(sessionId, transferId, name, direction);
+      audit.record(`sftp.${direction}`, { sessionId, host, name });
       return result;
     } catch (err) {
       const cancelled = err instanceof TransferCancelled;
       settle(sessionId, transferId, name, direction, { cancelled });
+      audit.record(`sftp.${direction}.${cancelled ? 'cancelled' : 'failed'}`, {
+        sessionId, host, name, reason: cancelled ? 'cancelled' : err.message,
+      });
       if (cancelled) return { cancelled: true };
       throw err;
     }

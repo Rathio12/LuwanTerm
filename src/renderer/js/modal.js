@@ -167,5 +167,5 @@
     return result;
   }
 
-  App.modal = { show, confirm, prompt, form };
+  App.modal = { show, confirm, prompt, form, isOpen: () => openCount > 0 };
 })(window.App);

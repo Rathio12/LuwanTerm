@@ -8,6 +8,8 @@ const { Client } = require('ssh2');
 const { fingerprintOf, keyTypeOf } = require('./fingerprint');
 const knownHosts = require('../store/known-hosts');
 const keygen = require('./keygen');
+const policy = require('../policy');
+const audit = require('../audit');
 
 const READY_TIMEOUT_MS = 20000;
 
@@ -78,18 +80,23 @@ class SshConnection extends EventEmitter {
           }
         }
 
-        const prepared = keygen.loadForAuth(material, credentials.passphrase);
+            const prepared = keygen.loadForAuth(material, credentials.passphrase);
+        if (prepared.type && !policy.keyTypeAllowed(prepared.type)) {
+          throw new Error(`Keys of type ${prepared.type} are not permitted by policy.`);
+        }
         auth.privateKey = prepared.privateKey;
         if (prepared.passphrase) auth.passphrase = prepared.passphrase;
         break;
       }
       case 'agent': {
+        if (!policy.allows('allowAgentAuth')) throw new Error('Agent authentication is disabled by policy.');
         const agent = defaultAgent();
         if (!agent) throw new Error('No SSH agent was found on this machine.');
         auth.agent = agent;
         break;
       }
       default: {
+        if (!policy.allows('allowPasswordAuth')) throw new Error('Password authentication is disabled by policy.');
         if (credentials.password) auth.password = credentials.password;
         break;
       }
@@ -104,7 +111,15 @@ class SshConnection extends EventEmitter {
     const status = knownHosts.verify(host, port, fingerprint);
 
     if (status === 'trusted') {
+      audit.record('host-key.trusted', { host, port, keyType, fingerprint });
       callback(true);
+      return;
+    }
+
+    if (policy.requires('requireKnownHost')) {
+      audit.record('host-key.refused', { host, port, keyType, fingerprint, status, reason: 'policy' });
+      this.rejectedHostKey = true;
+      callback(false);
       return;
     }
 
@@ -113,6 +128,9 @@ class SshConnection extends EventEmitter {
       .then((accepted) => {
         if (accepted) knownHosts.trust(host, port, fingerprint, keyType);
         else this.rejectedHostKey = true;
+        audit.record(accepted ? 'host-key.accepted' : 'host-key.rejected', {
+          host, port, keyType, fingerprint, status,
+        });
         callback(Boolean(accepted));
       })
       .catch((err) => {
