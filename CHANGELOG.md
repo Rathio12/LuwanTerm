@@ -1,5 +1,20 @@
 # Changelog
 
+## 1.8.5
+
+**The signature check added in 1.8.4 could not read signatures.** On the build
+runner `Get-AuthenticodeSignature` failed to load its module under Windows
+PowerShell, and the script treated the resulting blank status as "unsigned". It
+happened to print the right answer, because the binaries genuinely were
+unsigned - but the moment a certificate was supplied it would have failed the
+release while reporting the same thing. A check that cannot fail correctly is
+not a check.
+
+It now tries PowerShell 7 before Windows PowerShell, imports the module
+explicitly, and treats an unreadable signature as a failure in its own right
+rather than quietly calling it unsigned. Verified against binaries Windows
+itself signed as well as our unsigned ones.
+
 ## 1.8.4
 
 **Every release so far went out unsigned.** Not weakly signed - unsigned,
