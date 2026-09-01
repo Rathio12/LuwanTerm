@@ -15,4 +15,7 @@ module.exports = {
   keysFile: () => path.join(root(), 'keys.json'),
   keysDir: () => path.join(root(), 'keys'),
   logsDir: () => path.join(root(), 'logs'),
+  auditFile: () => path.join(root(), 'logs', 'audit.jsonl'),
+  userPolicyFile: () => path.join(root(), 'policy.json'),
+  machinePolicyFile: () => path.join(path.dirname(app.getPath('exe')), 'policy.json'),
 };

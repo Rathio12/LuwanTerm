@@ -6,6 +6,8 @@ const { SshConnection } = require('./connection');
 const hosts = require('../store/hosts');
 const vault = require('../store/vault');
 const keys = require('../store/keys');
+const policy = require('../policy');
+const audit = require('../audit');
 
 const PROMPT_TIMEOUT_MS = 180000;
 
@@ -166,6 +168,11 @@ class SessionManager {
     const profile = hosts.get(hostId);
     if (!profile) throw new Error('Host profile no longer exists.');
 
+    if (!policy.hostAllowed(profile.host)) {
+      audit.record('connect.refused', { host: profile.host, port: profile.port, reason: 'policy' });
+      throw new Error(`Connecting to ${profile.host} is not permitted by policy.`);
+    }
+
     let credentials = await this.resolveCredentials(profile);
     const id = `sess_${crypto.randomBytes(6).toString('hex')}`;
 
@@ -183,6 +190,14 @@ class SessionManager {
 
         const info = await session.start(credentials, size, sock);
         this.sessions.set(id, session);
+        audit.record('session.open', {
+          sessionId: id,
+          host: profile.host,
+          port: profile.port,
+          username: profile.username,
+          auth: profile.auth,
+          jumpHost: profile.jumpHost || '',
+        });
         this.persistSecret(profile, credentials);
         this.notifyChange();
         return info;
@@ -261,6 +276,11 @@ class SessionManager {
 
   dispatch(event) {
     if (event.type === 'disposed') {
+      const closing = this.sessions.get(event.sessionId);
+      audit.record('session.close', {
+        sessionId: event.sessionId,
+        host: closing && closing.profile ? closing.profile.host : '',
+      });
       this.sessions.delete(event.sessionId);
       this.send('ssh:event', { type: 'status', sessionId: event.sessionId, status: 'closed' });
       this.notifyChange();

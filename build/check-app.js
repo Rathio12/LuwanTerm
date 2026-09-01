@@ -6,7 +6,20 @@ const os = require('os');
 const path = require('path');
 
 const root = path.join(__dirname, '..');
-const PORT = 9333;
+const net = require('net');
+
+function freePort() {
+  return new Promise((resolve, reject) => {
+    const probe = net.createServer();
+    probe.on('error', reject);
+    probe.listen(0, '127.0.0.1', () => {
+      const { port } = probe.address();
+      probe.close(() => resolve(port));
+    });
+  });
+}
+
+let PORT = 0;
 
 const results = [];
 const check = (label, passed, detail) => {
@@ -63,6 +76,8 @@ function connect(url) {
 
 async function main() {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'luwan-check-'));
+
+  PORT = await freePort();
   const electron = require(path.join(root, 'node_modules', 'electron'));
 
   const child = spawn(electron, ['.', `--remote-debugging-port=${PORT}`, `--user-data-dir=${profile}`], {
@@ -83,7 +98,9 @@ async function main() {
     }
   }
   if (!page) {
-    console.log('  FAIL  the app never opened a window');
+    console.log(`  FAIL  the app never opened a window  (devtools port ${PORT})`);
+    console.log('        If devtools could not bind, the port is in a range Windows has');
+    console.log('        excluded - "netsh interface ipv4 show excludedportrange protocol=tcp".');
     child.kill();
     process.exit(1);
   }
