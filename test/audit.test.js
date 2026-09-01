@@ -69,6 +69,28 @@ const before = quiet.read().length;
 check('policy can switch auditing off', quiet.record('session.open', {}) === null);
 check('and nothing more is written', quiet.read().length === before, `${before} lines`);
 
+const retention = require(path.join(root, 'src', 'main', 'audit'));
+const rotated = `${retention.file()}.1`;
+fs.mkdirSync(path.dirname(rotated), { recursive: true });
+fs.writeFileSync(rotated, JSON.stringify({ event: 'old' }) + String.fromCharCode(10));
+const old8 = Date.now() - 400 * 24 * 60 * 60 * 1000;
+fs.utimesSync(rotated, new Date(old8), new Date(old8));
+
+fs.writeFileSync(path.join(dir, 'policy.json'), JSON.stringify({ auditRetentionDays: 90 }));
+delete require.cache[require.resolve(policyPath)];
+delete require.cache[require.resolve(path.join(root, 'src', 'main', 'audit'))];
+const pruner = require(path.join(root, 'src', 'main', 'audit'));
+pruner.prune();
+check('a rotated file past its retention is deleted', !fs.existsSync(rotated));
+
+fs.writeFileSync(rotated, JSON.stringify({ event: 'old' }) + String.fromCharCode(10));
+fs.utimesSync(rotated, new Date(old8), new Date(old8));
+fs.writeFileSync(path.join(dir, 'policy.json'), JSON.stringify({ auditRetentionDays: 0 }));
+delete require.cache[require.resolve(policyPath)];
+delete require.cache[require.resolve(path.join(root, 'src', 'main', 'audit'))];
+require(path.join(root, 'src', 'main', 'audit')).prune();
+check('a retention of zero keeps everything', fs.existsSync(rotated));
+
 quiet.close();
 fs.rmSync(dir, { recursive: true, force: true });
 done();

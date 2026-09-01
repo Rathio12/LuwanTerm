@@ -1,5 +1,26 @@
 # Changelog
 
+## 1.8.2
+
+**Three policy settings did nothing at all.** They were defined, validated,
+clamped and documented, and no code ever read them - which is the worst way for
+a security control to fail, because an administrator sets it, the guide agrees
+it exists, and nothing happens.
+
+- `idleTimeoutMinutes` never disconnected anything. Sessions now record when
+  they last saw input or output, a sweep runs every thirty seconds while a
+  timeout is set, and a session past its limit is closed and recorded as
+  `session.idle-timeout` with how long it had been sitting.
+- `allowKeyboardInteractive` was never consulted. Setting it to false now turns
+  the challenge-response method off before it is offered, rather than letting it
+  through, and refusals are recorded.
+- `auditRetentionDays` never deleted anything, because the function that does
+  the deleting was written and then never called. It runs at startup now.
+
+Each one has tests that fail against the old behaviour, which is what was
+missing the first time: the settings had tests proving they parsed correctly,
+and none proving they did anything.
+
 ## 1.8.1
 
 **The app could not be opened once an update existed.** On boot it checks for a
