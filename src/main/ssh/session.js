@@ -16,6 +16,7 @@ class Session extends EventEmitter {
     this.id = id;
     this.profile = profile;
     this.status = 'connecting';
+    this.lastActivity = Date.now();
     this.connection = new SshConnection(profile, handlers);
 
     this.jump = null;
@@ -93,6 +94,7 @@ class Session extends EventEmitter {
         }
         this.stream = stream;
         stream.on('data', (chunk) => {
+          this.touch();
           this.emitEvent('data', { chunk });
           if (this.log) this.log.write(chunk);
         });
@@ -133,8 +135,17 @@ class Session extends EventEmitter {
 
   write(data) {
     if (!this.stream) return false;
+    this.touch();
     this.stream.write(data);
     return true;
+  }
+
+  touch() {
+    this.lastActivity = Date.now();
+  }
+
+  idleFor() {
+    return Date.now() - (this.lastActivity || 0);
   }
 
   resize(cols, rows) {

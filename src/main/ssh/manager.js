@@ -265,6 +265,44 @@ class SessionManager {
     };
   }
 
+  startIdleSweep(everyMs = 30000) {
+    clearInterval(this.idleTimer);
+    if (!policy.idleTimeoutMs()) return;
+
+    this.idleTimer = setInterval(() => this.dropIdleSessions(), everyMs);
+    if (this.idleTimer.unref) this.idleTimer.unref();
+  }
+
+  stopIdleSweep() {
+    clearInterval(this.idleTimer);
+    this.idleTimer = null;
+  }
+
+  dropIdleSessions(now = Date.now()) {
+    const limit = policy.idleTimeoutMs();
+    if (!limit) return 0;
+
+    let dropped = 0;
+    for (const [id, session] of [...this.sessions]) {
+      if (typeof session.idleFor !== 'function') continue;
+      const idle = now - (session.lastActivity || now);
+      if (idle < limit) continue;
+
+      audit.record('session.idle-timeout', {
+        sessionId: id,
+        host: session.profile ? session.profile.host : '',
+        idleSeconds: Math.round(idle / 1000),
+      });
+      dropped += 1;
+      try {
+        this.close(id);
+      } catch {
+        this.sessions.delete(id);
+      }
+    }
+    return dropped;
+  }
+
   notifyChange() {
     if (!this.onChange) return;
     try {

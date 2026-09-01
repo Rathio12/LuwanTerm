@@ -11,6 +11,7 @@ const keys = require('./store/keys');
 const discord = require('./discord');
 const config = require('./config');
 const updater = require('./updater');
+const audit = require('./audit');
 
 if (process.argv.includes('--provenance')) {
   const provenance = require('./provenance');
@@ -47,6 +48,9 @@ if (!app.requestSingleInstanceLock()) {
   app.whenReady().then(async () => {
     registerAll(manager, { onSettingsChanged: applyDiscord });
     manager.onChange = updatePresence;
+
+    audit.prune();
+    manager.startIdleSweep();
 
     const splash = createSplash();
     const splashShownAt = Date.now();

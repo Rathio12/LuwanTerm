@@ -155,6 +155,15 @@ class SshConnection extends EventEmitter {
         .on('ready', () => settle(resolve, this))
         .on('banner', (message) => this.emit('banner', message))
         .on('keyboard-interactive', (name, instructions, lang, prompts, finish) => {
+          if (!policy.allows('allowKeyboardInteractive')) {
+            audit.record('auth.refused', {
+              host: this.profile.host,
+              method: 'keyboard-interactive',
+              reason: 'policy',
+            });
+            finish([]);
+            return;
+          }
           this.handlers
             .requestAnswers({ name, instructions, prompts: prompts.map((p) => p.prompt) })
             .then((answers) => finish(answers || []))
@@ -180,7 +189,7 @@ class SshConnection extends EventEmitter {
           readyTimeout: READY_TIMEOUT_MS,
           keepaliveInterval: (this.profile.keepaliveSeconds || 0) * 1000,
           keepaliveCountMax: 3,
-          tryKeyboard: true,
+          tryKeyboard: policy.allows('allowKeyboardInteractive'),
           hostVerifier: (keyBlob, cb) => this.hostVerifier(keyBlob, cb),
           ident: `LuwanTerm (${os.platform()})`,
           ...(sock ? { sock } : {}),
