@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.8.3
+
+**A guard against the mistake 1.8.2 fixed.** Three policy settings had shipped
+doing nothing, and the tests they had proved only that they parsed. A new suite
+walks every key the policy declares and fails unless something outside
+`policy.js` actually consults it, checking specifically that the idle timeout
+reaches the session manager, that the retention reaches something which deletes,
+and that both are started at boot.
+
+Verified the way a guard should be: delete the call it is watching for and the
+suite fails; put it back and it passes. No behaviour changes in this release -
+the binary is the same program 1.8.2 was.
+
 ## 1.8.2
 
 **Three policy settings did nothing at all.** They were defined, validated,

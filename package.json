@@ -1,6 +1,6 @@
 {
   "name": "luwan-term",
-  "version": "1.8.2",
+  "version": "1.8.3",
   "description": "LuwanTerm - a clean SSH client with tabbed terminals, SFTP and tunnel management.",
   "author": "LuwanIO",
   "license": "SEE LICENSE IN LICENSE",
