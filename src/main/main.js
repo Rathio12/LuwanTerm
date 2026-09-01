@@ -112,16 +112,58 @@ function splashState(splash, state) {
   if (splash && !splash.isDestroyed()) splash.webContents.send('splash:state', state);
 }
 
+const UPDATE_ANSWER_TIMEOUT_MS = 90000;
+const DOWNLOAD_STALL_MS = 120000;
+
+function withProgress(work, stallMs) {
+  return new Promise((resolve, reject) => {
+    let timer = null;
+    let done = false;
+
+    const fail = () => {
+      if (done) return;
+      done = true;
+      reject(new Error('the download stopped making progress'));
+    };
+
+    const report = () => {
+      if (done) return;
+      clearTimeout(timer);
+      timer = setTimeout(fail, stallMs);
+    };
+
+    report();
+    work(report).then(
+      (value) => {
+        done = true;
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (err) => {
+        done = true;
+        clearTimeout(timer);
+        reject(err);
+      }
+    );
+  });
+}
+
 function askToUpdate(splash, update) {
   return new Promise((resolve) => {
+    const hidden = Boolean(splash) && !splash.isDestroyed() && splash.isVisible();
+    if (hidden) splash.hide();
+
     const prompt = createUpdatePrompt(splash);
     let done = false;
+    let timer = null;
 
     const settle = (accepted) => {
       if (done) return;
       done = true;
+      clearTimeout(timer);
       ipcMain.removeListener('update:answer', onAnswer);
       if (!prompt.isDestroyed()) prompt.destroy();
+      if (hidden && !splash.isDestroyed()) splash.show();
       resolve(accepted);
     };
 
@@ -130,9 +172,19 @@ function askToUpdate(splash, update) {
 
     prompt.on('closed', () => settle(false));
 
+    prompt.webContents.on('did-fail-load', (_event, code, description) => {
+      console.error(`[update] the prompt could not load (${code} ${description})`);
+      settle(false);
+    });
+
     prompt.webContents.once('did-finish-load', () => {
       prompt.webContents.send('update:offer', { version: update.version, current: update.current });
     });
+
+    timer = setTimeout(() => {
+      console.error('[update] nobody answered the update prompt; carrying on with this version');
+      settle(false);
+    }, UPDATE_ANSWER_TIMEOUT_MS);
   });
 }
 
@@ -161,7 +213,13 @@ async function runBootSequence(splash, rendererReady) {
     if (await askToUpdate(splash, update)) {
       step(0, `Downloading ${update.version}`, 'This can take a moment');
       try {
-        await updater.download((percent) => step(percent, `Downloading ${update.version}`, `${percent}%`));
+        await withProgress(
+          (report) => updater.download((percent) => {
+            report();
+            step(percent, `Downloading ${update.version}`, `${percent}%`);
+          }),
+          DOWNLOAD_STALL_MS
+        );
         step(100, 'Restarting to finish the update');
         updater.install();
         return true;

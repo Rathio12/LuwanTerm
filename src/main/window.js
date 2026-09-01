@@ -51,10 +51,17 @@ function createUpdatePrompt(parent) {
     },
   });
 
-  prompt.once('ready-to-show', () => {
+  const reveal = () => {
+    if (prompt.isDestroyed() || prompt.isVisible()) return;
     prompt.show();
+    prompt.setAlwaysOnTop(true, 'screen-saver');
+    prompt.moveTop();
     prompt.focus();
-  });
+  };
+
+  prompt.once('ready-to-show', reveal);
+  setTimeout(reveal, 3000);
+
   prompt.loadFile(path.join(__dirname, '..', 'renderer', 'update.html'));
   return prompt;
 }
