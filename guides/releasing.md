@@ -13,6 +13,22 @@ asks GitHub whether a release for it already exists. If not, it builds, tags,
 and publishes. If it does, the run stops immediately and costs nothing — so an
 ordinary push is never at risk of republishing anything.
 
+## Which number to move
+
+`1.MINOR.FIX`, and the major stays at 1.
+
+- **`1.8` is the feature line.** Anything new - a capability, a setting, a
+  guide's worth of behaviour - moves the middle number and resets the last to
+  zero. 1.8.0, then 1.9.0.
+- **The last number counts fixes to that line.** A bug found in 1.8.0 is fixed
+  in 1.8.1, the next in 1.8.2. It is a tally of what went wrong with 1.8, which
+  is exactly what it should read as.
+
+**Every merge to main gets a number.** Not every push - a merge. If what landed
+is a fix, move the last digit; if it is a feature, move the middle one. Nothing
+reaches main and sits there unversioned, because then a bug report naming a
+version cannot be tied to code.
+
 ## Write the changelog first
 
 The release body **is** the changelog section for that version. `CHANGELOG.md`
