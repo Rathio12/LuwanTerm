@@ -70,6 +70,10 @@ contextBridge.exposeInMainWorld('term', {
     remove: (id) => call('snippets:remove', id),
   },
 
+  stats: {
+    read: (sessionId) => call('stats:read', sessionId),
+  },
+
   ssh: {
     connect: (hostId, size) => call('ssh:connect', hostId, size),
     disconnect: (sessionId) => call('ssh:disconnect', sessionId),

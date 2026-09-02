@@ -45,6 +45,7 @@ Every key is optional; anything absent keeps its default.
 | `allowAgentAuth` | `true` | `false` refuses the SSH agent. |
 | `allowSftp` | `true` | `false` disables file transfer entirely. |
 | `allowTunnels` | `true` | `false` disables local, remote and SOCKS forwarding. |
+| `allowMonitoring` | `true` | `false` disables the Stats panel, which runs `/proc` reads on the server. |
 | `requireSessionLogging` | `false` | `true` forces transcripts on and keeps them on. |
 | `idleTimeoutMinutes` | `0` | Minutes before an idle session is dropped. `0` is no limit. |
 | `allowedHosts` | `[]` | Glob patterns or CIDR ranges. Empty means anywhere. |

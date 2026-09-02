@@ -243,6 +243,7 @@
 
       await Promise.all([App.hosts.reload(), App.keys.reload(), App.snippets.reload()]);
       applyAccent(state.settings.accentColor);
+      App.afk?.apply(state.settings);
       applyBackground();
     } catch (err) {
       App.toast.error(`Startup failed: ${err.message}`);

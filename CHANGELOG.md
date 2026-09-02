@@ -1,5 +1,67 @@
 # Changelog
 
+## 1.9.0
+
+**Sessions close after ten minutes of inactivity**, and an away screen appears
+after five. Both are settings, and where an administrator's policy also sets a
+limit the shorter one wins.
+
+Worth being plain about the disconnect: idle means nothing sent *or* received,
+so a command that runs silently for ten minutes is closed along with an
+abandoned prompt. The away screen appears first, and says how many sessions are
+open and when they will go.
+
+The away screen draws your own background image over everything, blurred, with
+the time and how long you have been gone. Any key brings it back. It is a
+curtain rather than a lock - it asks for no password, and the note in Settings
+does not pretend otherwise.
+
+**Beta builds are published now**, which is what "Include beta builds" needed in
+order to mean anything. It never did: no prerelease had ever been published and
+no `beta.yml` existed, so turning the setting on pointed update checks at a file
+that was not there and they stopped working entirely. A push to the beta branch
+now builds, tests and publishes a prerelease, and the job refuses to publish if
+the channel file is missing rather than shipping something the updater cannot
+read.
+
+**A Stats panel**, beside Files and Tunnels: the server's CPU, memory, swap,
+uptime, load average and a live network graph, per session.
+
+It never types into your shell. Sampling opens a **separate exec channel**, the
+way the key deployment already does, so nothing lands in your prompt, your
+scroll-back or your session log - and it keeps working while you are inside
+`vim` or watching a long-running command, which writing to the terminal could
+not do.
+
+It only polls while the panel is open, every three seconds, and stops the moment
+you switch tabs or close the session. CPU and network are rates, so the first
+sample shows the memory and the load and then fills in the rest a tick later
+rather than inventing a number. A server without `/proc` - BSD, macOS, Windows -
+is told to you plainly instead of being shown as zeros, and a counter that
+resets does not read as a burst of traffic.
+
+Because it runs commands you did not type, `allowMonitoring` in
+[policy](guides/enterprise.md) can switch it off for a whole fleet.
+
+**The star prompt no longer appears in a development build.** Running from
+source counted toward the session tally and could show the prompt to the person
+building the thing, which is absurd on its own and also meant a real install
+arrived with the counter already spent. Development runs are now ignored
+entirely - not counted, not shown.
+
+To be explicit about the rest of that prompt, since it is easy to fear the
+worst: it is triggered by a **successful connection**, never by closing a
+session or quitting the app. It needs eight connections and three days before it
+is even eligible, then appears on a **15% chance** of a qualifying session, and
+any of its three buttons settles it permanently.
+
+**The local test harness stopped crying wolf.** It killed only the Electron
+process it spawned, orphaning the rest, and the leftovers fought the next run
+for the foreground and for Discord's socket - so consecutive runs failed for
+reasons that had nothing to do with the app. It takes the whole process tree
+down now, and the two checks that genuinely need a visible, focused window skip
+with a reason rather than failing when Windows declines to give them one.
+
 ## 1.8.6
 
 **Host rules follow the machine, not the string you typed.** A security review

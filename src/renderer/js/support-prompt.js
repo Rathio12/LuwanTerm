@@ -17,6 +17,15 @@
   async function noteSession() {
     if (asked) return;
 
+    // Never in a development run. Asking the person building the thing to go
+    // and star it is absurd, and counting those sessions would mean a real
+    // install arrived with the counter already spent.
+    try {
+      if (!(await window.term.app.info()).packaged) return;
+    } catch {
+      return;
+    }
+
     let settings;
     try {
       settings = await window.term.settings.get();
