@@ -357,6 +357,42 @@ async function main() {
   check('with uptime and load beneath it',
     panel.fields.includes('Uptime') && panel.fields.includes('Load'), panel.fields.join(', '));
 
+  // The beta notice: only for a beta version, only once per version.
+  const notice = await client.evaluate(`(async () => {
+    const out = {};
+    out.stableStaysQuiet = !App.betaNotice.isBeta('1.9.0');
+    out.betaRecognised = App.betaNotice.isBeta('1.9.0-beta.51');
+
+    await window.term.settings.set({ betaNoticeSeen: '' });
+    const info = { version: '1.9.0-beta.51', links: { issues: 'https://example.invalid/issues' } };
+
+    const first = App.betaNotice.maybeWarn(info);
+    await new Promise((r) => setTimeout(r, 500));
+    const modal = document.querySelector('.modal');
+    out.shown = Boolean(modal);
+    out.title = modal ? modal.querySelector('h2').textContent.trim() : '';
+    out.buttons = modal ? [...modal.querySelectorAll('.modal__foot button')].map((b) => b.textContent.trim()) : [];
+    if (modal) modal.querySelector('.modal__foot button:last-child').click();
+    await first;
+
+    out.remembered = (await window.term.settings.get()).betaNoticeSeen;
+
+    const again = await App.betaNotice.maybeWarn(info);
+    out.secondTime = again;
+
+    out.onStable = await App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+    return out;
+  })()`);
+
+  check('a stable version is not treated as a beta', notice.stableStaysQuiet);
+  check('a beta version is', notice.betaRecognised);
+  check('the notice appears on a beta build', notice.shown, notice.title);
+  check('it offers a way to report and a way to carry on', notice.buttons.length === 2,
+    notice.buttons.join(', '));
+  check('it remembers which build it warned about', notice.remembered === '1.9.0-beta.51');
+  check('and does not ask again for that build', notice.secondTime === false);
+  check('nor on a stable one', notice.onStable === false);
+
   client.close();
   killTree(child);
 

@@ -26,6 +26,7 @@ const DEFAULTS = {
   idleLockMinutes: 5,
   idleDisconnectMinutes: 10,
   betaUpdates: false,
+  betaNoticeSeen: '',
   starPromptState: 'pending',
   starPromptSessions: 0,
   starPromptFirstRunAt: 0,

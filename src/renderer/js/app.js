@@ -244,6 +244,7 @@
       await Promise.all([App.hosts.reload(), App.keys.reload(), App.snippets.reload()]);
       applyAccent(state.settings.accentColor);
       App.afk?.apply(state.settings);
+      App.betaNotice?.maybeWarn(state.info);
       applyBackground();
     } catch (err) {
       App.toast.error(`Startup failed: ${err.message}`);

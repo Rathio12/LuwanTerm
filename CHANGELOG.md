@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.1
+
+**A beta build says so on the way in.** Now that betas are actually published,
+running one opens a notice naming the version: it has had the same tests a
+release does, but it is the version things break in, and a crash is worth
+reporting because a beta nobody reports is just a worse release. One button
+goes straight to the issue tracker.
+
+It appears **once per beta build**, not once per launch - being asked every
+time teaches people to dismiss it without reading - and never on a stable
+version. It also says how to get back to stable builds, which is a setting
+rather than a reinstall.
+
 ## 1.9.0
 
 **Sessions close after ten minutes of inactivity**, and an away screen appears
