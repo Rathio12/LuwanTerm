@@ -2,7 +2,7 @@ name: Release
 
 on:
   push:
-    branches: [main]
+    branches: [main, beta]
     tags: ['v*']
   workflow_dispatch:
     inputs:
@@ -17,6 +17,7 @@ permissions:
 jobs:
   decide:
     name: Decide
+    if: github.ref != 'refs/heads/beta'
     runs-on: ubuntu-latest
     outputs:
       release: ${{ steps.check.outputs.release }}
@@ -158,5 +159,90 @@ jobs:
           else
             gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --notes-file release-notes.md --latest
           fi
+
+          gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
+
+  beta:
+    name: Beta build
+    if: github.ref == 'refs/heads/beta'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install
+        run: npm ci
+
+      - name: Bake the build config
+        run: npm run bake
+
+      - name: Tests
+        run: npm test
+
+      # electron-builder reads the channel out of the version's prerelease tag,
+      # so 1.9.0-beta.4 makes it write beta.yml rather than latest.yml. That is
+      # the file the app looks for when someone ticks "Include beta builds";
+      # without it the setting has nothing to find.
+      - id: version
+        shell: bash
+        run: |
+          base="$(node -p "require('./package.json').version")"
+          version="${base%%-*}-beta.${GITHUB_RUN_NUMBER}"
+          npm version "$version" --no-git-tag-version --allow-same-version
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          echo "building $version"
+
+      - name: Build installer and portable
+        env:
+          CSC_LINK: ${{ secrets.WINDOWS_CERT_BASE64 }}
+          CSC_KEY_PASSWORD: ${{ secrets.WINDOWS_CERT_PASSWORD }}
+          PROVENANCE_KEY: ${{ secrets.PROVENANCE_KEY }}
+        run: npm run dist
+
+      - name: Report what was produced
+        shell: bash
+        run: ls -lh dist/*.exe dist/*.yml
+
+      # Marked as a prerelease so it never becomes the download the front page
+      # offers, and so electron-updater only considers it for people who asked.
+      - name: Publish the prerelease
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if [ ! -f dist/beta.yml ]; then
+            echo "no beta.yml was produced - the updater would have nothing to read"
+            ls -l dist/
+            exit 1
+          fi
+
+          assets=()
+          for file in dist/*.exe dist/beta.yml; do
+            [ -f "$file" ] && assets+=("$file")
+          done
+
+          node build/release-notes.js "$VERSION" > release-notes.md
+          {
+            echo ""
+            echo "---"
+            echo ""
+            echo "**This is a beta.** Built from the beta branch, with the same tests a release"
+            echo "gets, but it is the version things break in. You only receive it if you ticked"
+            echo "*Include beta builds* in Settings. Going back means installing a stable build"
+            echo "by hand."
+          } >> release-notes.md
+
+          gh release create "$TAG" "${assets[@]}" \
+            --target "$GITHUB_SHA" \
+            --title "LuwanTerm $TAG" \
+            --notes-file release-notes.md \
+            --prerelease
 
           gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
