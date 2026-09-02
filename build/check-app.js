@@ -264,6 +264,13 @@ async function main() {
 
   await client.call('Page.bringToFront').catch(() => {});
   const fonts = await client.evaluate(`(async () => {
+    // Earlier checks close whatever is open, so reopen Settings rather than
+    // reporting an empty picker that is merely absent.
+    if (!document.querySelector('.fontpick')) {
+      document.querySelector('#btn-settings').click();
+      await new Promise((r) => setTimeout(r, 900));
+    }
+
     const until = Date.now() + 8000;
     let picker = document.querySelector('.fontpick');
     while ((!picker || !picker.children.length) && Date.now() < until) {
@@ -441,6 +448,19 @@ async function main() {
     out.secondTime = again;
 
     out.onStable = await App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+
+    // A release build with the beta channel switched on should still say so.
+    await window.term.settings.set({ betaUpdates: true, betaNoticeSeen: '' });
+    const channelWarn = App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+    await new Promise((r) => setTimeout(r, 500));
+    const channelModal = document.querySelector('.modal');
+    out.channelShown = Boolean(channelModal);
+    out.channelTitle = channelModal ? channelModal.querySelector('h2').textContent.trim() : '';
+    if (channelModal) channelModal.querySelector('.modal__foot button:last-child').click();
+    await channelWarn;
+    out.channelRemembered = (await window.term.settings.get()).betaNoticeSeen;
+    out.secondOnChannel = await App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+    await window.term.settings.set({ betaUpdates: false });
     return out;
   })()`);
 
@@ -452,6 +472,12 @@ async function main() {
   check('it remembers which build it warned about', notice.remembered === '1.9.0-beta.51');
   check('and does not ask again for that build', notice.secondTime === false);
   check('nor on a stable one', notice.onStable === false);
+  check('a stable build with the beta channel on still warns', notice.channelShown, notice.channelTitle);
+  check('and says it is about the channel, not this build',
+    /switched on/i.test(notice.channelTitle), notice.channelTitle);
+  check('it remembers that separately from a beta build',
+    notice.channelRemembered === 'channel:1.9.0', notice.channelRemembered);
+  check('and does not ask again for that version', notice.secondOnChannel === false);
 
   client.close();
   killTree(child);

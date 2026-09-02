@@ -13,7 +13,6 @@
    */
   async function maybeWarn(info) {
     const version = info && info.version;
-    if (!isBeta(version)) return false;
 
     let settings;
     try {
@@ -21,17 +20,33 @@
     } catch {
       return false;
     }
-    if (settings.betaNoticeSeen === version) return false;
+
+    // Two reasons to say something at startup: this build is a beta, or the
+    // channel is switched on so the next update will be. Either way the person
+    // is on the side of the fence where things break.
+    const running = isBeta(version);
+    const opted = Boolean(settings.betaUpdates);
+    if (!running && !opted) return false;
+
+    // Once per version rather than every launch. A warning shown every time is
+    // one people learn to dismiss before reading, and it reappears after each
+    // update, which is exactly when the risk is fresh.
+    const stamp = running ? version : `channel:${version}`;
+    if (settings.betaNoticeSeen === stamp) return false;
 
     const links = (info && info.links) || {};
     const choice = await App.modal.show({
-      title: `Beta build - ${version}`,
+      title: running ? `Beta build - ${version}` : 'Beta builds are switched on',
       iconName: 'shield',
       tone: 'danger',
       content: h('div', { class: 'row' }, [
         h('p', {
-          text: 'This is a beta. It has had the same tests a release does, but it is the '
-            + 'version things break in - expect the odd crash or something behaving oddly.',
+          text: running
+            ? 'This is a beta. It has had the same tests a release does, but it is the '
+              + 'version things break in - expect the odd crash or something behaving oddly.'
+            : `You are on ${version}, which is a release, but beta builds are switched on - `
+              + 'so the next update you are offered will be one. They get the same tests a '
+              + 'release does, but they are the version things break in.',
         }),
         h('p', {
           text: 'If that happens, please report it. A beta nobody reports is just a worse '
@@ -50,7 +65,7 @@
     });
 
     try {
-      await window.term.settings.set({ betaNoticeSeen: version });
+      await window.term.settings.set({ betaNoticeSeen: stamp });
     } catch {
       // Worst case it is shown again next launch.
     }
