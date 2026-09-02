@@ -2,6 +2,28 @@
 
 ## 1.9.0
 
+**Sessions close after ten minutes of inactivity**, and an away screen appears
+after five. Both are settings, and where an administrator's policy also sets a
+limit the shorter one wins.
+
+Worth being plain about the disconnect: idle means nothing sent *or* received,
+so a command that runs silently for ten minutes is closed along with an
+abandoned prompt. The away screen appears first, and says how many sessions are
+open and when they will go.
+
+The away screen draws your own background image over everything, blurred, with
+the time and how long you have been gone. Any key brings it back. It is a
+curtain rather than a lock - it asks for no password, and the note in Settings
+does not pretend otherwise.
+
+**Beta builds are published now**, which is what "Include beta builds" needed in
+order to mean anything. It never did: no prerelease had ever been published and
+no `beta.yml` existed, so turning the setting on pointed update checks at a file
+that was not there and they stopped working entirely. A push to the beta branch
+now builds, tests and publishes a prerelease, and the job refuses to publish if
+the channel file is missing rather than shipping something the updater cannot
+read.
+
 **A Stats panel**, beside Files and Tunnels: the server's CPU, memory, swap,
 uptime, load average and a live network graph, per session.
 

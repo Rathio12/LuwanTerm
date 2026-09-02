@@ -143,7 +143,7 @@ async function main() {
   })`);
   check('the window becomes visible', ready);
   if (!ready) {
-    client.close();
+  client.close();
     killTree(child);
     console.log('');
     console.log('the app never finished booting');
@@ -308,6 +308,54 @@ async function main() {
   check('the other opens GitHub', prompt.buttons.some((label) => /github/i.test(label)));
   check('there is an X to dismiss it', prompt.closer);
   check('the X settles it for good', prompt.settled === 'dismissed', prompt.settled);
+
+    // The away screen and the Stats panel have only had unit tests; drive them.
+  const away = await client.evaluate(`(async () => {
+    await window.term.settings.set({ idleLockMinutes: 5, backgroundImage: '' });
+    await App.afk.apply(await window.term.settings.get());
+    await App.afk.show();
+    await new Promise((r) => setTimeout(r, 300));
+
+    const panel = document.querySelector('.afk');
+    const result = {
+      shown: Boolean(panel) && !panel.hidden && getComputedStyle(panel).display !== 'none',
+      time: panel ? panel.querySelector('.afk__time').textContent : '',
+      detail: panel ? panel.querySelector('.afk__detail').textContent : '',
+      hint: panel ? panel.querySelector('.afk__hint').textContent : '',
+    };
+
+    App.afk.reset();
+    await new Promise((r) => setTimeout(r, 150));
+    result.dismissed = Boolean(panel) && panel.hidden;
+    return result;
+  })()`);
+
+  check('the away screen appears', away.shown);
+  check('it shows a clock', /^\d{2}:\d{2}$/.test(away.time), away.time);
+  check('it says what happens to open sessions', away.detail.length > 0, away.detail);
+  check('it says how to get back', /press any key/i.test(away.hint));
+  check('and activity dismisses it', away.dismissed);
+
+  // The dock only opens for a live session, and this harness has no server to
+  // connect to, so build the panel directly and check what it renders.
+  const panel = await client.evaluate(`(() => {
+    const tab = document.querySelector('[data-dock="stats"]');
+    const built = App.stats.create('no-such-session');
+    return {
+      tabbed: Boolean(tab),
+      label: tab ? tab.textContent.trim() : '',
+      afterFiles: Boolean(tab && tab.previousElementSibling),
+      meters: built.element.querySelectorAll('.meter').length,
+      graph: Boolean(built.element.querySelector('.spark')),
+      fields: [...built.element.querySelectorAll('.stat__label')].map((n) => n.textContent),
+    };
+  })()`);
+
+  check('a Stats tab sits beside the others', panel.tabbed && panel.afterFiles, panel.label);
+  check('it renders CPU, memory and swap meters', panel.meters === 3, `${panel.meters} meters`);
+  check('and a network graph', panel.graph);
+  check('with uptime and load beneath it',
+    panel.fields.includes('Uptime') && panel.fields.includes('Load'), panel.fields.join(', '));
 
   client.close();
   killTree(child);

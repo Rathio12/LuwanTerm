@@ -3,7 +3,10 @@
 
   const { h, qs } = App.dom;
 
-  const ACTIVITY = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart', 'focus'];
+  // Deliberately not 'focus': it fires whenever anything inside the app takes
+  // focus - a terminal, a button, the window coming forward - which dismissed
+  // the screen the moment it appeared. Coming back is a keystroke or a click.
+  const ACTIVITY = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart'];
 
   let overlay = null;
   let timer = null;
