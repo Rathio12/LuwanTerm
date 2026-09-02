@@ -72,6 +72,9 @@ contextBridge.exposeInMainWorld('term', {
 
   stats: {
     read: (sessionId) => call('stats:read', sessionId),
+    subscribe: (sessionId) => call('stats:subscribe', sessionId),
+    unsubscribe: (sessionId) => call('stats:unsubscribe', sessionId),
+    onSample: (handler) => subscribe('stats:sample', handler),
   },
 
   ssh: {

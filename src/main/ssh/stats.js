@@ -20,6 +20,8 @@ const PROBE = [
   `echo ${MARK}end`,
 ].join('; ');
 
+const END = `${MARK}end`;
+
 const previous = new Map();
 const previousNet = new Map();
 
@@ -152,9 +154,79 @@ function parse(text, sessionId, now = Date.now()) {
   return stats;
 }
 
+/**
+ * One long-lived channel running the probe on a loop, rather than a new exec
+ * every few seconds. A channel per sample costs a round trip each time and
+ * cannot go faster than the latency; this reads a stream and updates as fast as
+ * the server emits, which is what live means.
+ */
+function stream(session, onSample, { everySeconds = 1 } = {}) {
+  const client = session.connection && session.connection.client;
+  if (!client) throw new Error('That session is not connected.');
+
+  const loop = `while :; do ${PROBE}; sleep ${everySeconds}; done`;
+  let channel = null;
+  let stopped = false;
+  let buffer = '';
+
+  client.exec(loop, { pty: false }, (err, remote) => {
+    if (err) {
+      if (!stopped) onSample({ supported: false, reason: `The monitor could not start: ${err.message}` });
+      return;
+    }
+    if (stopped) {
+      remote.close();
+      return;
+    }
+    channel = remote;
+
+    remote.on('data', (chunk) => {
+      buffer += chunk.toString('utf8');
+
+      // Each pass ends with the marker, so anything before it is one whole
+      // reading and anything after is the start of the next.
+      let cut = buffer.indexOf(END);
+      while (cut !== -1) {
+        const block = buffer.slice(0, cut + END.length);
+        buffer = buffer.slice(cut + END.length);
+        const sample = parse(block, session.id);
+        onSample(sample.supported
+          ? { ...sample, at: Date.now() }
+          : { supported: false, reason: 'This server does not report /proc, so there is nothing to read.' });
+        cut = buffer.indexOf(END);
+      }
+
+      // A server that answers nothing but noise must not grow this forever.
+      if (buffer.length > 64 * 1024) buffer = buffer.slice(-4096);
+    });
+
+    remote.stderr.on('data', () => {});
+    remote.on('close', () => {
+      channel = null;
+      if (!stopped) onSample({ supported: false, reason: 'The monitor stopped.' });
+    });
+  });
+
+  return {
+    stop() {
+      stopped = true;
+      if (channel) {
+        try {
+          channel.close();
+        } catch {
+          /* already gone */
+        }
+        channel = null;
+      }
+    },
+  };
+}
+
 module.exports = {
   PROBE,
+  END,
   parse,
+  stream,
 
   async read(session) {
     const result = await session.exec(PROBE);
