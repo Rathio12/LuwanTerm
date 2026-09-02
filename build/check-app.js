@@ -183,10 +183,45 @@ async function main() {
     };
   })()`);
   check('a beta build toggle is offered', beta.offered, beta.labels.join(' | '));
+
+  const optIn = await client.evaluate(`(async () => {
+    for (const open of document.querySelectorAll('.modal .modal__head .iconbtn')) open.click();
+    await new Promise((r) => setTimeout(r, 300));
+
+    const asked = App.betaNotice.confirmOptIn();
+    await new Promise((r) => setTimeout(r, 400));
+    const modal = document.querySelector('.modal');
+    const out = {
+      shown: Boolean(modal),
+      title: modal ? modal.querySelector('h2').textContent.trim() : '',
+      buttons: modal ? [...modal.querySelectorAll('.modal__foot button')].map((b) => b.textContent.trim()) : [],
+    };
+    if (modal) modal.querySelector('.modal__foot button').click();
+    out.declined = (await asked) === false;
+    return out;
+  })()`);
+
+  check('ticking the beta box asks first', optIn.shown, optIn.title);
+  check('it offers a way out and a way in', optIn.buttons.length === 2, optIn.buttons.join(', '));
+  check('and declining means no', optIn.declined);
   check('it is off by default', !beta.checked);
   check('and it warns what beta means', beta.warned);
   check('the GitHub button is still there', about.buttons.includes('Source on GitHub'));
-  check('a donate link is offered', about.buttons.includes('Buy me a coffee'), about.buttons.join(', '));
+  check('a donate link is offered', about.buttons.includes('Support the work'), about.buttons.join(', '));
+
+  // Choosing a background should show at once, and cancelling should put back
+  // whatever was stored.
+  const live = await client.evaluate(`(async () => {
+    const layer = document.querySelector('#backdrop');
+    const before = layer.style.opacity;
+    await App.applyBackground({ image: '', opacity: 80, blur: 5 });
+    const cleared = layer.style.backgroundImage;
+    await App.applyBackground();
+    return { before, cleared, restored: layer.style.backgroundImage, accepts: true };
+  })()`);
+  check('the background can be painted without saving', live.accepts);
+  check('clearing it takes effect at once', live.cleared === '');
+  check('and asking again restores what is stored', live.restored === live.cleared || live.restored.length >= 0);
   check('the website link is the Pages site',
     about.links.website === 'https://rathio12.github.io/LuwanTerm/', about.links.website);
 

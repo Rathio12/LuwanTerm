@@ -177,5 +177,61 @@ const guard = appIpc.includes("test(url)") && appIpc.includes('Only http(s) link
 check('openExternal refuses anything that is not http or https', guard,
   'javascript:, file: and data: never reach the shell');
 
+/* ---------- What the app is allowed to talk to ---------- */
+
+/**
+ * Two destinations, and no others: the SSH servers the user asked for, and
+ * GitHub to ask whether there is a newer release. Everything else it touches is
+ * local - the Discord socket is a named pipe, and a tunnel's near end is by
+ * definition on this machine.
+ *
+ * This is worth a test rather than a promise. A stray fetch is one careless
+ * import away, and nobody would notice it in a diff.
+ */
+const shipped = [];
+const walk = (folder) => {
+  for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+    const full = path.join(folder, entry.name);
+    if (entry.isDirectory()) walk(full);
+    else if (/\.(js|html)$/.test(entry.name)) shipped.push(full);
+  }
+};
+walk(path.join(root, 'src'));
+
+const talkers = [];
+for (const file of shipped) {
+  const text = fs.readFileSync(file, 'utf8');
+  const relative = path.relative(root, file).split(path.sep).join('/');
+
+    for (const [pattern, what] of [
+      [new RegExp('\\bfetch\\s*\\('), 'fetch'],
+      [new RegExp('\\bXMLHttpRequest\\b'), 'XMLHttpRequest'],
+      [new RegExp('\\bnew WebSocket\\b'), 'WebSocket'],
+      [new RegExp('\\bhttps?\\.(get|request)\\s*\\('), 'an http request'],
+      [new RegExp('\\bnet\\.(createConnection|connect|Socket)\\s*\\('), 'a socket'],
+    ]) {
+    if (pattern.test(text)) talkers.push(`${relative}: ${what}`);
+  }
+}
+
+check('only two files open a socket at all', talkers.length === 2, talkers.join(' | '));
+check('one is the Discord pipe, which is local',
+  talkers.some((entry) => entry.startsWith('src/main/discord.js')));
+check('the other is the near end of a tunnel, which is local',
+  talkers.some((entry) => entry.startsWith('src/main/ssh/tunnels.js')));
+check('nothing in the app fetches over HTTP itself',
+  !talkers.some((entry) => /fetch|XMLHttpRequest|WebSocket|http request/.test(entry)),
+  'the update check is electron-updater talking to GitHub');
+
+const urls = new Set();
+for (const file of shipped) {
+  for (const match of fs.readFileSync(file, 'utf8').matchAll(/https?:\/\/[a-zA-Z0-9._~:/?#@!$&'*+,;=%-]+/g)) {
+    urls.add(match[0]);
+  }
+}
+const unexpected = [...urls].filter((url) => !url.startsWith('http://www.w3.org/'));
+check('no destination is hardcoded into the app', unexpected.length === 0,
+  unexpected.length ? unexpected.join(', ') : 'links come from the baked config, not the source');
+
 fs.rmSync(dir, { recursive: true, force: true });
 done();

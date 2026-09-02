@@ -14,7 +14,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 ![PuTTY](https://img.shields.io/badge/PuTTY%20.ppk-v2%20%2B%20v3-5865F2?style=flat-square)
 ![Sessions](https://img.shields.io/badge/sessions-unlimited-2B2D31?style=flat-square)
 [![Licence](https://img.shields.io/badge/licence-source--available%2C%20not%20for%20sale-f2a33c?style=flat-square)](https://github.com/Rathio12/LuwanTerm/blob/main/LICENSE)
-[![Tests](https://img.shields.io/badge/tests-457%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
+[![Tests](https://img.shields.io/badge/tests-470%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
 [![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FRathio12%2FLuwanTerm%2Fbadge&style=flat-square&color=7c5cff)](https://github.com/Rathio12/LuwanTerm)
 [![Release](https://img.shields.io/github/v/release/Rathio12/LuwanTerm?style=flat-square&label=release&color=3ea8ff)](https://github.com/Rathio12/LuwanTerm/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Rathio12/LuwanTerm/total?style=flat-square&color=f2a33c)](https://github.com/Rathio12/LuwanTerm/releases)
@@ -80,12 +80,14 @@ done and what is not.
 ## Supporting it
 
 LuwanTerm is free and always will be - the [licence](LICENSE) forbids selling
-it, and that is deliberate. What it does not forbid is a coffee.
+it, and that is deliberate.
 
 **[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)**
 
-Entirely optional. Nothing is gated, nothing is nagged, and no feature waits
-behind it. A star on the repository is worth just as much.
+If you like what this is, and you feel like it, that is there. If you do not,
+use the app anyway - it is the same app either way. Nothing is gated, no
+feature waits behind it, and it will never ask you twice. A star on the
+repository means just as much, and costs nothing.
 
 ## Getting help
 

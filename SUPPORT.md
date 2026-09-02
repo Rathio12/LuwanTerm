@@ -63,10 +63,13 @@ sets out what is in scope and what to expect.
 
 ## If you want to say thanks
 
-**[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)** - optional, and it
-buys you nothing. The [licence](guides/licence.md) forbids selling LuwanTerm but
-says plainly that donations are not selling, which is the whole reason this link
-can exist without contradicting it.
+**[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)**
+
+Only if you like the work. It buys no features, no priority and no support -
+there is nothing to buy, which is rather the point. The
+[licence](guides/licence.md) forbids selling LuwanTerm and says plainly that
+donations are not selling, which is the only reason the link can be here at all
+without contradicting it.
 
 ## What this is not
 
