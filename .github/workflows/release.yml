@@ -208,6 +208,23 @@ jobs:
         shell: bash
         run: ls -lh dist/*.exe dist/*.yml
 
+      # electron-builder writes latest.yml whatever the version says - it takes
+      # the channel from publish config, which this project does not use because
+      # it uploads by hand. The updater asks for beta.yml when someone has ticked
+      # "Include beta builds", and the file's contents are the same either way,
+      # so the name is the whole of the difference.
+      - name: Name the channel file for the beta channel
+        shell: bash
+        run: |
+          if [ ! -f dist/latest.yml ]; then
+            echo "no channel file was produced at all"
+            ls -l dist/
+            exit 1
+          fi
+          mv dist/latest.yml dist/beta.yml
+          echo "beta.yml:"
+          cat dist/beta.yml
+
       # Marked as a prerelease so it never becomes the download the front page
       # offers, and so electron-updater only considers it for people who asked.
       - name: Publish the prerelease

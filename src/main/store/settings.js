@@ -23,6 +23,8 @@ const DEFAULTS = {
   autoReconnect: false,
   autoReconnectAttempts: 3,
   autoReconnectDelaySeconds: 5,
+  idleLockMinutes: 5,
+  idleDisconnectMinutes: 10,
   betaUpdates: false,
   starPromptState: 'pending',
   starPromptSessions: 0,
@@ -42,6 +44,8 @@ const CLAMP = {
   terminalOpacity: [20, 100],
   autoReconnectAttempts: [1, 20],
   autoReconnectDelaySeconds: [1, 300],
+  idleLockMinutes: [0, 240],
+  idleDisconnectMinutes: [0, 1440],
 };
 
 function coerce(patch) {

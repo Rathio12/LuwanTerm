@@ -971,3 +971,70 @@ body.has-background .empty__card {
 .stat { display: flex; flex-direction: column; gap: 2px; }
 .stat__label { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.6px; color: var(--ink-faint); }
 .stat__value { font-family: var(--font-mono); font-size: 12.5px; color: var(--ink); }
+
+/* ---------- Away screen ---------- */
+
+.afk {
+  position: fixed;
+  inset: 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
+  background-size: cover;
+  background-position: center;
+  animation: afk-in var(--slow, 260ms) ease both;
+}
+.afk--image::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  backdrop-filter: blur(18px) saturate(120%);
+  background: rgba(8, 9, 15, 0.55);
+}
+
+.afk__card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 34px 46px;
+  text-align: center;
+}
+.afk__mark svg {
+  width: 26px;
+  height: 26px;
+  stroke: var(--accent);
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+.afk__time {
+  font-family: var(--font-mono);
+  font-size: 58px;
+  font-weight: 300;
+  letter-spacing: -1px;
+  color: var(--ink);
+  line-height: 1;
+}
+.afk__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-top: 8px;
+}
+.afk__since { font-size: 12.5px; color: var(--ink-mute); }
+.afk__detail { font-size: 12.5px; color: var(--ink-mute); max-width: 42ch; margin-top: 6px; }
+.afk__hint {
+  margin-top: 18px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--ink-faint);
+}
+
+@keyframes afk-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

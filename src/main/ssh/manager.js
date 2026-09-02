@@ -9,6 +9,7 @@ const keys = require('../store/keys');
 const policy = require('../policy');
 const audit = require('../audit');
 const stats = require('./stats');
+const settings = require('../store/settings');
 
 const PROMPT_TIMEOUT_MS = 180000;
 
@@ -272,9 +273,25 @@ class SessionManager {
     };
   }
 
+  idleLimitMs() {
+    const fromPolicy = policy.idleTimeoutMs();
+
+    let fromUser = 0;
+    try {
+      fromUser = Math.max(0, Number(settings.get().idleDisconnectMinutes) || 0) * 60 * 1000;
+    } catch {
+      fromUser = 0;
+    }
+
+    // Either may be off. When both are set the shorter one is the one that
+    // matters, the same way the two policy files resolve.
+    const limits = [fromPolicy, fromUser].filter((value) => value > 0);
+    return limits.length ? Math.min(...limits) : 0;
+  }
+
   startIdleSweep(everyMs = 30000) {
     clearInterval(this.idleTimer);
-    if (!policy.idleTimeoutMs()) return;
+    if (!this.idleLimitMs()) return;
 
     this.idleTimer = setInterval(() => this.dropIdleSessions(), everyMs);
     if (this.idleTimer.unref) this.idleTimer.unref();
@@ -286,7 +303,7 @@ class SessionManager {
   }
 
   dropIdleSessions(now = Date.now()) {
-    const limit = policy.idleTimeoutMs();
+    const limit = this.idleLimitMs();
     if (!limit) return 0;
 
     let dropped = 0;

@@ -28,6 +28,8 @@
       cursorBlink: form.check('Blinking cursor', current.cursorBlink),
       copyOnSelect: form.check('Copy on select', current.copyOnSelect),
       confirmOnClose: form.check('Confirm before closing a live session', current.confirmOnClose),
+      idleLockMinutes: form.input({ type: 'number', min: '0', max: '240', value: current.idleLockMinutes }),
+      idleDisconnectMinutes: form.input({ type: 'number', min: '0', max: '1440', value: current.idleDisconnectMinutes }),
       webgl: form.check('GPU accelerated rendering (needs a restart)', current.webgl),
       discordEnabled: form.check('Show LuwanTerm on your Discord profile', current.discordEnabled),
       discordShowHost: form.check('Include the host name in what Discord shows', current.discordShowHost),
@@ -51,6 +53,18 @@
           form.field('Cursor', fields.cursorStyle),
           form.field('Scrollback lines', fields.scrollback),
         ]),
+        form.row([
+          form.field('Away screen after (minutes)', fields.idleLockMinutes),
+          form.field('Close idle sessions after (minutes)', fields.idleDisconnectMinutes),
+        ]),
+        h('span', {
+          class: 'note',
+          text: 'The away screen hides what is on your terminal behind your background image '
+            + 'when you stop touching the keyboard. It is a curtain, not a lock - it asks for '
+            + 'no password. Closing idle sessions counts a session idle when nothing has been '
+            + 'sent or received, so a command that runs silently for that long is closed too. '
+            + 'Zero turns either off.',
+        }),
         buildFonts(current, fields.fontFamily),
         h('div', { class: 'row' }, [
           fields.cursorBlink,
@@ -90,6 +104,8 @@
         state.settings = await window.term.settings.set({
           fontFamily: fields.fontFamily.value.trim() || undefined,
           fontSize: fields.fontSize.value,
+          idleLockMinutes: fields.idleLockMinutes.value,
+          idleDisconnectMinutes: fields.idleDisconnectMinutes.value,
           cursorStyle: fields.cursorStyle.value,
           scrollback: fields.scrollback.value,
           cursorBlink: fields.cursorBlink.input.checked,
@@ -113,6 +129,7 @@
     }
     App.applyAccent(state.settings.accentColor);
     App.applyBackground();
+    App.afk?.apply(state.settings);
     for (const entry of state.sessions.values()) entry.term?.applySettings(state.settings);
     App.toast.ok('Settings saved');
   }
