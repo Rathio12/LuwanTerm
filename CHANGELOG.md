@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.9.5
+
+**Says up front that Windows will warn.** Someone downloaded a build and met
+*"Windows protected your PC"* while VirusTotal reported it clean, which reads
+like a contradiction and is not one.
+
+SmartScreen is not a virus scanner. It never looks inside the file: it asks
+whether the app is signed by a publisher Windows trusts and whether many
+machines have run it, and warns when both answers are no. A release published an
+hour ago, signed by nobody, answers no twice - so sixty-seven scanners finding
+nothing tells it nothing, because it was never asking about malware.
+
+The README now says so before the download, every release page carries the note
+above its links, and [the guide](guides/antivirus.md) explains why the two
+results coexist. What it does not do is pretend the warning can be waved away:
+it goes when a code-signing certificate is bought or when enough people have
+downloaded a release, and nothing else does it.
+
+The publisher metadata was checked while looking into this and is already
+correct - the executable and the Programs and Features entry both name LuwanIO
+and link the website. SmartScreen reads the certificate rather than those
+fields, which is why it still says unknown.
+
 ## 1.9.4
 
 **A Ko-fi link**, in the README, in SUPPORT.md, on the website, on the
