@@ -1,69 +1,127 @@
 # Security
 
-LuwanTerm holds SSH credentials and opens shells on remote machines, so its
-security properties matter more than most desktop apps. This is what it does,
-what it does not do, and how to report a problem.
+[![Report privately](https://img.shields.io/badge/report-privately-ef4444?style=flat-square&logo=github&logoColor=white)](https://github.com/Rathio12/LuwanTerm/security/advisories/new)
+![Attack suite](https://img.shields.io/badge/attack%20suite-37%20checks-22c55e?style=flat-square)
+![Telemetry](https://img.shields.io/badge/telemetry-none-2B2D31?style=flat-square)
+![Sandbox](https://img.shields.io/badge/renderer-sandboxed-7c5cff?style=flat-square)
+![Signing](https://img.shields.io/badge/releases-unsigned-f2a33c?style=flat-square)
+
+
+LuwanTerm holds private keys, passphrases and live connections to machines that
+matter. This page says what is defended, what is not, and how to tell somebody
+when it goes wrong.
 
 ## Reporting a vulnerability
 
-**Do not open a public issue for a security problem.**
+> [!IMPORTANT]
+> **Never open a public issue for a security problem**, and never post one in
+> Discussions. A public report is a working exploit handed to everyone who reads
+> the repository before there is a fix.
 
-Use GitHub's [private vulnerability reporting](https://github.com/Rathio12/LuwanTerm/security/advisories/new).
-It is private between you and the maintainer, and it is the only channel to use
-for this.
+**[Open a private security advisory](https://github.com/Rathio12/LuwanTerm/security/advisories/new)**
 
-Please include what you were doing, what happened, and how to reproduce it. A
-proof of concept helps enormously. You will get an acknowledgement, and a fix or
-an explanation of why it is not a problem.
+That is the whole process. It is private to you and the maintainer, it produces
+a CVE if one is warranted, and it does not require an email address from either
+of us.
 
-This is a personal project, not a funded one: expect a best-effort response
-rather than an SLA, and there is no bounty.
+**What helps:**
+
+- what you did, in enough detail to repeat it
+- what happened, and what should have happened instead
+- the version - `LuwanTerm.exe --provenance` prints the exact commit
+- whether it needs a hostile server, a hostile file, or only a normal session
+
+**What to expect:** this is one person's project with no support contract and no
+response-time commitment. Reports are read and taken seriously. If something is
+genuinely exploitable it gets fixed and released quickly, because releases here
+are a version bump and a push.
+
+## Supported versions
+
+| Version | Supported |
+| --- | --- |
+| Latest release | Yes |
+| Anything older | No - update first |
+
+There is no long-term support branch. Fixes go into the next release, and the
+app updates itself.
 
 ## What is protected
 
-| Area | How |
-| --- | --- |
-| Passwords and passphrases | Encrypted by the OS keychain through Electron `safeStorage`. If the platform cannot encrypt, **nothing is written** and you are asked on every connect |
-| Server identity | Host keys are pinned on first use and checked on every connection. A changed fingerprint stops the connection and warns loudly |
-| Private keys | Generated keys are written owner-only. Keys you already have are read where they are and **never rewritten**, converted, or copied unless you ask |
-| `.ppk` passphrases | Used to decrypt in memory at connect time, never handed to the SSH layer or written anywhere |
-| The renderer | Sandboxed, context-isolated, no Node integration. Every privileged action crosses a narrow preload bridge |
-| Page content | A strict CSP, navigation blocked, external links handed to the system browser |
-| Telemetry | There is none. The app talks to your servers, to GitHub for update checks, and to a local Discord socket if you leave presence on |
+**The window.** Every window runs with `sandbox: true`,
+`contextIsolation: true` and `nodeIntegration: false`, under a
+`default-src 'none'` Content Security Policy. Navigation is blocked outright and
+`window.open` is intercepted. The renderer cannot reach Node, and there is no
+`innerHTML` path left in the code for anything to be injected into.
+
+**Credentials.** Passwords and passphrases go to the operating system keystore
+through Electron's `safeStorage`, never to a plain file. Private keys are read
+from where you already keep them and are never copied, converted or rewritten.
+
+**Host identity.** An unknown or changed host key is shown before anything is
+sent, and remembered once accepted. `requireKnownHost` in a
+[policy file](guides/enterprise.md) turns an unrecognised key from a prompt into
+a refusal.
+
+**What the app talks to.** Two destinations: the SSH servers you asked for, and
+GitHub to ask whether there is a newer release. That is enforced by a test that
+fails if a `fetch`, an `XMLHttpRequest`, a `WebSocket` or a new socket appears
+anywhere in the source. No telemetry, no analytics, no account, no crash
+reporting service.
+
+**Hostile input.** An attack suite of 37 checks pushes malformed and malicious
+input at every parser and store: file names from a server trying to escape the
+download folder, prototype keys in configuration files, truncated JSON, absurd
+sizes, and values engineered to forge audit entries. It is verified by putting a
+fixed bug back and watching the suite fail.
+
+**The audit log.** Everything written passes a redactor first - passwords,
+passphrases, key material and tokens never reach the file, at any nesting depth.
 
 ## What is not protected
 
-Being straight about the limits is more useful than a longer list of features.
+Being clear about this is worth more than a longer list above.
 
-- **An attacker with your unlocked user account can read your keys.** The
-  keychain protects data at rest against another account or a stolen disk, not
-  against code running as you.
-- **`vault.dat` is only as strong as your OS account.** It is useless on another
-  machine, but not a substitute for full-disk encryption.
-- **Discord Rich Presence is a disclosure channel.** Host names are off by
-  default for that reason. Turn them on and anyone who can see your profile can
-  see which machines you are on.
-- **A background image is inlined into the window.** Do not use one containing
-  anything sensitive.
-- **Releases are signed with a self-signed certificate**, which proves builds
-  come from the same key but is not a trusted-CA signature. See
-  [guides/signing.md](guides/signing.md).
-- **The app has not been audited**, and has not yet been exercised against a
-  wide range of real SSH servers.
+**The releases are unsigned.** `Get-AuthenticodeSignature` on the published
+installer returns `NotSigned`. That is why Windows warns on first run, and it
+means you cannot verify the publisher from the file alone. Use the SHA-256 in
+the release notes and `--provenance` instead, and see
+[antivirus](guides/antivirus.md).
+
+**A user who owns the machine.** Policy files configure *this application* on a
+computer its user may well administer. Someone determined can edit the policy,
+replace the executable, or use a different SSH client entirely. Policy stops
+mistakes and casual circumvention. Controls that survive a hostile user live on
+the server: `sshd_config`, certificate authorities, bastion hosts and their own
+logs.
+
+**The away screen is a curtain, not a lock.** It hides what is on screen when
+you stop typing. It asks for no password and does not pretend to.
+
+**Anything the operating system already gives away.** If malware is running as
+you, it can read the same keystore the app reads, and watch the same keyboard.
+
+**Your servers.** This is a client. It does not harden the machines you connect
+to, and it cannot tell you that one of them has been compromised.
 
 ## Dependencies
 
-The runtime surface is deliberately small: `ssh2` for the protocol, `xterm.js`
-for the terminal, `electron-updater` for updates. PuTTY `.ppk` parsing, the
-SOCKS5 proxy, the SSH wire codec, Discord Rich Presence and the icon generator
-are all first-party, which keeps the dependency tree short but means bugs in
-them are ours. They are covered by the test suites described in
-[CONTRIBUTING.md](CONTRIBUTING.md).
+Seven runtime dependencies, all MIT, updated by Dependabot weekly for npm.
+GitHub Actions are only bumped for major versions - the noise of patch bumps
+teaches people to merge without looking.
+
+The security-sensitive surface is deliberately small and deliberately not
+hand-rolled: [`ssh2`](https://github.com/mscdex/ssh2) does the protocol and the
+crypto. What this project wrote itself is the PuTTY `.ppk` parser and the
+OpenSSH key encoder, and both are tested against fixtures that `ssh2` itself
+accepts.
 
 ## Scope
 
-In scope: anything that leaks credentials or key material, defeats host key
-verification, executes code from a remote host, or escapes the renderer sandbox.
+**In scope:** anything that lets a hostile server, a malicious file, or another
+user on the same machine read credentials, run code, escape a chosen directory,
+or make the app connect somewhere it should not.
 
-Out of scope: needing local administrator access, physical access to an unlocked
-machine, or social engineering of the person using the app.
+**Out of scope:** the SmartScreen warning (unsigned builds - known, documented),
+antivirus false positives (see the guide), and anything requiring the attacker
+to already have code execution as you.

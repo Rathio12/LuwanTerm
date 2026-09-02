@@ -1,5 +1,33 @@
 # Contributing
 
+![CLA](https://img.shields.io/badge/CLA-none%20required-22c55e?style=flat-square)
+![Copyright](https://img.shields.io/badge/copyright-stays%20yours-22c55e?style=flat-square)
+![Node](https://img.shields.io/badge/node-24+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
+[![PRs](https://img.shields.io/badge/pull%20requests-welcome-7c5cff?style=flat-square)](https://github.com/Rathio12/LuwanTerm/pulls)
+<!-- tests -->![Tests](https://img.shields.io/badge/tests-470%20passing-22c55e?style=flat-square)<!-- /tests -->
+
+
+Pull requests are welcome. So are bug reports, and so is telling me something is
+badly designed.
+
+> [!NOTE]
+> **No CLA, no copyright assignment.** You keep the copyright in what you write.
+> By opening a pull request you license it under the [licence](LICENSE) everyone
+> else gets it under, and confirm it is yours to give. That is the whole
+> arrangement - see section 10 of the licence.
+
+## Before you start
+
+**Small things** - a typo, a broken link, an obviously wrong string - just send
+the patch.
+
+**Anything larger**, open an issue or a
+[discussion](https://github.com/Rathio12/LuwanTerm/discussions) first. Not for
+permission, but because it is miserable to write something for a week and find
+out it conflicts with a plan you could not see. The
+[roadmap](guides/roadmap.md) says where things are going, including what is
+deliberately *not* planned.
+
 ## Getting set up
 
 ```bash
@@ -49,6 +77,31 @@ The point of these is consistency, not ceremony.
 [guides/architecture.md](guides/architecture.md) explains how the pieces fit, and
 [guides/customising.md](guides/customising.md) has worked examples of adding a panel,
 an IPC call or a setting — plus the gotchas that will bite you.
+
+## Tests
+
+**A test that cannot fail is not a test.** The rule here is that a new check
+must be shown to fail against the broken behaviour before it is trusted -
+delete the fix, watch it go red, put the fix back. Several checks in this
+repository exist because doing that revealed they were asserting nothing.
+
+Three layers, and they answer different questions:
+
+| | What it proves |
+| --- | --- |
+| `npm test` | Every parser, store, the policy layer, the updater and the attack suite |
+| `npm run check-site` | The published page really works, driven in an Electron window |
+| `node build/check-app.js` | The app boots and its interface behaves, over the DevTools protocol |
+
+The last one stays out of CI because its results depend on which fonts the
+machine has and whether Discord is running. Run it before anything you care
+about.
+
+Prefer a test that drives the real thing over one that asserts a shape. Several
+bugs here shipped with green suites: a settings regex that matched nothing, an
+update prompt drawn underneath the splash, a panel holding a session id that no
+longer existed. Every one of them passed its unit tests and failed the moment
+something opened a window.
 
 ## Commits
 
