@@ -350,8 +350,17 @@ async function main() {
 
   // The dock only opens for a live session, and this harness has no server to
   // connect to, so build the panel directly and check what it renders.
-  const panel = await client.evaluate(`(() => {
+  const panel = await client.evaluate(`(async () => {
     const tab = document.querySelector('[data-dock="stats"]');
+    // A session gets a temporary key while it connects and a real one after, so
+    // the panel must read it at call time rather than capturing it.
+    let key = 'first-id';
+    let reads = 0;
+    const lazy = App.stats.create(() => { reads += 1; return key; });
+    key = 'second-id';
+    await lazy.start();
+    lazy.stop();
+
     const built = App.stats.create('no-such-session');
     return {
       tabbed: Boolean(tab),
@@ -360,10 +369,13 @@ async function main() {
       meters: built.element.querySelectorAll('.meter').length,
       graph: Boolean(built.element.querySelector('.spark')),
       fields: [...built.element.querySelectorAll('.stat__label')].map((n) => n.textContent),
+      lazyReads: reads,
     };
   })()`);
 
   check('a Stats tab sits beside the others', panel.tabbed && panel.afterFiles, panel.label);
+  check('the panel reads the session id when it asks, not when it was built',
+    panel.lazyReads > 0, `read ${panel.lazyReads} times after construction`);
   check('it renders CPU, memory and swap meters', panel.meters === 3, `${panel.meters} meters`);
   check('and a network graph', panel.graph);
   check('with uptime and load beneath it',

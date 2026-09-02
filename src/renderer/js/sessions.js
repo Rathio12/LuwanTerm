@@ -254,7 +254,7 @@
       qs('#dock-tunnels').replaceChildren(entry.tunnels.element);
       entry.tunnels.refresh();
     } else {
-      if (!entry.stats) entry.stats = App.stats.create(entry.key);
+      if (!entry.stats) entry.stats = App.stats.create(() => entry.key);
       qs('#dock-stats').replaceChildren(entry.stats.element);
       entry.stats.start();
     }

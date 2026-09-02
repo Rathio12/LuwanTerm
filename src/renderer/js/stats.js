@@ -81,7 +81,13 @@
     };
   }
 
-  function create(sessionId) {
+  /**
+   * Takes a getter, not an id. A session is given a temporary key while it
+   * connects and a real one afterwards, so a panel that captured the id when it
+   * was built would ask about a session the main process has never heard of.
+   */
+  function create(currentId) {
+    const idOf = () => (typeof currentId === 'function' ? currentId() : currentId);
     const cpu = meter('CPU');
     const memory = meter('Memory');
     const swap = meter('Swap');
@@ -172,11 +178,11 @@
         // One stream from the server rather than a request every few seconds:
         // it updates as fast as the server sends, and costs one channel.
         unsubscribe = window.term.stats.onSample(({ sessionId: id, sample }) => {
-          if (id === sessionId) render(sample);
+          if (id === idOf()) render(sample);
         });
 
         try {
-          await window.term.stats.subscribe(sessionId);
+          await window.term.stats.subscribe(idOf());
         } catch (err) {
           note.textContent = err.message;
           started = false;
@@ -188,7 +194,7 @@
 
         if (unsubscribe) unsubscribe();
         unsubscribe = null;
-        window.term.stats.unsubscribe(sessionId).catch(() => {});
+        window.term.stats.unsubscribe(idOf()).catch(() => {});
       },
     };
   }
