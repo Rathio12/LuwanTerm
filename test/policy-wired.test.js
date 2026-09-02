@@ -38,8 +38,8 @@ const ACCESSORS = {
   auditEnabled: ['auditEnabled'],
   auditRetentionDays: ['auditRetentionDays', 'prune('],
   idleTimeoutMinutes: ['idleTimeoutMs('],
-  allowedHosts: ['hostAllowed('],
-  blockedHosts: ['hostAllowed('],
+  allowedHosts: ['checkHost(', 'hostAllowed('],
+  blockedHosts: ['checkHost(', 'hostAllowed('],
   allowedKeyTypes: ['keyTypeAllowed('],
 };
 
@@ -68,6 +68,9 @@ check('the audit prune is called at startup',
   fs.readFileSync(path.join(root, 'src', 'main', 'main.js'), 'utf8').includes('audit.prune()'));
 check('the idle sweep is started at startup',
   fs.readFileSync(path.join(root, 'src', 'main', 'main.js'), 'utf8').includes('startIdleSweep()'));
+check('host rules are checked with resolution, not just the typed name',
+  wiredIn('checkHost(').some((file) => file.includes('manager')), wiredIn('checkHost(').join(', '));
+
 check('keyboard-interactive is gated before it is offered',
   /tryKeyboard: policy\.allows/.test(fs.readFileSync(path.join(root, 'src', 'main', 'ssh', 'connection.js'), 'utf8')));
 
