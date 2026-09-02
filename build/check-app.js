@@ -269,9 +269,17 @@ async function main() {
 
   const MONO = /\b(mono\w*|code|consol\w*|courier|terminal)\b/i;
   const mono = local.ok ? local.families.filter((family) => MONO.test(family)) : [];
-  check('the system font list is readable', local.ok,
-    local.ok ? `${local.families.length} families` : local.why);
-  check('the monospace filter matches real families', mono.length > 0, mono.slice(0, 5).join(', '));
+  if (local.ok) {
+    check('the system font list is readable', true, `${local.families.length} families`);
+    check('the monospace filter matches real families', mono.length > 0, mono.slice(0, 5).join(', '));
+  } else if (/visible/i.test(local.why || '')) {
+    // Windows will not give the foreground to a process that has had no user
+    // input, and the API refuses on a hidden page. That is the harness being
+    // unable to look, not the app being wrong.
+    console.log(`  skip  the system font list is readable  (${local.why})`);
+  } else {
+    check('the system font list is readable', false, local.why);
+  }
 
   const prompt = await client.evaluate(`(async () => {
     for (const open of document.querySelectorAll('.modal .modal__head .iconbtn')) open.click();
@@ -322,6 +330,8 @@ async function main() {
       time: panel ? panel.querySelector('.afk__time').textContent : '',
       detail: panel ? panel.querySelector('.afk__detail').textContent : '',
       hint: panel ? panel.querySelector('.afk__hint').textContent : '',
+      date: panel ? panel.querySelector('.afk__date').textContent : '',
+      timeSize: panel ? parseFloat(getComputedStyle(panel.querySelector('.afk__time')).fontSize) : 0,
     };
 
     App.afk.reset();
@@ -333,6 +343,8 @@ async function main() {
   check('the away screen appears', away.shown);
   check('it shows a clock', /^\d{2}:\d{2}$/.test(away.time), away.time);
   check('it says what happens to open sessions', away.detail.length > 0, away.detail);
+  check('it shows the date under the clock', away.date.length > 6, away.date);
+  check('the clock is the biggest thing on it', away.timeSize >= 60, `${away.timeSize}px`);
   check('it says how to get back', /press any key/i.test(away.hint));
   check('and activity dismisses it', away.dismissed);
 

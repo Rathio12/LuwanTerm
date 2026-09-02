@@ -3,7 +3,6 @@
 
   const { h } = App.dom;
 
-  const EVERY_MS = 3000;
   const HISTORY = 60;
 
   const bytes = (value) => {
@@ -123,68 +122,73 @@
     ]);
 
     const history = { rx: [], tx: [] };
-    let timer = null;
-    let stopped = false;
+    let unsubscribe = null;
+    let started = false;
 
     const push = (series, value) => {
       series.push(Number.isFinite(value) ? value : 0);
       while (series.length > HISTORY) series.shift();
     };
 
-    async function tick() {
-      if (stopped) return;
-      try {
-        const reading = await window.term.stats.read(sessionId);
-        if (stopped) return;
-
-        if (!reading.supported) {
-          note.textContent = reading.reason;
-          return;
-        }
-
-        cpu.set(reading.cpu, Number.isFinite(reading.cpu) ? `${reading.cpu}%` : 'measuring...');
-        if (reading.memory) {
-          memory.set(reading.memory.percent,
-            `${bytes(reading.memory.used)} of ${bytes(reading.memory.total)}`);
-        }
-        if (reading.swap) {
-          swap.set(reading.swap.percent, `${bytes(reading.swap.used)} of ${bytes(reading.swap.total)}`);
-        } else {
-          swap.set(0, 'none');
-        }
-
-        uptime.textContent = duration(reading.uptime);
-        load.textContent = reading.load
-          ? reading.load.map((value) => value.toFixed(2)).join('  ')
-          : '-';
-
-        const net = reading.network || {};
-        down.textContent = rate(net.rx);
-        up.textContent = rate(net.tx);
-        push(history.rx, net.rx);
-        push(history.tx, net.tx);
-        chart.draw(history.rx, history.tx);
-
-        note.textContent = reading.cores
-          ? `${reading.cores} cores${net.interfaces ? ` - ${net.interfaces.join(', ')}` : ''}`
-          : '';
-      } catch (err) {
-        note.textContent = err.message;
+    function render(reading) {
+      if (!reading || !reading.supported) {
+        note.textContent = (reading && reading.reason) || 'Nothing to read.';
+        return;
       }
+
+      cpu.set(reading.cpu, Number.isFinite(reading.cpu) ? `${reading.cpu}%` : 'measuring...');
+
+      if (reading.memory) {
+        memory.set(reading.memory.percent,
+          `${bytes(reading.memory.used)} of ${bytes(reading.memory.total)}`);
+      }
+      if (reading.swap) {
+        swap.set(reading.swap.percent, `${bytes(reading.swap.used)} of ${bytes(reading.swap.total)}`);
+      } else {
+        swap.set(0, 'none');
+      }
+
+      uptime.textContent = duration(reading.uptime);
+      load.textContent = reading.load ? reading.load.map((value) => value.toFixed(2)).join('  ') : '-';
+
+      const net = reading.network || {};
+      down.textContent = rate(net.rx);
+      up.textContent = rate(net.tx);
+      push(history.rx, net.rx);
+      push(history.tx, net.tx);
+      chart.draw(history.rx, history.tx);
+
+      note.textContent = reading.cores
+        ? `${reading.cores} cores${net.interfaces ? ` - ${net.interfaces.join(', ')}` : ''}`
+        : '';
     }
 
     return {
       element,
-      start() {
-        stopped = false;
-        tick();
-        clearInterval(timer);
-        timer = setInterval(tick, EVERY_MS);
+      async start() {
+        if (started) return;
+        started = true;
+
+        // One stream from the server rather than a request every few seconds:
+        // it updates as fast as the server sends, and costs one channel.
+        unsubscribe = window.term.stats.onSample(({ sessionId: id, sample }) => {
+          if (id === sessionId) render(sample);
+        });
+
+        try {
+          await window.term.stats.subscribe(sessionId);
+        } catch (err) {
+          note.textContent = err.message;
+          started = false;
+        }
       },
       stop() {
-        stopped = true;
-        clearInterval(timer);
-        timer = null;
+        if (!started) return;
+        started = false;
+
+        if (unsubscribe) unsubscribe();
+        unsubscribe = null;
+        window.term.stats.unsubscribe(sessionId).catch(() => {});
       },
     };
   }

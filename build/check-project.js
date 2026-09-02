@@ -142,11 +142,70 @@ function checkIcon() {
   }
 }
 
+/**
+ * Nothing that looks like a credential may reach a published file.
+ *
+ * .env holds real tokens and is git-ignored, but nothing enforced that they
+ * could not reach the build: bake-config.js copies named keys into
+ * config.generated.json, which ships inside the asar, and .env.example is
+ * committed. Both are one careless line away from publishing a secret.
+ */
+function checkSecrets() {
+  console.log('secrets');
+
+  const SECRETISH = /(token|secret|password|passwd|api[_-]?key|private[_-]?key|credential)/i;
+  // Token-shaped rather than merely long: a Discord application id is twenty
+  // digits and entirely public, so length alone would flag the wrong things.
+  // A real token mixes letters and digits and is not a URL.
+  const opaque = (value) =>
+    typeof value === 'string' &&
+    value.length >= 20 &&
+    !/^https?:/i.test(value) &&
+    /[A-Za-z]/.test(value) &&
+    /[0-9]/.test(value);
+
+  try {
+    execFileSync('git', ['ls-files', '--error-unmatch', '.env'], { cwd: root, stdio: 'pipe' });
+    fail('.env is tracked by git - it holds real credentials and must not be');
+  } catch {
+    pass('.env is not tracked');
+  }
+
+  const example = path.join(root, '.env.example');
+  if (fs.existsSync(example)) {
+    const offenders = fs
+      .readFileSync(example, 'utf8')
+      .split(new RegExp('\\r?\\n'))
+      .map((line) => line.trim())
+      .filter((line) => line && !line.startsWith('#'))
+      .map((line) => [line.slice(0, line.indexOf('=')), line.slice(line.indexOf('=') + 1)])
+      .filter(([key, value]) => SECRETISH.test(key) || opaque(value));
+
+    if (offenders.length) fail(`.env.example carries something credential-shaped: ${offenders.map(([k]) => k).join(', ')}`);
+    else pass('.env.example holds only public values');
+  }
+
+  const keys = (fs.readFileSync(path.join(root, 'build/bake-config.js'), 'utf8').match(new RegExp('^\\s+([A-Z_]+):', 'gm')) || [])
+    .map((line) => line.trim().replace(':', ''));
+  const bakeable = keys.filter((key) => SECRETISH.test(key));
+  if (bakeable.length) fail(`build/bake-config.js would bake a credential into the app: ${bakeable.join(', ')}`);
+  else pass(`${keys.length} baked keys, none credential-shaped`);
+
+  const generated = path.join(root, 'src/main/config.generated.json');
+  if (fs.existsSync(generated)) {
+    const config = JSON.parse(fs.readFileSync(generated, 'utf8'));
+    const leaked = Object.entries(config).filter(([key, value]) => SECRETISH.test(key) || opaque(value));
+    if (leaked.length) fail(`the shipped config contains ${leaked.map(([k]) => k).join(', ')}`);
+    else pass('the shipped config carries nothing secret');
+  }
+}
+
 checkSyntax();
 checkHtmlReferences();
 checkPackagedFiles();
 checkDocLinks();
 checkIcon();
+checkSecrets();
 
 console.log('');
 console.log(failures ? `${failures} check(s) failed` : 'all checks passed');

@@ -3,10 +3,12 @@
 
   const { h, qs } = App.dom;
 
-  // Deliberately not 'focus': it fires whenever anything inside the app takes
-  // focus - a terminal, a button, the window coming forward - which dismissed
-  // the screen the moment it appeared. Coming back is a keystroke or a click.
-  const ACTIVITY = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart'];
+  // Input, not presence. 'mousemove' is deliberately absent: a nudged desk or a
+  // passing cursor is not someone working, and counting it means the screen
+  // never appears on a machine that gets knocked. 'focus' is absent for a
+  // sharper reason - it fires whenever anything inside the app takes focus, so
+  // it dismissed the screen the instant it appeared.
+  const ACTIVITY = ['keydown', 'mousedown', 'wheel', 'touchstart'];
 
   let overlay = null;
   let timer = null;
@@ -18,21 +20,17 @@
 
   function build() {
     const time = h('div', { class: 'afk__time', text: '' });
+    const date = h('div', { class: 'afk__date', text: '' });
     const since = h('div', { class: 'afk__since', text: '' });
     const detail = h('div', { class: 'afk__detail', text: '' });
 
-    const card = h('div', { class: 'afk__card' }, [
-      h('div', { class: 'afk__mark' }, [App.dom.icon ? App.dom.icon('terminal') : h('span')]),
-      time,
-      h('div', { class: 'afk__title', text: 'Away' }),
-      since,
-      detail,
-      h('div', { class: 'afk__hint', text: 'Press any key to come back' }),
+    const element = h('div', { class: 'afk', hidden: true }, [
+      h('div', { class: 'afk__clock' }, [time, date]),
+      h('div', { class: 'afk__meta' }, [since, detail]),
+      h('div', { class: 'afk__hint', text: 'Press any key' }),
     ]);
-
-    const element = h('div', { class: 'afk', hidden: true }, [card]);
     document.body.append(element);
-    return { element, time, since, detail };
+    return { element, time, date, since, detail };
   }
 
   function paintBackground(element, settings) {
@@ -76,16 +74,27 @@
     const tick = () => {
       const now = new Date();
       overlay.time.textContent = `${two(now.getHours())}:${two(now.getMinutes())}`;
+      overlay.date.textContent = now.toLocaleDateString(undefined, {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+      });
+
       const minutes = Math.floor((Date.now() - awaySince) / 60000);
-      overlay.since.textContent = minutes ? `Away for ${minutes} minute${minutes === 1 ? '' : 's'}` : '';
+      overlay.since.textContent = minutes
+        ? `Away for ${minutes} minute${minutes === 1 ? '' : 's'}`
+        : 'Away';
+
+      // Land on the minute rather than drifting by up to a tick, so the clock is
+      // never showing a minute that has already passed.
+      clearTimeout(clock);
+      clock = setTimeout(tick, 60000 - (Date.now() % 60000) + 50);
     };
     tick();
-    clearInterval(clock);
-    clock = setInterval(tick, 10000);
   }
 
   function hide() {
-    clearInterval(clock);
+    clearTimeout(clock);
     clock = null;
     if (overlay && !overlay.element.hidden) {
       overlay.element.hidden = true;

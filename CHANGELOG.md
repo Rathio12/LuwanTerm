@@ -1,5 +1,41 @@
 # Changelog
 
+## 1.9.2
+
+**The Stats panel is live now.** It opened a fresh channel every three seconds
+and could never update faster than the round trip took, which is not what live
+means. It opens one channel running the probe on a loop and reads the stream, so
+readings arrive as fast as the server sends them - once a second - for a
+fraction of the cost of asking over and over. The channel closes the moment the
+panel does.
+
+A stream splits wherever it likes, so the reader buffers and cuts on the probe's
+end marker: half a reading yields nothing, two arriving together are read as
+two, and a server sending nothing but noise cannot grow the buffer without
+bound.
+
+**The away screen clock was drifting.** It ticked every ten seconds, so it could
+sit showing a minute that had already passed. It lands on the minute boundary
+now, and shows the date beneath.
+
+Its styling is a lock screen rather than a card resting on a background: a
+gradient so the image still reads as an image, one very large light-weight time,
+a hairline rule above the session note, and the hint breathing at the foot of
+the screen. It honours `prefers-reduced-motion`.
+
+**The away screen woke on mouse movement**, so a nudged desk or a cursor
+drifting past counted as someone working - on a machine that gets knocked it
+would never appear at all. Input means input: a key, a click, a scroll, a touch.
+
+**Nothing credential-shaped can reach a published file.** `.env` holds real
+tokens and is git-ignored, but nothing enforced that they could not reach the
+build - `bake-config.js` copies named keys into the config that ships inside the
+asar, and `.env.example` is committed. A check now refuses a tracked `.env`, a
+credential-shaped key or value in `.env.example`, a bakeable key named like a
+secret, and anything token-shaped in the generated config. Token-shaped rather
+than merely long, or it would flag the Discord application id, which is twenty
+digits and entirely public.
+
 ## 1.9.1
 
 **A beta build says so on the way in.** Now that betas are actually published,

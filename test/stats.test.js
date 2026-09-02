@@ -106,4 +106,44 @@ check('a counter that resets does not read as negative traffic',
 const loopback = stats.parse(block(['@@luwannet', '@@luwanend']), 'n2');
 check('a server reporting no interfaces reports no network', loopback.network === undefined);
 
+// Streaming: the parser has to cope with readings arriving in pieces and with
+// several arriving at once, because a stream splits wherever it likes.
+stats.clear();
+const one = linux('cpu  100 0 0 900 0 0 0 0 0 0', 8192000);
+const two = linux('cpu  200 0 0 1800 0 0 0 0 0 0', 8192000);
+
+const splitAt = (text, at) => [text.slice(0, at), text.slice(at)];
+const [head, tail] = splitAt(one, Math.floor(one.length / 2));
+
+let buffer = '';
+const readings = [];
+const feed = (chunk) => {
+  buffer += chunk;
+  let cut = buffer.indexOf(stats.END);
+  while (cut !== -1) {
+    readings.push(stats.parse(buffer.slice(0, cut + stats.END.length), 's'));
+    buffer = buffer.slice(cut + stats.END.length);
+    cut = buffer.indexOf(stats.END);
+  }
+};
+
+feed(head);
+check('half a reading yields nothing yet', readings.length === 0);
+feed(tail);
+check('the rest of it completes one', readings.length === 1);
+
+const three = linux('cpu  400 0 0 2600 0 0 0 0 0 0', 8192000);
+feed(two + three);
+check('two arriving together are read as two', readings.length === 3, `${readings.length} total`);
+check('and each one after the first has a CPU figure',
+  typeof readings[1].cpu === 'number' && typeof readings[2].cpu === 'number',
+  `${readings[1].cpu}% then ${readings[2].cpu}%`);
+
+feed(three);
+check('an identical reading yields no CPU figure, having no delta',
+  readings[3].cpu === undefined, 'nothing changed, so nothing is claimed');
+
+check('the end marker is what splits them', stats.END.endsWith('end'));
+check('and the probe ends with it', stats.PROBE.trim().endsWith(stats.END));
+
 done();
