@@ -1,5 +1,36 @@
 # Changelog
 
+## 1.9.7
+
+**A malformed policy file stopped the app starting.** A `policy.json`
+containing `__proto__` reached a lookup that resolved to `Object.prototype` -
+truthy, and not iterable - and the destructuring beneath it threw. Policy is
+read during boot, so that was not a bad setting being ignored; it was the
+application refusing to open. A corrupted file or a fat-fingered fleet
+deployment was enough.
+
+Both stores now accept only keys they declare, checked as own properties
+rather than with `in`, which every object answers yes to for `__proto__` and
+`constructor`.
+
+**An attack suite**, run by `npm test` like everything else. Thirty-two checks
+that push hostile input where hostile input can actually arrive - a server the
+user connected to, a file somebody else wrote, a value arriving over IPC - and
+assert the app refuses or sanitises rather than crashes or complies.
+
+It covers download paths trying to escape the folder, policy and settings
+carrying prototype keys, junk types, truncated JSON and two hundred levels of
+nesting, a server sending a two-hundred-thousand-character line or naming five
+thousand interfaces, an audit value with a newline in it trying to forge a
+second log entry, and the check that keeps `javascript:` and `file:` away from
+the shell. It was verified the only way worth doing: by putting the bug back
+and watching the suite fail.
+
+**Smaller things it turned up.** A server naming thousands of network
+interfaces had them all sent to the interface and joined into a line of text;
+that is capped at thirty-two now. And a server reporting no uptime was credited
+with an uptime of zero, because `Number('')` is `0`.
+
 ## 1.9.6
 
 **A hostile server could write files outside your download folder.** Downloading

@@ -52,13 +52,16 @@ const CLAMP = {
 function coerce(patch) {
   const out = {};
   for (const [key, value] of Object.entries(patch)) {
-    if (!(key in DEFAULTS) || value === undefined || value === null) continue;
+    // hasOwnProperty, not `in`: '__proto__' and 'constructor' are in every
+    // object through the prototype chain, so `in` waves them straight past.
+    if (!Object.prototype.hasOwnProperty.call(DEFAULTS, key)) continue;
+    if (value === undefined || value === null) continue;
     if (typeof DEFAULTS[key] === 'boolean') {
       out[key] = Boolean(value);
     } else if (typeof DEFAULTS[key] === 'number') {
       const num = Number(value);
       if (!Number.isFinite(num)) continue;
-      const [min, max] = CLAMP[key] || [-Infinity, Infinity];
+      const [min, max] = Object.prototype.hasOwnProperty.call(CLAMP, key) ? CLAMP[key] : [-Infinity, Infinity];
       out[key] = Math.min(max, Math.max(min, Math.round(num)));
     } else {
       out[key] = String(value);

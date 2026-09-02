@@ -1,6 +1,6 @@
 {
   "name": "luwan-term",
-  "version": "1.9.6",
+  "version": "1.9.7",
   "description": "LuwanTerm - a clean SSH client with tabbed terminals, SFTP and tunnel management.",
   "author": "LuwanIO",
   "license": "SEE LICENSE IN LICENSE",
@@ -18,6 +18,7 @@
     "trust-cert": "powershell -NoProfile -ExecutionPolicy Bypass -File build/trust-cert.ps1",
     "dist:signed": "npm run bake && npm run make-icon && npm run make-license && npm run make-provenance && node build/dist-signed.js",
     "check": "node build/check-project.js && node test/run.js",
+    "check-attacks": "node test/attacks.test.js",
     "bake": "node build/bake-config.js",
     "make-fonts": "node build/make-font-preview.js",
     "test": "node test/run.js",
