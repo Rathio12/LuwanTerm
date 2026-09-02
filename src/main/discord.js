@@ -9,17 +9,27 @@ const CLIENT_ID = require('./config').discordClientId;
 
 const OP = { HANDSHAKE: 0, FRAME: 1, CLOSE: 2, PING: 3, PONG: 4 };
 const MAX_PIPE = 10;
-const RECONNECT_MS = 20000;
+const ms = (name, fallback) => {
+  const value = Number(process.env[name]);
+  return Number.isFinite(value) && value > 0 ? value : fallback;
+};
+
+const RECONNECT_MS = ms('LUWAN_DISCORD_RECONNECT_MS', 20000);
+const HANDSHAKE_TIMEOUT_MS = ms('LUWAN_DISCORD_HANDSHAKE_MS', 10000);
+const REFRESH_MS = ms('LUWAN_DISCORD_REFRESH_MS', 150000);
 
 let socket = null;
 let ready = false;
 let config = {};
 let pending = null;
 let reconnectTimer = null;
+let handshakeTimer = null;
+let refreshTimer = null;
 let stopped = true;
 const startedAt = Date.now();
 
 function socketPath(index) {
+  if (process.env.LUWAN_DISCORD_PIPE) return `${process.env.LUWAN_DISCORD_PIPE}${index}`;
 
   if (process.platform === 'win32') return String.raw`\\?\pipe\discord-ipc-${index}`;
 
@@ -70,6 +80,14 @@ function connect(index = 0) {
     attempt.removeListener('error', retryNext);
     bind(attempt);
     send(OP.HANDSHAKE, { v: 1, client_id: String(config.clientId) });
+
+    clearTimeout(handshakeTimer);
+    handshakeTimer = setTimeout(() => {
+      handshakeTimer = null;
+      if (ready || stopped) return;
+      if (socket) socket.destroy();
+    }, HANDSHAKE_TIMEOUT_MS);
+    if (handshakeTimer.unref) handshakeTimer.unref();
   });
 }
 
@@ -95,6 +113,10 @@ function bind(connection) {
   connection.on('close', () => {
     ready = false;
     socket = null;
+    clearTimeout(handshakeTimer);
+    handshakeTimer = null;
+    clearInterval(refreshTimer);
+    refreshTimer = null;
     if (!stopped) scheduleReconnect();
   });
 }
@@ -113,6 +135,9 @@ function handleFrame(op, body) {
   const message = safeParse(body);
   if (message && message.evt === 'READY') {
     ready = true;
+    clearTimeout(handshakeTimer);
+    handshakeTimer = null;
+    startRefresh();
     if (pending) push(pending);
   }
 }
@@ -132,6 +157,14 @@ function scheduleReconnect() {
     if (!stopped) connect(0);
   }, RECONNECT_MS);
   if (reconnectTimer.unref) reconnectTimer.unref();
+}
+
+function startRefresh() {
+  clearInterval(refreshTimer);
+  refreshTimer = setInterval(() => {
+    if (ready && pending) push(pending);
+  }, REFRESH_MS);
+  if (refreshTimer.unref) refreshTimer.unref();
 }
 
 function push(presence) {
@@ -154,11 +187,16 @@ function push(presence) {
 
   if (buttons.length) activity.buttons = buttons;
 
-  send(OP.FRAME, {
+  const written = send(OP.FRAME, {
     cmd: 'SET_ACTIVITY',
     args: { pid: process.pid, activity },
     nonce: crypto.randomUUID(),
   });
+
+  if (!written && socket) {
+    ready = false;
+    socket.destroy();
+  }
 }
 
 module.exports = {
@@ -187,6 +225,10 @@ module.exports = {
     pending = null;
     clearTimeout(reconnectTimer);
     reconnectTimer = null;
+    clearTimeout(handshakeTimer);
+    handshakeTimer = null;
+    clearInterval(refreshTimer);
+    refreshTimer = null;
     if (socket) {
       try {
         socket.destroy();

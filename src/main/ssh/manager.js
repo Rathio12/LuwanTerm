@@ -168,9 +168,15 @@ class SessionManager {
     const profile = hosts.get(hostId);
     if (!profile) throw new Error('Host profile no longer exists.');
 
-    if (!policy.hostAllowed(profile.host)) {
-      audit.record('connect.refused', { host: profile.host, port: profile.port, reason: 'policy' });
-      throw new Error(`Connecting to ${profile.host} is not permitted by policy.`);
+    const verdict = await policy.checkHost(profile.host);
+    if (!verdict.allowed) {
+      audit.record('connect.refused', {
+        host: profile.host,
+        port: profile.port,
+        reason: verdict.reason,
+        resolved: verdict.addresses || [],
+      });
+      throw new Error(`Connecting to ${profile.host} is not permitted by policy - ${verdict.reason}.`);
     }
 
     let credentials = await this.resolveCredentials(profile);

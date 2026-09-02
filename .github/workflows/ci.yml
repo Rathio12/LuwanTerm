@@ -102,6 +102,13 @@ jobs:
       - name: Install
         run: npm ci
 
+      # The app reads a baked config, and .env is git-ignored, so a clean
+      # checkout has none. Bake it - the fallback to .env.example gives the
+      # project's own public values - or the suites test a configuration that
+      # never ships.
+      - name: Bake the build config
+        run: npm run bake
+
       - name: Run the suites
         run: npm test
 

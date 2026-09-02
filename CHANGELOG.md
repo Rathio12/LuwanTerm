@@ -1,5 +1,42 @@
 # Changelog
 
+## 1.8.6
+
+**Host rules follow the machine, not the string you typed.** A security review
+of the policy layer found the allowlist and the blocklist matched only the
+literal host written in a profile. Blocking `*.internal` did not stop a
+connection to `10.4.0.9`, and it did not stop a second name pointing at the same
+server either - so a control described as confining users to a set of hosts
+confined them to a set of spellings.
+
+Both lists resolve now. A name is checked, so are its addresses, and each
+address is asked what it calls itself so an alias is caught by a rule naming the
+canonical host. An address typed in place of a name is resolved backwards the
+same way. Patterns may be CIDR ranges - `10.4.0.0/16` - as well as globs, and
+trailing dots, capitalisation, whitespace and IPv6 brackets no longer matter.
+
+**A host that will not resolve is refused when an allowlist is set**, rather
+than waved through, because that is what routing around an allowlist looks like.
+With only a blocklist it still connects - there is nothing to match it against -
+and either way the reason reaches the audit log. Resolution is capped at three
+seconds so slow DNS cannot hold up a connection.
+
+The guide is blunter about the limit as well: a user who can edit their own
+`hosts` file can point a name anywhere, and one who can run a different SSH
+client is not constrained by this one at all.
+
+**Rich Presence recovers on its own.** It could stop showing and stay stopped.
+If Discord accepted the socket but never answered the handshake, nothing timed
+out and nothing reconnected - the connection sat half open forever. And if the
+activity was lost while the socket survived, it was only re-sent when a session
+opened or closed, so a quiet terminal stayed blank.
+
+There is a ten second handshake timeout now, which tears the socket down so the
+reconnect that already existed can do its job; a re-assert every two and a half
+minutes while connected; and a failed write is treated as a dead connection
+rather than a success. Tested against a fake Discord that drops the connection
+mid-session and another that accepts it and says nothing.
+
 ## 1.8.5
 
 **The signature check added in 1.8.4 could not read signatures.** On the build

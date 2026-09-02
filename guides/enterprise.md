@@ -47,15 +47,35 @@ Every key is optional; anything absent keeps its default.
 | `allowTunnels` | `true` | `false` disables local, remote and SOCKS forwarding. |
 | `requireSessionLogging` | `false` | `true` forces transcripts on and keeps them on. |
 | `idleTimeoutMinutes` | `0` | Minutes before an idle session is dropped. `0` is no limit. |
-| `allowedHosts` | `[]` | Glob patterns. Empty means anywhere. |
-| `blockedHosts` | `[]` | Glob patterns, applied after the allowlist and winning over it. |
+| `allowedHosts` | `[]` | Glob patterns or CIDR ranges. Empty means anywhere. |
+| `blockedHosts` | `[]` | Same, applied after the allowlist and winning over it. |
 | `allowedKeyTypes` | `[]` | e.g. `["ed25519"]`. Empty means any type. |
 | `auditEnabled` | `true` | `false` stops the audit log. |
 | `auditRetentionDays` | `90` | How long rotated audit files are kept. `0` keeps them. |
 
-Patterns use `*` and `?` and are matched case-insensitively against the host as
-written in the profile. `*.prod.example.com` matches `web1.prod.example.com` and
-not `prod.example.com`.
+Patterns use `*` and `?` and are matched case-insensitively.
+`*.prod.example.com` matches `web1.prod.example.com` and not `prod.example.com`.
+A pattern may also be a CIDR range - `10.4.0.0/16`, or an IPv6 prefix - which is
+matched against addresses rather than names.
+
+**Matching follows the machine, not the string.** A name is resolved and its
+addresses are matched too, and each address is asked what it calls itself so a
+second name for the same host is caught by a rule naming the first. An address
+typed in place of a name is resolved backwards the same way. Blocking
+`*.internal` therefore also refuses `10.4.0.9` and `shadow.example.net` when both
+lead to `db.internal`.
+
+Resolution is capped at three seconds and failure is not treated as consent:
+**if an allowlist is set and the host cannot be resolved, the connection is
+refused**, because a name that will not resolve is what routing around an
+allowlist looks like. With only a blocklist, an unresolvable host is allowed -
+there is nothing to match it against - and the refusal reason is recorded either
+way.
+
+None of this is a substitute for network controls. A user who can edit their own
+`hosts` file can point any name anywhere, and a user who can run another SSH
+client is not constrained by this one at all. It stops mistakes and casual
+circumvention; it does not stop someone determined.
 
 A policy file that will not parse is ignored rather than fatal — a typo locks
 nobody out of their own machine, but it also means a policy you rely on should
