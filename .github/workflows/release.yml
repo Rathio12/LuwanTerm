@@ -263,3 +263,42 @@ jobs:
             --prerelease
 
           gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
+
+  mirror:
+    name: Mirror to GitLab
+    needs: [decide, windows]
+    if: needs.decide.outputs.release == 'true' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      # GitHub is the main repository. This is a backup: every stable version's
+      # history and tag, pushed somewhere that is not GitHub, so the project
+      # survives losing an account. Nothing reads from it.
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push the code and the tag
+        env:
+          GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
+          GITLAB_URL: ${{ vars.GITLAB_MIRROR_URL }}
+          TAG: ${{ needs.decide.outputs.tag }}
+        run: |
+          if [ -z "$GITLAB_TOKEN" ]; then
+            echo "::warning::No GITLAB_TOKEN, so this release was not mirrored."
+            echo "Set the secret to turn the backup on. See guides/releasing.md."
+            exit 0
+          fi
+
+          url="${GITLAB_URL:-https://gitlab.luwan.io/luwanio/LuwanTerm.git}"
+          host="${url#https://}"
+
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git remote add gitlab "https://oauth2:${GITLAB_TOKEN}@${host}"
+
+          # Fetch the tag the release job just created, then send both.
+          git fetch --tags origin
+          git push gitlab "HEAD:refs/heads/main" --force
+          git push gitlab "refs/tags/${TAG}"
+
+          echo "mirrored main and ${TAG} to ${host}"

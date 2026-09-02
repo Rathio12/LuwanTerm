@@ -118,6 +118,33 @@ an account there.
 This is consistent with the [licence](licence.md), which forbids selling
 LuwanTerm but says plainly that voluntary donations are not selling.
 
+## The GitLab mirror
+
+**GitHub is the main repository.** Everything happens there: issues, releases,
+the update feed, the website. The mirror is a backup and nothing reads from it.
+
+Every stable release also pushes `main` and its tag to
+`gitlab.luwan.io/luwanio/LuwanTerm`, so the project's history and tags survive
+losing a GitHub account. Betas are not mirrored - they are not what you would
+want to recover from.
+
+It needs one secret, and stays off until it exists:
+
+```bash
+gh secret set GITLAB_TOKEN --repo Rathio12/LuwanTerm
+```
+
+A GitLab **project access token** with the `write_repository` scope is enough;
+it does not need `api`. Without the secret the job prints a warning and the
+release still succeeds, because a backup failing is not a reason to fail a
+release.
+
+The URL can be overridden with a `GITLAB_MIRROR_URL` repository variable if the
+project ever moves; the default is the address above.
+
+**The mirror is force-pushed.** It is a copy of `main`, not somewhere to commit -
+anything pushed to it directly will be overwritten by the next release.
+
 ## Why the tag is made by the release
 
 The tag is created by the release rather than pushed first. A tag pushed with
