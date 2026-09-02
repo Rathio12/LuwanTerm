@@ -77,6 +77,15 @@ contextBridge.exposeInMainWorld('term', {
     onSample: (handler) => subscribe('stats:sample', handler),
   },
 
+  plugins: {
+    list: () => call('plugins:list'),
+    enable: (id, on) => call('plugins:enable', id, Boolean(on)),
+    run: (sessionId, id) => call('plugins:run', sessionId, id),
+    install: () => call('plugins:install'),
+    remove: (id) => call('plugins:remove', id),
+    openFolder: () => call('plugins:open-folder'),
+  },
+
   ssh: {
     connect: (hostId, size) => call('ssh:connect', hostId, size),
     disconnect: (sessionId) => call('ssh:disconnect', sessionId),

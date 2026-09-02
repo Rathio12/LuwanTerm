@@ -99,6 +99,12 @@ function connect(url) {
 async function main() {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'luwan-check-'));
 
+  const pluginFolder = path.join(profile, 'plugins');
+  fs.mkdirSync(pluginFolder, { recursive: true });
+  fs.copyFileSync(path.join(root, 'guides', 'plugins', 'disk-use.json'),
+    path.join(pluginFolder, 'disk-use.json'));
+  fs.writeFileSync(path.join(pluginFolder, 'broken.json'), '{"name":"No command here"}');
+
   PORT = await freePort();
   const electron = require(path.join(root, 'node_modules', 'electron'));
 
@@ -264,6 +270,13 @@ async function main() {
 
   await client.call('Page.bringToFront').catch(() => {});
   const fonts = await client.evaluate(`(async () => {
+    // Earlier checks close whatever is open, so reopen Settings rather than
+    // reporting an empty picker that is merely absent.
+    if (!document.querySelector('.fontpick')) {
+      document.querySelector('#btn-settings').click();
+      await new Promise((r) => setTimeout(r, 900));
+    }
+
     const until = Date.now() + 8000;
     let picker = document.querySelector('.fontpick');
     while ((!picker || !picker.children.length) && Date.now() < until) {
@@ -417,6 +430,73 @@ async function main() {
   check('with uptime and load beneath it',
     panel.fields.includes('Uptime') && panel.fields.includes('Load'), panel.fields.join(', '));
 
+  const plugged = await client.evaluate(`(async () => {
+    const tab = document.querySelector('[data-dock="plugins"]');
+    const listing = await window.term.plugins.list();
+
+    const idle = App.plugins.create('no-such-session');
+    idle.start();
+    await new Promise((r) => setTimeout(r, 500));
+    const beforeText = idle.element.textContent;
+    idle.stop();
+
+    await window.term.plugins.enable('disk-use', true);
+    const after = await window.term.plugins.list();
+
+    const live = App.plugins.create('no-such-session');
+    live.start();
+    await new Promise((r) => setTimeout(r, 1200));
+    const shown = live.element.querySelector('.plug__command');
+    const said = live.element.textContent;
+    live.stop();
+
+    document.querySelector('#btn-settings').click();
+    await new Promise((r) => setTimeout(r, 1400));
+    const rows = [...document.querySelectorAll('.plugset__item')];
+    const commands = [...document.querySelectorAll('.plugset__command')].map((n) => n.textContent);
+    const problems = [...document.querySelectorAll('.plugset__problem')].map((n) => n.textContent);
+    for (const close of document.querySelectorAll('.modal .modal__head .iconbtn')) close.click();
+    await new Promise((r) => setTimeout(r, 300));
+
+    await window.term.plugins.enable('disk-use', false);
+
+    return {
+      tabbed: Boolean(tab),
+      label: tab ? tab.textContent.trim() : '',
+      afterStats: Boolean(tab && tab.previousElementSibling
+        && tab.previousElementSibling.dataset.dock === 'stats'),
+      found: listing.plugins.map((p) => p.id),
+      broken: listing.broken.map((b) => b.id),
+      reason: listing.broken.length ? listing.broken[0].problems[0] : '',
+      allowed: listing.allowed,
+      nothingOnByDefault: listing.enabled.length === 0,
+      offersSettings: beforeText.includes('Open plugin settings'),
+      switchedOn: after.enabled,
+      command: shown ? shown.textContent : '',
+      saidWhy: said,
+      settingsRows: rows.length,
+      settingsCommands: commands,
+      settingsProblems: problems,
+    };
+  })()`);
+
+  check('a Plugins tab sits after Stats', plugged.tabbed && plugged.afterStats, plugged.label);
+  check('a manifest in the folder is found', plugged.found.includes('disk-use'), plugged.found.join(', '));
+  check('a broken one is listed rather than swallowed', plugged.broken.includes('broken'), plugged.reason);
+  check('policy allows plugins on a default profile', plugged.allowed);
+  check('nothing runs just by being installed', plugged.nothingOnByDefault);
+  check('an empty panel points at the settings that fill it', plugged.offersSettings);
+  check('switching one on is remembered', plugged.switchedOn.join() === 'disk-use', plugged.switchedOn.join(', '));
+  check('the panel prints the command it runs', plugged.command.includes('df -h'), plugged.command);
+  check('and says why it could not run rather than failing silently',
+    /no longer connected/i.test(plugged.saidWhy));
+  check('settings lists both the good one and the broken one', plugged.settingsRows === 2,
+    `${plugged.settingsRows} rows`);
+  check('with the command shown before it is switched on',
+    plugged.settingsCommands.some((text) => text.includes('df -h')), plugged.settingsCommands.join(' | '));
+  check('and the broken one explained in words',
+    plugged.settingsProblems.some((text) => /command/i.test(text)), plugged.settingsProblems.join(' | '));
+
   // The beta notice: only for a beta version, only once per version.
   const notice = await client.evaluate(`(async () => {
     const out = {};
@@ -441,6 +521,19 @@ async function main() {
     out.secondTime = again;
 
     out.onStable = await App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+
+    // A release build with the beta channel switched on should still say so.
+    await window.term.settings.set({ betaUpdates: true, betaNoticeSeen: '' });
+    const channelWarn = App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+    await new Promise((r) => setTimeout(r, 500));
+    const channelModal = document.querySelector('.modal');
+    out.channelShown = Boolean(channelModal);
+    out.channelTitle = channelModal ? channelModal.querySelector('h2').textContent.trim() : '';
+    if (channelModal) channelModal.querySelector('.modal__foot button:last-child').click();
+    await channelWarn;
+    out.channelRemembered = (await window.term.settings.get()).betaNoticeSeen;
+    out.secondOnChannel = await App.betaNotice.maybeWarn({ version: '1.9.0', links: {} });
+    await window.term.settings.set({ betaUpdates: false });
     return out;
   })()`);
 
@@ -452,6 +545,12 @@ async function main() {
   check('it remembers which build it warned about', notice.remembered === '1.9.0-beta.51');
   check('and does not ask again for that build', notice.secondTime === false);
   check('nor on a stable one', notice.onStable === false);
+  check('a stable build with the beta channel on still warns', notice.channelShown, notice.channelTitle);
+  check('and says it is about the channel, not this build',
+    /switched on/i.test(notice.channelTitle), notice.channelTitle);
+  check('it remembers that separately from a beta build',
+    notice.channelRemembered === 'channel:1.9.0', notice.channelRemembered);
+  check('and does not ask again for that version', notice.secondOnChannel === false);
 
   client.close();
   killTree(child);

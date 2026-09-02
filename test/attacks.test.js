@@ -147,6 +147,51 @@ const reset = stats.parse(`@@luwannet${NL}  eth0: 1 0 0 0 0 0 0 0 1 0 0 0 0 0 0 
 check('a counter that goes backwards is not reported as traffic',
   reset.network.rx === 0 && reset.network.tx === 0, `${backwards.network.rx}, then ${reset.network.rx}`);
 
+/* ---------- A plugin manifest, and the output it draws ---------- */
+
+const pluginEngine = require(path.join(root, 'src', 'main', 'plugins'));
+const ESC = String.fromCharCode(27);
+
+survives('a manifest that is a number is survived',
+  () => pluginEngine.validate(42, 'x'));
+survives('a manifest that is null is survived',
+  () => pluginEngine.validate(null, 'x'));
+check('a manifest naming __proto__ does not pollute',
+  pluginEngine.validate(JSON.parse('{"__proto__":{"pwned2":1},"name":"n","command":"c"}'), 'x').plugin
+  && ({}).pwned2 === undefined);
+
+const cheeky = pluginEngine.validate({ name: 'n', command: 'c', icon: '../../../etc/passwd' }, 'x').plugin;
+check('an icon name is never taken from the file', pluginEngine.ICONS.has(cheeky.icon), cheeky.icon);
+
+survives('output that is one enormous line is survived',
+  () => pluginEngine.table('x'.repeat(500000), { split: 'lines' }));
+survives('output that is nothing but newlines is survived',
+  () => pluginEngine.table(NL.repeat(100000), { split: 'lines' }));
+
+const escaped = pluginEngine.table(`${ESC}]0;title${String.fromCharCode(7)}${ESC}[2Jwiped`, { split: 'lines' });
+check('a server cannot repaint the panel through a plugin',
+  escaped.rows.length === 1 && escaped.rows[0][0] === '0;titlewiped', JSON.stringify(escaped.rows[0]));
+
+const smuggled = pluginEngine.table(`a${String.fromCharCode(13)}b`, { split: 'lines' });
+check('a carriage return cannot forge a second row', smuggled.rows.length === 1, `${smuggled.rows.length} rows`);
+
+const wide = pluginEngine.table(
+  Array.from({ length: 2000 }, () => 'f').join(' '),
+  { split: 'whitespace' }
+);
+check('a server cannot widen the table past the declared limit', wide.rows[0].length <= 8);
+
+const tall = pluginEngine.table(Array.from({ length: 200000 }, (unused, i) => `r${i}`).join(NL), { split: 'lines' });
+check('a server cannot make the panel draw two hundred thousand rows',
+  tall.rows.length === pluginEngine.MAX_ROWS && tall.truncated, `${tall.rows.length} rows`);
+
+check('a plugin list setting only accepts a list',
+  settings.set({ enabledPlugins: 'everything' }).enabledPlugins.length === 0);
+check('and caps how many it will hold',
+  settings.set({ enabledPlugins: Array.from({ length: 500 }, (unused, i) => `p${i}`) }).enabledPlugins.length === 50);
+check('and how long each id may be',
+  settings.set({ enabledPlugins: ['y'.repeat(9000)] }).enabledPlugins[0].length === 60);
+
 /* ---------- The audit log, written from remote data ---------- */
 
 const audit = require(path.join(root, 'src', 'main', 'audit'));

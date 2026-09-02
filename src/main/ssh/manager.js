@@ -344,6 +344,13 @@ class SessionManager {
         host: closing && closing.profile ? closing.profile.host : '',
       });
       stats.forget(event.sessionId);
+      if (this.onSessionGone) {
+        try {
+          this.onSessionGone(event.sessionId);
+        } catch (err) {
+          console.error('[manager] session cleanup hook failed:', err.message);
+        }
+      }
       this.sessions.delete(event.sessionId);
       this.send('ssh:event', { type: 'status', sessionId: event.sessionId, status: 'closed' });
       this.notifyChange();

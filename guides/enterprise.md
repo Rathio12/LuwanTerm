@@ -45,7 +45,7 @@ Every key is optional; anything absent keeps its default.
 | `allowAgentAuth` | `true` | `false` refuses the SSH agent. |
 | `allowSftp` | `true` | `false` disables file transfer entirely. |
 | `allowTunnels` | `true` | `false` disables local, remote and SOCKS forwarding. |
-| `allowMonitoring` | `true` | `false` disables the Stats panel, which runs `/proc` reads on the server. |
+| `allowMonitoring` | `true` | `false` disables the Stats panel, which runs `/proc` reads on the server, and with it [plugins](plugins.md), which run a command the user chose. |
 | `requireSessionLogging` | `false` | `true` forces transcripts on and keeps them on. |
 | `idleTimeoutMinutes` | `0` | Minutes before an idle session is dropped. `0` is no limit. |
 | `allowedHosts` | `[]` | Glob patterns or CIDR ranges. Empty means anywhere. |
@@ -104,6 +104,8 @@ policy files were read.
 | `sftp.upload` / `sftp.download` | A transfer finished, with the file name. |
 | `sftp.*.failed` / `sftp.*.cancelled` | It did not. |
 | `tunnel.open` / `tunnel.close` | A forward was opened or closed. |
+| `plugin.install` / `plugin.remove` | A [plugin](plugins.md) was added or deleted, with the command it carries. |
+| `plugin.run` | A plugin ran on a session, with the command and how often it repeats. Written once per plugin per session, not once per refresh. |
 
 **Nothing secret is written.** Every entry passes through a redactor that
 replaces anything named like a password, passphrase, key, token, secret or

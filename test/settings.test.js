@@ -45,6 +45,14 @@ check('an out-of-range number is clamped', settings.set({ fontSize: 999 }).fontS
 check('a below-range number is clamped', settings.set({ fontSize: 1 }).fontSize === 9);
 check('a non-numeric value is ignored', settings.set({ fontSize: 'huge' }).fontSize === 9);
 check('booleans are coerced', settings.set({ webgl: 0 }).webgl === false);
+
+check('a list setting starts empty', settings.get().enabledPlugins.length === 0);
+check('a list setting round-trips', settings.set({ enabledPlugins: ['disk', 'docker'] }).enabledPlugins.join() === 'disk,docker');
+check('the same id twice is stored once', settings.set({ enabledPlugins: ['disk', 'disk'] }).enabledPlugins.length === 1);
+check('a list survives being written and read back',
+  JSON.parse(fs.readFileSync(path.join(dir, 'settings.json'), 'utf8')).enabledPlugins.join() === 'disk');
+
 check('reset restores the defaults', settings.reset().fontSize === 14);
+check('and empties the list again', settings.get().enabledPlugins.length === 0);
 
 done();
