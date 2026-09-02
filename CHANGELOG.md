@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.9.3
+
+**The Stats panel said "That session is no longer connected" on a session that
+plainly was.** A session is given a temporary key while it connects and its real
+one afterwards, and the panel captured whichever it saw when it was built - so
+it spent the rest of its life asking about a session the main process had never
+heard of. It reads the id when it asks now.
+
+**Checking for updates in Settings reported "Not checked yet" when it had found
+one.** The status list had no entry for *available*, so the one case worth
+telling you about fell through to the default, and there was no way to start the
+download from there either. It names the version now and offers a button.
+
 ## 1.9.2
 
 **The Stats panel is live now.** It opened a fresh channel every three seconds

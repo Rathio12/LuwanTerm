@@ -337,6 +337,7 @@
     idle: 'Not checked yet.',
     checking: 'Checking for updates...',
     current: 'You are on the latest version.',
+    available: 'An update is available.',
     downloading: 'Downloading update...',
     ready: 'Update downloaded. Restart to apply it.',
     'available-portable': 'A newer version exists. Portable builds cannot update themselves - download it again.',
@@ -366,8 +367,24 @@
       } else {
         status.textContent = text;
       }
+      if (value.status === 'available') {
+        status.textContent = `Version ${value.version} is available.`;
+      }
+      download.hidden = value.status !== 'available';
       restart.hidden = value.status !== 'ready';
     };
+
+    const download = h('button', {
+      class: 'btn btn--primary',
+      hidden: true,
+      onclick: (event) => {
+        event.preventDefault();
+        status.textContent = 'Downloading...';
+        window.term.updates.download().catch((err) => {
+          status.textContent = err.message;
+        });
+      },
+    }, [icon('download'), 'Download it']);
 
     const check = h('button', {
       class: 'btn btn--ghost',
@@ -401,7 +418,7 @@
 
     const element = h('div', { class: 'field' }, [
       h('label', { text: `Updates - you are running ${state.info.version}` }),
-      h('div', { class: 'about__links' }, [check, restart]),
+      h('div', { class: 'about__links' }, [check, download, restart]),
       status,
       beta,
       h('span', {
