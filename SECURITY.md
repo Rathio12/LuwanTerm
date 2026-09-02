@@ -6,7 +6,6 @@
 ![Sandbox](https://img.shields.io/badge/renderer-sandboxed-7c5cff?style=flat-square)
 ![Signing](https://img.shields.io/badge/releases-unsigned-f2a33c?style=flat-square)
 
-
 LuwanTerm holds private keys, passphrases and live connections to machines that
 matter. This page says what is defended, what is not, and how to tell somebody
 when it goes wrong.

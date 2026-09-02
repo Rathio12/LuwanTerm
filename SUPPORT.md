@@ -5,7 +5,6 @@
 [![Security](https://img.shields.io/badge/vulnerabilities-private%20advisory-ef4444?style=flat-square)](https://github.com/Rathio12/LuwanTerm/security/advisories/new)
 [![Guides](https://img.shields.io/badge/guides-15%20pages-7c5cff?style=flat-square)](guides/)
 
-
 Four places, depending on what you need. Picking the right one gets you an
 answer faster than picking the loudest one.
 

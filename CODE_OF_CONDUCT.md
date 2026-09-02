@@ -4,7 +4,6 @@
 [![Report](https://img.shields.io/badge/reports-handled%20privately-3ea8ff?style=flat-square)](https://github.com/Rathio12/LuwanTerm/security/advisories/new)
 ![Based on](https://img.shields.io/badge/spirit%20of-Contributor%20Covenant-2B2D31?style=flat-square)
 
-
 ## The short version
 
 Be decent. Assume the other person is trying to help. Say what you mean without
