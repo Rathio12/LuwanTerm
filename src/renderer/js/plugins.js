@@ -3,17 +3,6 @@
 
   const { h, icon, iconButton } = App.dom;
 
-  /**
-   * The panel a plugin describes.
-   *
-   * Nothing here executes anything a plugin supplied: a manifest is a name, an
-   * icon, a command and a shape, and this turns that into a table. The command
-   * is printed under the table on every panel, because a thing that runs on
-   * your server should say what it runs.
-   *
-   * Takes a getter for the session id rather than the id itself - a session is
-   * given a temporary key while it connects and a real one afterwards.
-   */
   function create(currentId) {
     const idOf = () => (typeof currentId === 'function' ? currentId() : currentId);
 

@@ -99,8 +99,6 @@ function connect(url) {
 async function main() {
   const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'luwan-check-'));
 
-  /* Two manifests in the throwaway profile, so the plugin checks below run
-     against the loader and the IPC rather than against a stub. */
   const pluginFolder = path.join(profile, 'plugins');
   fs.mkdirSync(pluginFolder, { recursive: true });
   fs.copyFileSync(path.join(root, 'guides', 'plugins', 'disk-use.json'),

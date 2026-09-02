@@ -10,27 +10,12 @@ const audit = require('../audit');
 
 const mainWindow = () => BrowserWindow.getFocusedWindow() || BrowserWindow.getAllWindows()[0];
 
-/**
- * A plugin runs a command the user chose on a server they are already on, which
- * is the capability the Stats panel has, so it answers to the same policy
- * switch. An administrator who has turned monitoring off has turned this off.
- */
 const allowed = () => policy.allows('allowMonitoring');
 
 function requireAllowed() {
   if (!allowed()) throw new Error('Plugins are disabled by policy.');
 }
 
-/**
- * Registers the plugin channels, and returns what the session manager needs to
- * call when a session ends.
- *
- * A run is recorded in the audit log once per plugin per session rather than
- * once per refresh: a panel reloading every two seconds would otherwise be the
- * only thing in the log, and the fact worth recording - this command ran on
- * this server - does not change when it runs again. The interval is written
- * alongside it, so the log says how often it repeated.
- */
 function register(manager) {
   const recorded = new Set();
   const keyFor = (sessionId, pluginId) => `${sessionId}::${pluginId}`;
@@ -117,11 +102,6 @@ function register(manager) {
     return true;
   });
 
-  /**
-   * Opens the plugins folder, creating it first. A folder that is not there
-   * opens as nothing and explains nothing, and this is the one place a user is
-   * told where plugins live.
-   */
   handle('plugins:open-folder', async () => {
     const folder = plugins.folder();
     fs.mkdirSync(folder, { recursive: true });

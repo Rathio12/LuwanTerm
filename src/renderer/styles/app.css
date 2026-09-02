@@ -1068,7 +1068,6 @@ body.has-background .empty__card {
   .afk__hint { animation: none; opacity: 0.55; }
 }
 
-/* Plugins - the dock panel a manifest describes */
 
 .plug { display: flex; flex-direction: column; min-height: 0; flex: 1; }
 
@@ -1159,7 +1158,6 @@ body.has-background .empty__card {
 }
 .plug__stamp { font-size: 10.5px; color: var(--ink-faint); }
 
-/* Plugins - the list in Settings */
 
 .plugset__list {
   display: grid;

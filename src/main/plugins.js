@@ -30,15 +30,6 @@ const text = (value, limit) => {
   return trimmed.length > limit ? '' : trimmed;
 };
 
-/**
- * Turns one manifest into a plugin, or explains why it is not one.
- *
- * Manifests are files on disk that somebody else may have written, so this
- * reads like a parser rather than a loader: every field is checked, anything
- * unrecognised is dropped rather than carried along, and a bad manifest is
- * reported instead of throwing. One broken file must not stop the others
- * loading, and must never stop the app starting.
- */
 function validate(raw, id) {
   const problems = [];
   if (!raw || typeof raw !== 'object' || Array.isArray(raw)) {
@@ -90,13 +81,6 @@ function validate(raw, id) {
 
 const idFrom = (filename) => filename.replace(/\.json$/i, '').toLowerCase().replace(/[^a-z0-9_-]/g, '-').slice(0, 60);
 
-/**
- * Reads the plugins folder.
- *
- * There is deliberately nothing to set up: no folder means no plugins, which is
- * the state every install starts in and most stay in. A plugin that is present
- * but not enabled is listed and does nothing.
- */
 function load() {
   const folder = paths.pluginsDir();
   const found = [];
@@ -135,13 +119,6 @@ function load() {
 const ESC = String.fromCharCode(27);
 const ANSI = new RegExp(ESC + '\\[[0-9;?]*[ -/]*[@-~]|' + ESC + '[@-_]', 'g');
 
-/**
- * Tabs become spaces, and every other control character is dropped.
- *
- * Output arrives from the server, so it is cleaned before it is ever a cell:
- * escape sequences that would repaint the panel, and control characters that
- * would break one row into two.
- */
 function printable(value) {
   let out = '';
   for (const character of String(value === null || value === undefined ? '' : value)) {
@@ -163,17 +140,6 @@ const SPLITTERS = {
   columns: /\s{2,}|\t/,
 };
 
-/**
- * Output into a table, following the shape the manifest declared.
- *
- * Declared columns win: extra fields are folded back into the last one rather
- * than dropped, because the tail of `last -n 20` is a date with spaces in it
- * and losing it would be worse than one wide column.
- *
- * Splitting on two spaces rather than one is the shape of `docker ps` and
- * `df -h`, where a field can hold a single space and splitting on every space
- * would shred it.
- */
 function table(output, plugin = {}) {
   const columns = Array.isArray(plugin.columns) ? plugin.columns.slice(0, MAX_COLUMNS) : [];
   const split = SPLITS.has(plugin.split) ? plugin.split : (columns.length ? 'whitespace' : 'lines');
@@ -212,17 +178,6 @@ function table(output, plugin = {}) {
   };
 }
 
-/**
- * Runs one plugin on one connected session.
- *
- * The command is the user's own - it can do nothing they could not do by typing
- * it - but everything that comes back is the server's, so the read is bounded
- * in bytes and in time. A server that answers forever is cut off rather than
- * allowed to grow the process until it dies.
- *
- * The timeout is deliberately not unref'd: it is the only thing that settles
- * the promise when a server accepts the command and then says nothing.
- */
 function run(session, plugin, { timeoutMs = RUN_TIMEOUT_MS } = {}) {
   const client = session && session.connection && session.connection.client;
   if (!client) throw new Error('That session is not connected.');
@@ -246,7 +201,7 @@ function run(session, plugin, { timeoutMs = RUN_TIMEOUT_MS } = {}) {
         try {
           channel.close();
         } catch {
-          /* already gone */
+
         }
         fn(value);
       };
@@ -289,12 +244,6 @@ function run(session, plugin, { timeoutMs = RUN_TIMEOUT_MS } = {}) {
   });
 }
 
-/**
- * Where one plugin lives, by id.
- *
- * The name comes from readdir rather than from the caller, but a file is about
- * to be deleted with it, so it is checked against the folder anyway.
- */
 const fileFor = (id) => {
   const folder = paths.pluginsDir();
   const all = load();
@@ -320,18 +269,11 @@ module.exports = {
   run,
   folder: () => paths.pluginsDir(),
 
-  /** The ones the user has switched on, in the order they were found. */
   enabled(enabledIds) {
     const wanted = new Set(Array.isArray(enabledIds) ? enabledIds : []);
     return load().plugins.filter((plugin) => wanted.has(plugin.id));
   },
 
-  /**
-   * Copies a manifest somebody chose into the plugins folder.
-   *
-   * It is validated before it is copied, so a file that could never load is
-   * refused while the user can still see which file they picked.
-   */
   install(filePath) {
     const source = String(filePath || '');
     if (!source) throw new Error('No file was chosen.');
@@ -368,7 +310,6 @@ module.exports = {
     return { ...result.plugin, id: idFrom(name), file: name };
   },
 
-  /** Deletes one, broken ones included - an unreadable file still has a row. */
   remove(id) {
     const file = fileFor(String(id || ''));
     if (!file) return false;
