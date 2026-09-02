@@ -6,6 +6,7 @@ const DEFAULTS = {
   github: '',
   issues: '',
   website: '',
+  donate: '',
   discord: '',
 };
 
@@ -25,6 +26,7 @@ module.exports = {
     github: config.github,
     issues: config.issues,
     website: config.website,
+    donate: config.donate,
     discord: config.discord,
   },
 };

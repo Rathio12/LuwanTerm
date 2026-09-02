@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.9.4
+
+**A Ko-fi link**, in the README, in SUPPORT.md, on the website, on the
+repository's Sponsor button, and in Settings under About.
+
+It buys nothing. The [licence](LICENSE) forbids selling LuwanTerm and says
+plainly that donations are not selling, which is the only reason such a link can
+exist here without contradicting it. Nothing is gated behind it and nothing asks
+twice.
+
 ## 1.9.3
 
 **The Stats panel said "That session is no longer connected" on a session that

@@ -452,6 +452,7 @@
       button('bug', 'Report a bug', links.issues),
       button('code', 'Source on GitHub', links.github),
       button('globe', 'View page', links.website),
+      button('heart', 'Buy me a coffee', links.donate),
       button('chat', 'Discord', links.discord),
     ].filter(Boolean);
 
