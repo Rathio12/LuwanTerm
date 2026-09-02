@@ -3,10 +3,12 @@
 
   const { h, qs } = App.dom;
 
-  // Deliberately not 'focus': it fires whenever anything inside the app takes
-  // focus - a terminal, a button, the window coming forward - which dismissed
-  // the screen the moment it appeared. Coming back is a keystroke or a click.
-  const ACTIVITY = ['keydown', 'mousedown', 'mousemove', 'wheel', 'touchstart'];
+  // Input, not presence. 'mousemove' is deliberately absent: a nudged desk or a
+  // passing cursor is not someone working, and counting it means the screen
+  // never appears on a machine that gets knocked. 'focus' is absent for a
+  // sharper reason - it fires whenever anything inside the app takes focus, so
+  // it dismissed the screen the instant it appeared.
+  const ACTIVITY = ['keydown', 'mousedown', 'wheel', 'touchstart'];
 
   let overlay = null;
   let timer = null;
