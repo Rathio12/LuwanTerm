@@ -133,6 +133,21 @@ if (/<!-- badges -->[\s\S]*?<!-- \/badges -->/.test(readme)) {
 
 fs.writeFileSync(readmePath, readme, 'utf8');
 
+// CONTRIBUTING carries the same test badge, and a number nobody regenerates is
+// a number that goes stale and then gets believed.
+if (tests) {
+  const file = path.join(root, 'CONTRIBUTING.md');
+  const colour = tests.failed === 0 ? '22c55e' : 'ef4444';
+  const text = tests.failed === 0 ? `${tests.passed} passing` : `${tests.failed} failing`;
+  const mark = `<!-- tests -->![Tests](${badge('tests', text, colour)})<!-- /tests -->`;
+  const before = fs.readFileSync(file, 'utf8');
+  const after = before.replace(/<!-- tests -->[\s\S]*?<!-- \/tests -->/, mark);
+  if (after !== before) {
+    fs.writeFileSync(file, after);
+    console.log('  contributing: test badge refreshed');
+  }
+}
+
 console.log('badges regenerated');
 console.log(`  lines : ${lines.code} code + ${lines.docs} docs = ${lines.code + lines.docs} across ${lines.files} files (badge is live from ghloc)`);
 console.log(`  discord: ${discordInvite() || 'no LINK_DISCORD in .env, badge omitted'}`);

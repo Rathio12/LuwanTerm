@@ -46,9 +46,15 @@ function coerce(raw) {
   if (!raw || typeof raw !== 'object') return out;
 
   for (const [key, value] of Object.entries(raw)) {
+    // Only keys this file declares. Without that, a policy naming __proto__
+    // reaches NUMBERS[key], which resolves to Object.prototype - truthy, and
+    // not iterable - and the destructuring below throws. Policy is read during
+    // boot, so that crash is the application refusing to start.
+    if (!Object.prototype.hasOwnProperty.call(DEFAULTS, key)) continue;
+
     if (BOOLEANS.has(key)) {
       out[key] = Boolean(value);
-    } else if (NUMBERS[key]) {
+    } else if (Object.prototype.hasOwnProperty.call(NUMBERS, key)) {
       const [low, high] = NUMBERS[key];
       const number = Number(value);
       if (Number.isFinite(number)) out[key] = Math.min(high, Math.max(low, Math.round(number)));

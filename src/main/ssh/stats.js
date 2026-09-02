@@ -74,7 +74,9 @@ function counters(lines) {
     const numbers = match[2].trim().split(/\s+/).map(Number);
     if (numbers.length < 9 || !Number.isFinite(numbers[0]) || !Number.isFinite(numbers[8])) continue;
 
-    interfaces.push(match[1].trim());
+    // The list is a server-supplied array that ends up joined into a line of UI.
+    // Counting them all is fine; naming thousands is not.
+    if (interfaces.length < 32) interfaces.push(match[1].trim());
     rx += numbers[0];
     tx += numbers[8];
   }
@@ -127,8 +129,11 @@ function parse(text, sessionId, now = Date.now()) {
     stats.load = load;
   }
 
-  const uptime = Number(String((found.up || [])[0] || '').trim().split(/\s+/)[0]);
-  if (Number.isFinite(uptime)) stats.uptime = Math.round(uptime);
+  const uptimeText = String((found.up || [])[0] || '').trim().split(/\s+/)[0];
+  const uptime = Number(uptimeText);
+  // Number('') is 0, so without the emptiness check a server that reported no
+  // uptime at all was shown as having been up for no time.
+  if (uptimeText && Number.isFinite(uptime) && uptime >= 0) stats.uptime = Math.round(uptime);
 
   const cores = Number(String((found.cores || [])[0] || '').trim());
   if (Number.isFinite(cores) && cores > 0) stats.cores = cores;

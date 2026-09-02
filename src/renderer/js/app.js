@@ -93,11 +93,21 @@
     root.style.setProperty('--bg-wash-a', App.dom.withAlpha(color, 0.18));
   }
 
-  async function applyBackground() {
+  /**
+   * `preview` paints an image that has not been saved yet, so choosing one in
+   * Settings shows immediately rather than after a round trip through Save.
+   * Called with nothing, it goes back to whatever is stored - which is how
+   * cancelling reverts.
+   */
+  async function applyBackground(preview = null) {
     const layer = qs('#backdrop');
     try {
-      const background = await window.term.app.background();
-      if (!background) {
+      const background = await window.term.app.background(preview && preview.image);
+      if (background && preview) {
+        if (preview.opacity !== undefined) background.opacity = Number(preview.opacity);
+        if (preview.blur !== undefined) background.blur = Number(preview.blur);
+      }
+      if (!background || (preview && preview.image === '')) {
         layer.style.backgroundImage = '';
         layer.style.opacity = '0';
         document.body.classList.remove('has-background');

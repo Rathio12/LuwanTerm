@@ -32,6 +32,7 @@ Start here. Each guide stands on its own — read the one you need.
 | [Contributing](../CONTRIBUTING.md) | Setup, the checks, and the house style |
 | [Support](../SUPPORT.md) | Where to ask, where to report, and what this project does not promise |
 | [Licence](licence.md) | What you may and may not do with it, in plain English |
+| [Roadmap](roadmap.md) | What 2.0 is for, and what is deliberately not planned |
 | [Provenance](provenance.md) | How a build identifies itself, and how to spot a copy |
 | [Changelog](../CHANGELOG.md) | What changed in each release |
 

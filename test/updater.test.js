@@ -1,5 +1,6 @@
 'use strict';
 
+const fs = require('fs');
 const path = require('path');
 const { suite, check, done } = require('./helpers/harness');
 const { installElectronStub } = require('./helpers/electron-stub');
@@ -7,7 +8,8 @@ const { installElectronStub } = require('./helpers/electron-stub');
 suite('updater');
 
 installElectronStub();
-const updater = require(path.join(__dirname, '..', 'src', 'main', 'updater'));
+const root = path.join(__dirname, '..');
+const updater = require(path.join(root, 'src', 'main', 'updater'));
 
 const cases = [
   ['1.1.0', '1.0.0', true, 'a minor bump is newer'],
@@ -39,5 +41,21 @@ updater.check({ userAsked: true }).then((result) => {
     }
   })());
 
-  done();
+  /* ---------- Prerelease precedence ---------- */
+
+const updaterSource = fs.readFileSync(path.join(root, 'src', 'main', 'updater.js'), 'utf8');
+const versionCode = new RegExp('function parseVersion[\\s\\S]*?\\n}\\n\\nfunction isNewer[\\s\\S]*?\\n}').exec(updaterSource)[0];
+const newer = new Function(`${versionCode}; return isNewer;`)();
+
+check('a release beats its own prerelease', newer('1.9.0', '1.9.0-beta.51'),
+  'otherwise turning beta builds off strands you on a beta');
+check('a prerelease does not beat the release', !newer('1.9.0-beta.51', '1.9.0'));
+check('a later stable overtakes any beta', newer('1.9.7', '1.9.0-beta.51'));
+check('a later beta beats an earlier one', newer('1.9.0-beta.52', '1.9.0-beta.51'));
+check('betas are ordered numerically, not as text', !newer('1.9.0-beta.9', '1.9.0-beta.51'));
+check('a bigger minor wins', newer('1.10.0', '1.9.9'));
+check('the same version is not newer', !newer('1.9.0', '1.9.0'));
+check('a missing version is not newer than anything', !newer('', '1.0.0'));
+
+done();
 });

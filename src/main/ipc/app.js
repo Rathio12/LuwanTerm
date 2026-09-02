@@ -88,13 +88,17 @@ function register(hooks = {}) {
     return result.canceled ? null : result.filePaths[0];
   });
 
-  handle('app:background', () => {
+  // `preview` lets Settings show a picked image before it is saved, so choosing
+  // one is not an act of faith. It reads that path and nothing else; the stored
+  // setting is untouched until Save.
+  handle('app:background', (preview) => {
     const current = settings.get();
-    if (!current.backgroundImage) return null;
+    const image = typeof preview === 'string' && preview ? preview : current.backgroundImage;
+    if (!image) return null;
 
     let stat;
     try {
-      stat = fs.statSync(current.backgroundImage);
+      stat = fs.statSync(image);
     } catch {
       return null;
     }
@@ -104,11 +108,11 @@ function register(hooks = {}) {
       );
     }
 
-    const type = MIME_TYPES[path.extname(current.backgroundImage).toLowerCase()];
+    const type = MIME_TYPES[path.extname(image).toLowerCase()];
     if (!type) throw new Error('That file type is not supported as a background.');
 
     return {
-      dataUri: `data:${type};base64,${fs.readFileSync(current.backgroundImage).toString('base64')}`,
+      dataUri: `data:${type};base64,${fs.readFileSync(image).toString('base64')}`,
       opacity: current.backgroundOpacity,
       blur: current.backgroundBlur,
     };

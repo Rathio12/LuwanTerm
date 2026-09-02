@@ -20,15 +20,49 @@ function setState(next) {
   notify(state);
 }
 
-function isNewer(candidate, current) {
-  const parse = (v) => String(v).split('.').map((part) => Number.parseInt(part, 10) || 0);
-  const a = parse(candidate);
-  const b = parse(current);
+/**
+ * Semver precedence, including the part that matters here: a version carrying a
+ * prerelease tag ranks *below* the same version without one, so 1.9.0 beats
+ * 1.9.0-beta.51.
+ *
+ * Splitting on dots alone made 1.9.0-beta.51 parse as [1, 9, 0, 51] and so read
+ * as newer than 1.9.0 - which left anyone who turned beta builds off stranded
+ * on a beta until the next release came along.
+ */
+function parseVersion(value) {
+  const [core, prerelease = ''] = String(value).trim().split('-', 2);
+  return {
+    numbers: core.split('.').map((part) => Number.parseInt(part, 10) || 0),
+    prerelease: prerelease ? prerelease.split('.') : [],
+  };
+}
 
-  for (let i = 0; i < Math.max(a.length, b.length); i += 1) {
-    const left = a[i] || 0;
-    const right = b[i] || 0;
+function isNewer(candidate, current) {
+  const a = parseVersion(candidate);
+  const b = parseVersion(current);
+
+  for (let i = 0; i < Math.max(a.numbers.length, b.numbers.length); i += 1) {
+    const left = a.numbers[i] || 0;
+    const right = b.numbers[i] || 0;
     if (left !== right) return left > right;
+  }
+
+  // Same numbers. A release outranks any prerelease of itself.
+  if (!a.prerelease.length && b.prerelease.length) return true;
+  if (a.prerelease.length && !b.prerelease.length) return false;
+
+  for (let i = 0; i < Math.max(a.prerelease.length, b.prerelease.length); i += 1) {
+    const left = a.prerelease[i];
+    const right = b.prerelease[i];
+    if (left === right) continue;
+    if (left === undefined) return false;
+    if (right === undefined) return true;
+
+    const leftNumber = /^\d+$/.test(left);
+    const rightNumber = /^\d+$/.test(right);
+    if (leftNumber && rightNumber) return Number(left) > Number(right);
+    if (leftNumber !== rightNumber) return !leftNumber;
+    return left > right;
   }
   return false;
 }

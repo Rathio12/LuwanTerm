@@ -124,7 +124,9 @@
     if (updates.element.dispose) updates.element.dispose();
 
     if (!result) {
+      // Cancelled: put back what was stored, the same way the accent does.
       App.applyAccent(state.settings.accentColor);
+      App.applyBackground();
       return;
     }
     App.applyAccent(state.settings.accentColor);
@@ -288,6 +290,14 @@
   function buildBackground(current) {
     let chosen = current.backgroundImage;
 
+    // Paint straight away. Choosing a background you cannot see until you press
+    // Save is guesswork, and the accent colour has always worked this way.
+    const preview = () => App.applyBackground({
+      image: chosen,
+      opacity: opacity.input.value,
+      blur: blur.input.value,
+    });
+
     const label = h('span', { class: 'note', text: chosen || 'No image chosen' });
     const opacity = slider('Opacity', { min: '0', max: '100', step: '1', value: current.backgroundOpacity }, '%');
     const blur = slider('Blur', { min: '0', max: '40', step: '1', value: current.backgroundBlur }, 'px');
@@ -301,6 +311,7 @@
           if (!picked) return;
           chosen = picked;
           label.textContent = picked;
+          preview();
         } catch (err) {
           App.toast.error(err.message);
         }
@@ -313,8 +324,13 @@
         event.preventDefault();
         chosen = '';
         label.textContent = 'No image chosen';
+        preview();
       },
     }, [icon('x'), 'Clear']);
+
+    for (const control of [opacity.input, blur.input]) {
+      control.addEventListener('input', preview);
+    }
 
     const element = h('div', { class: 'field' }, [
       h('label', { text: 'Background image' }),
@@ -405,6 +421,12 @@
     const beta = form.check('Include beta builds', state.settings.betaUpdates);
     const betaBox = beta.querySelector('input');
     betaBox.addEventListener('change', async () => {
+      // Ask before turning it on, not after a beta has installed itself.
+      if (betaBox.checked && !(await App.betaNotice.confirmOptIn())) {
+        betaBox.checked = false;
+        return;
+      }
+
       try {
         await window.term.settings.set({ betaUpdates: betaBox.checked });
         App.toast.info(betaBox.checked
@@ -452,7 +474,7 @@
       button('bug', 'Report a bug', links.issues),
       button('code', 'Source on GitHub', links.github),
       button('globe', 'View page', links.website),
-      button('heart', 'Buy me a coffee', links.donate),
+      button('heart', 'Support the work', links.donate),
       button('chat', 'Discord', links.discord),
     ].filter(Boolean);
 
@@ -461,7 +483,7 @@
       h('div', { class: 'about__links' }, buttons),
       h('span', {
         class: 'note',
-        text: 'Found something broken, or want to help? Both are welcome.',
+        text: 'Found something broken, or want to help? Both are welcome. The last one is only if you like the thing - it changes nothing about the app.',
       }),
     ]);
   }
