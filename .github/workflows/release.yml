@@ -280,17 +280,19 @@ jobs:
       - name: Push the code and the tag
         env:
           GITLAB_TOKEN: ${{ secrets.GITLAB_TOKEN }}
-          GITLAB_URL: ${{ vars.GITLAB_MIRROR_URL }}
+          GITLAB_URL: ${{ secrets.GITLAB_MIRROR_URL }}
           TAG: ${{ needs.decide.outputs.tag }}
         run: |
-          if [ -z "$GITLAB_TOKEN" ]; then
-            echo "::warning::No GITLAB_TOKEN, so this release was not mirrored."
-            echo "Set the secret to turn the backup on. See guides/releasing.md."
+          # Both halves are secrets. The address is not written down anywhere
+          # public - not here, not in .env.example, not in the guides - so this
+          # file gives away nothing about where the backup lives.
+          if [ -z "$GITLAB_TOKEN" ] || [ -z "$GITLAB_URL" ]; then
+            echo "::warning::Mirror not configured, so this release was not backed up."
+            echo "It needs both GITLAB_MIRROR_URL and GITLAB_TOKEN. See guides/releasing.md."
             exit 0
           fi
 
-          url="${GITLAB_URL:-https://gitlab.luwan.io/luwanio/LuwanTerm.git}"
-          host="${url#https://}"
+          host="${GITLAB_URL#https://}"
 
           git config user.name "github-actions"
           git config user.email "github-actions@users.noreply.github.com"
@@ -301,4 +303,4 @@ jobs:
           git push gitlab "HEAD:refs/heads/main" --force
           git push gitlab "refs/tags/${TAG}"
 
-          echo "mirrored main and ${TAG} to ${host}"
+          echo "mirrored main and ${TAG} to the backup"
