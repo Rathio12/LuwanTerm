@@ -52,6 +52,16 @@ function build(version) {
 
   parts.push('---');
 
+  const warning = [
+    '**Windows will warn on first run.** Click *More info*, then *Run anyway*.',
+    '',
+    'That is SmartScreen, which checks whether an app is signed and widely run -',
+    'not whether it contains anything harmful. These builds are unsigned, so it',
+    'warns until a certificate is bought or enough people have downloaded them.',
+    'The checksums below let you confirm you have the file that was published.',
+  ].join(String.fromCharCode(10));
+  parts.push(warning);
+
   const downloads = [
     '**Download**',
     '',

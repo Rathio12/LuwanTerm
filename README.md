@@ -62,6 +62,21 @@ Or grab a build:
 npm run dist     # installer + portable exe in dist/
 ```
 
+## Windows will warn on first run
+
+You will see *"Windows protected your PC"*. Click **More info**, then
+**Run anyway**.
+
+That warning is SmartScreen, which is not a virus scanner - it checks whether an
+app is signed by a publisher Windows trusts and whether many machines have run
+it. LuwanTerm is unsigned and new, so it fails both, and will keep warning until
+a code-signing certificate is bought or enough people have downloaded it.
+
+Every release publishes a SHA-256 so you can check the file is the one that was
+published, and `LuwanTerm.exe --provenance` names the exact commit it was built
+from. [The full explanation](guides/antivirus.md) is honest about what is being
+done and what is not.
+
 ## Supporting it
 
 LuwanTerm is free and always will be - the [licence](LICENSE) forbids selling

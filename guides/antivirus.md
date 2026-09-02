@@ -3,6 +3,27 @@
 If a scanner flags LuwanTerm, this page explains what is happening and what is
 actually being done about it. It does not ask you to take anything on trust.
 
+## The blue box on first run
+
+Most people meet this before they meet any scanner:
+
+> **Windows protected your PC.** Microsoft Defender SmartScreen prevented an
+> unrecognised app from starting.
+
+**SmartScreen is not a virus scanner.** It does not look inside the file at all.
+It asks two questions - is this signed by a publisher Windows trusts, and have
+many machines run it already - and warns when the answer to both is no. A
+release published an hour ago, signed by nobody, answers no twice.
+
+That is why a clean VirusTotal result and a SmartScreen warning are not a
+contradiction: they are unrelated systems answering unrelated questions. Sixty
+seven scanners saying "no malware here" tells SmartScreen nothing, because
+SmartScreen was never asking about malware.
+
+To run it anyway: **More info**, then **Run anyway**. Before you do, it is
+reasonable to check the download is the one that was published - see
+[Check it yourself](#check-it-yourself) below.
+
 ## The current picture
 
 A recent build on VirusTotal: **1 of 67 engines**, Trapmine, reporting
@@ -45,7 +66,12 @@ scanner treats an untrusted signature as better than none. It exists so that a
 build can be checked for tampering by someone who has the certificate, not to
 satisfy SmartScreen. See [code signing](signing.md).
 
-**Downloads over time** do the rest. Reputation accrues.
+**Downloads over time** do the rest. Reputation accrues per publisher and per
+file, so each release starts a little behind and catches up.
+
+Every release so far is unsigned, and honestly so: `Get-AuthenticodeSignature`
+on the published installer returns `NotSigned`. The build reports that in its
+own log rather than implying otherwise.
 
 Anything else on offer - obfuscating the binary, padding it, splitting it - is
 what actual malware does to dodge detection, and doing it would deserve the
