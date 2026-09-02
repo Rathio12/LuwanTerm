@@ -5,6 +5,10 @@ const os = require('os');
 const path = require('path');
 const { execFile } = require('child_process');
 
+// A quoted literal drops these backslashes - \S and \P are not escapes - which
+// left the query pointed at a key that cannot exist, so this never found anything.
+const PUTTY_SESSIONS = String.raw`HKCU\Software\SimonTatham\PuTTY\Sessions`;
+
 const ppk = require('./ppk');
 const keygen = require('./keygen');
 const { fingerprintOf } = require('./fingerprint');
@@ -120,7 +124,7 @@ function scanPuttySessions() {
     }
     execFile(
       'reg',
-      ['query', 'HKCU\Software\SimonTatham\PuTTY\Sessions', '/s', '/v', 'PublicKeyFile'],
+      ['query', PUTTY_SESSIONS, '/s', '/v', 'PublicKeyFile'],
       { windowsHide: true, timeout: 5000 },
       (err, stdout) => {
         if (err || !stdout) {

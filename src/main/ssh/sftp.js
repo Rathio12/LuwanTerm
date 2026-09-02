@@ -6,6 +6,39 @@ const posix = path.posix;
 
 const PERM_BITS = ['x', 'w', 'r'];
 
+/**
+ * Joins a server-supplied relative path under a local root, and refuses anything
+ * that would land outside it.
+ *
+ * Every segment here came from a remote directory listing, which means it came
+ * from whoever runs that server. A name like `..\..\evil.exe` is a single
+ * segment to split('/') but two levels up to path.join, so a hostile server
+ * could write anywhere the user can. Segments are checked one at a time and the
+ * result is confirmed to still be inside the root.
+ */
+function safeJoin(root, relative) {
+  const base = path.resolve(root);
+  const segments = String(relative).split('/');
+
+  for (const segment of segments) {
+    if (!segment || segment === '.' || segment === '..') {
+      throw new Error(`The server sent a file name that is not usable: ${relative}`);
+    }
+    if (segment.includes(String.fromCharCode(92)) || segment.includes('/') || segment.includes(String.fromCharCode(0))) {
+      throw new Error(`The server sent a file name containing a path separator: ${relative}`);
+    }
+    if (/^[A-Za-z]:$/.test(segment) || segment !== path.basename(segment)) {
+      throw new Error(`The server sent a file name that looks like a path: ${relative}`);
+    }
+  }
+
+  const target = path.resolve(base, ...segments);
+  if (target !== base && !target.startsWith(base + path.sep)) {
+    throw new Error(`The server tried to write outside the download folder: ${relative}`);
+  }
+  return target;
+}
+
 class TransferCancelled extends Error {
   constructor() {
     super('Transfer cancelled.');
@@ -304,12 +337,12 @@ class SftpClient {
 
       fs.mkdirSync(localRoot, { recursive: true });
       for (const dir of plan.dirs) {
-        fs.mkdirSync(path.join(localRoot, ...dir.split('/')), { recursive: true });
+        fs.mkdirSync(safeJoin(localRoot, dir), { recursive: true });
       }
 
       for (const [index, file] of plan.files.entries()) {
         if (context.cancelled) throw new TransferCancelled();
-        const target = path.join(localRoot, ...file.relative.split('/'));
+        const target = safeJoin(localRoot, file.relative);
 
         await this.fastGet(context, file.remote, target, (transferred) =>
           report({
@@ -377,4 +410,4 @@ async function removeQuietly(target) {
   } catch {  }
 }
 
-module.exports = { SftpClient, TransferCancelled };
+module.exports = { SftpClient, TransferCancelled, safeJoin };

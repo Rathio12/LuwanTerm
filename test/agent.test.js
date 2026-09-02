@@ -32,6 +32,19 @@ check('nothing else in the file quotes that path',
 check('Pageant remains the fallback', /:\s*'pageant'/.test(source));
 check('other platforms read SSH_AUTH_SOCK', /process\.env\.SSH_AUTH_SOCK/.test(source));
 
+// The same mistake, in the same shape, in the PuTTY session lookup.
+const discovery = fs.readFileSync(path.join(root, 'src', 'main', 'ssh', 'discovery.js'), 'utf8');
+const puttyLine = /const PUTTY_SESSIONS = (.+);/.exec(discovery);
+check('the PuTTY sessions key is declared once', Boolean(puttyLine));
+
+const puttyKey = puttyLine ? eval(puttyLine[1]) : '';
+const EXPECTED_KEY = `HKCU${B}Software${B}SimonTatham${B}PuTTY${B}Sessions`;
+check('it is the registry key that actually exists', puttyKey === EXPECTED_KEY, JSON.stringify(puttyKey));
+check('it kept its separators', puttyKey.split(B).length - 1 === 4,
+  'a quoted literal drops them, because backslash-S and backslash-P are not escapes');
+check('it is built from a raw string', /String\.raw/.test(puttyLine ? puttyLine[1] : ''));
+check('and nothing else in the file spells it out', (discovery.match(/SimonTatham/g) || []).length === 1);
+
 const { SshConnection } = require(path.join(root, 'src', 'main', 'ssh', 'connection'));
 check('the module still loads', typeof SshConnection === 'function');
 

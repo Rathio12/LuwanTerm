@@ -1,5 +1,32 @@
 # Changelog
 
+## 1.9.6
+
+**A hostile server could write files outside your download folder.** Downloading
+a directory built each local path from the names in the server's own listing,
+and `path.join` treats a backslash as a separator on Windows - so a file called
+`..\..\evil.exe` landed two levels above where you chose. Nothing about it
+required a bug on your machine; connecting to a server somebody else controls
+and downloading a folder was enough.
+
+Every segment is now checked before it is used - no `..`, no `.`, no embedded
+separators, no drive letters, no null bytes - and the joined path is confirmed
+to still be inside the folder you picked. A name that fails is refused with a
+message naming it rather than being quietly written somewhere else. Eighteen
+tests cover the cases, including the ones that must keep working: dotfiles,
+`my..file.txt`, spaces and unicode.
+
+**Removed an unused `innerHTML` path** from the DOM helper. Nothing called it,
+which is exactly why it was worth deleting - an escape hatch nobody uses is one
+somebody eventually uses carelessly.
+
+**PuTTY key discovery has never worked.** Its registry query was written
+`'HKCU\Software\SimonTatham\PuTTY\Sessions'`, and since neither `\S`
+nor `\P` is an escape sequence JavaScript dropped the separators, leaving a key
+that cannot exist. Third instance of that mistake in this codebase; it is a raw
+string now, with a test that evaluates the declaration rather than trusting how
+it looks.
+
 ## 1.9.5
 
 **Says up front that Windows will warn.** Someone downloaded a build and met
