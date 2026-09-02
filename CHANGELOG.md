@@ -31,6 +31,30 @@ interfaces had them all sent to the interface and joined into a line of text;
 that is capped at thirty-two now. And a server reporting no uptime was credited
 with an uptime of zero, because `Number('')` is `0`.
 
+### Also in this release
+
+**Turning beta builds off left you on a beta.** Version comparison split on dots
+alone, so `1.9.0-beta.51` read as newer than `1.9.0` - the opposite of what
+semver says. A release now outranks its own prereleases.
+
+**Ticking "Include beta builds" asks first**, which is the moment the decision is
+actually made. Warning somebody once a beta has installed itself arrives too late
+to act on.
+
+**The background image applies the moment you choose it**, with opacity and blur
+previewing live and Cancel putting back what was stored - the way the accent
+colour always worked.
+
+**The away screen** wakes on input rather than mouse movement, so a nudged desk
+no longer counts as somebody working, and its clock lands on the minute instead
+of drifting up to ten seconds behind.
+
+**README, SECURITY, CODE_OF_CONDUCT, CONTRIBUTING and SUPPORT** rewritten at
+roughly twice the length, with badges. SECURITY says what is defended and, at
+equal length, what is not. CONTRIBUTING states the rule this project runs on - a
+test that cannot fail is not a test. [A roadmap](guides/roadmap.md) says what
+2.0 is for.
+
 ## 1.9.6
 
 **A hostile server could write files outside your download folder.** Downloading

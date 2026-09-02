@@ -17,8 +17,8 @@ About, and every addition makes it worse. 2.0 splits it into tabs down the side
 of the dialog - Terminal, Appearance, Session, Updates, Plugins, About - so a
 setting can be found rather than scrolled past.
 
-This is deliberately not a 1.x change. Moving controls people have learned the
-position of is worth doing once, at a version boundary, rather than drifting.
+Moving controls people have learned the position of is worth doing once, at a
+version boundary, rather than drifting a little at a time.
 
 ### Plugins
 
