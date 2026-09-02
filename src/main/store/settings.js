@@ -33,7 +33,13 @@ const DEFAULTS = {
   discordEnabled: true,
 
   discordShowHost: false,
+  enabledPlugins: [],
 };
+
+/* A list setting holds ids, so it is capped in both directions: how many, and
+   how long each one may be. The renderer sends this array back verbatim. */
+const MAX_LIST = 50;
+const MAX_LIST_ITEM = 60;
 
 const store = new JsonStore(paths.settingsFile, DEFAULTS);
 
@@ -56,7 +62,11 @@ function coerce(patch) {
     // object through the prototype chain, so `in` waves them straight past.
     if (!Object.prototype.hasOwnProperty.call(DEFAULTS, key)) continue;
     if (value === undefined || value === null) continue;
-    if (typeof DEFAULTS[key] === 'boolean') {
+    if (Array.isArray(DEFAULTS[key])) {
+      if (!Array.isArray(value)) continue;
+      out[key] = [...new Set(value.map((item) => String(item).slice(0, MAX_LIST_ITEM)).filter(Boolean))]
+        .slice(0, MAX_LIST);
+    } else if (typeof DEFAULTS[key] === 'boolean') {
       out[key] = Boolean(value);
     } else if (typeof DEFAULTS[key] === 'number') {
       const num = Number(value);

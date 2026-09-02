@@ -14,7 +14,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 ![PuTTY](https://img.shields.io/badge/PuTTY%20.ppk-v2%20%2B%20v3-5865F2?style=flat-square)
 ![Sessions](https://img.shields.io/badge/sessions-unlimited-2B2D31?style=flat-square)
 [![Licence](https://img.shields.io/badge/licence-source--available%2C%20not%20for%20sale-f2a33c?style=flat-square)](https://github.com/Rathio12/LuwanTerm/blob/main/LICENSE)
-[![Tests](https://img.shields.io/badge/tests-470%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
+[![Tests](https://img.shields.io/badge/tests-562%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
 [![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FRathio12%2FLuwanTerm%2Fbadge&style=flat-square&color=7c5cff)](https://github.com/Rathio12/LuwanTerm)
 [![Release](https://img.shields.io/github/v/release/Rathio12/LuwanTerm?style=flat-square&label=release&color=3ea8ff)](https://github.com/Rathio12/LuwanTerm/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Rathio12/LuwanTerm/total?style=flat-square&color=f2a33c)](https://github.com/Rathio12/LuwanTerm/releases)
@@ -61,6 +61,9 @@ live in SSH sessions all day.
   remembered as flags.
 - **Live server stats.** CPU, memory, swap, uptime, load and a network graph -
   streamed from one channel, not polled.
+- **Plugins.** A panel you describe in a small JSON file - a command, and the
+  shape of its output. `docker ps`, `systemctl --failed`, `df -h`, `who`. They
+  are data, never code, and the command is shown before you switch one on.
 - **Snippets.** Commands you type often, one click away.
 - **Session logging.** A readable transcript per session, with escape sequences
   stripped.
@@ -231,6 +234,7 @@ Everything lives in **[guides/](guides/)**. Each stands on its own.
 | [SSH keys](guides/keys.md) | Generating, adding your own, `.ppk`, installing on a server |
 | [SFTP](guides/sftp.md) | Transfers, folder downloads, cancelling |
 | [Tunnels](guides/tunnels.md) | Local, remote and SOCKS5, with worked examples |
+| [Plugins](guides/plugins.md) | Describing a panel in JSON, and why plugins are not code |
 | [Customising](guides/customising.md) | Fonts, colours, background, and rebranding a fork |
 | [Discord presence](guides/discord.md) | Turning it on, and what it does and does not reveal |
 

@@ -1,0 +1,8 @@
+{
+  "name": "Who is on",
+  "description": "Everybody logged into this box",
+  "icon": "chat",
+  "command": "who",
+  "columns": ["user", "tty", "since"],
+  "every": 30
+}

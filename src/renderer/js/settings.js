@@ -11,7 +11,7 @@
     { value: 'underline', label: 'Underline' },
   ];
 
-  async function open() {
+  async function open(focus) {
 
     try {
       state.settings = await window.term.settings.get();
@@ -38,9 +38,10 @@
     const appearance = buildAppearance(current);
     const background = buildBackground(current);
     const updates = buildUpdates();
+    const pluginList = buildPlugins();
     const trusted = await loadKnownHosts();
 
-    const result = await App.modal.show({
+    const shown = App.modal.show({
       title: 'Settings',
       iconName: 'cog',
       wide: true,
@@ -83,6 +84,7 @@
             text: 'Shows a session count only, unless you tick the box above - anyone who can see your profile can see whatever it displays.',
           }),
         ]),
+        pluginList.element,
         updates.element,
         buildAbout(),
         h('div', { class: 'field' }, [
@@ -120,6 +122,12 @@
         return true;
       },
     });
+
+    if (focus === 'plugins') {
+      requestAnimationFrame(() => pluginList.element.scrollIntoView({ block: 'start' }));
+    }
+
+    const result = await shown;
 
     if (updates.element.dispose) updates.element.dispose();
 
@@ -454,6 +462,155 @@
 
     element.dispose = stop;
     return { element };
+  }
+
+  /**
+   * Installed plugins, with the command each one runs printed beside it.
+   *
+   * The command is not hidden behind a details toggle on purpose: a plugin runs
+   * on your servers, and the only honest way to offer that is to show what it
+   * runs before you switch it on. Switching one on saves immediately - a panel
+   * you enabled and a Cancel that silently took it away again would be worse.
+   */
+  function buildPlugins() {
+    const list = h('div', { class: 'plugset__list' });
+    const status = h('span', { class: 'note', text: 'Looking for plugins...' });
+
+    async function toggle(plugin, on) {
+      try {
+        await window.term.plugins.enable(plugin.id, on);
+        state.emit('plugins:changed');
+      } catch (err) {
+        App.toast.error(err.message);
+        refresh();
+      }
+    }
+
+    async function forget(entry) {
+      const confirmed = await App.modal.confirm({
+        title: 'Remove plugin',
+        message: `Delete ${entry.name || entry.file}? The file is removed from the plugins folder.`,
+        confirmLabel: 'Delete',
+      });
+      if (!confirmed) return;
+
+      try {
+        await window.term.plugins.remove(entry.id);
+        state.emit('plugins:changed');
+        refresh();
+      } catch (err) {
+        App.toast.error(err.message);
+      }
+    }
+
+    function row(entry, { enabled = false, problem = '' } = {}) {
+      const box = problem
+        ? null
+        : form.check('', enabled, { title: `Show ${entry.name} in the Plugins panel` });
+      if (box) box.input.addEventListener('change', () => toggle(entry, box.input.checked));
+
+      return h('div', { class: `plugset__item${problem ? ' plugset__item--broken' : ''}` }, [
+        box || h('span', { class: 'plugset__mark' }, [icon('bug')]),
+        h('div', { class: 'plugset__text' }, [
+          h('div', { class: 'plugset__name', text: entry.name || entry.file }),
+          h('div', {
+            class: problem ? 'plugset__problem' : 'plugset__command',
+            text: problem || entry.command,
+          }),
+          entry.refreshSeconds
+            ? h('div', { class: 'plugset__every', text: `Runs again every ${entry.refreshSeconds}s while the panel is open` })
+            : null,
+        ]),
+        iconButton('trash', {
+          title: 'Delete this plugin',
+          className: 'iconbtn iconbtn--danger',
+          onClick: (event) => {
+            event.preventDefault();
+            forget(entry);
+          },
+        }),
+      ]);
+    }
+
+    async function refresh() {
+      let listing;
+      try {
+        listing = await window.term.plugins.list();
+      } catch (err) {
+        status.textContent = err.message;
+        return;
+      }
+
+      list.replaceChildren();
+
+      for (const plugin of listing.plugins) {
+        list.append(row(plugin, { enabled: listing.enabled.includes(plugin.id) }));
+      }
+      for (const entry of listing.broken) {
+        list.append(row(entry, { problem: `${entry.file}: ${entry.problems.join('; ')}` }));
+      }
+
+      if (!listing.plugins.length && !listing.broken.length) {
+        list.append(h('div', { class: 'hint', text: 'Nothing installed. Add a manifest, or drop one in the folder yourself.' }));
+      }
+
+      status.textContent = listing.allowed
+        ? listing.folder
+        : 'Plugins are disabled by policy on this machine, so none of these will run.';
+    }
+
+    const add = h('button', {
+      class: 'btn btn--ghost',
+      onclick: async (event) => {
+        event.preventDefault();
+        try {
+          const installed = await window.term.plugins.install();
+          if (!installed) return;
+          App.toast.ok(`${installed.name} added. Switch it on to see it.`);
+          state.emit('plugins:changed');
+          refresh();
+        } catch (err) {
+          App.toast.error(err.message);
+        }
+      },
+    }, [icon('download'), 'Add from file']);
+
+    const folder = h('button', {
+      class: 'btn btn--ghost',
+      onclick: async (event) => {
+        event.preventDefault();
+        try {
+          await window.term.plugins.openFolder();
+        } catch (err) {
+          App.toast.error(err.message);
+        }
+      },
+    }, [icon('folder'), 'Open folder']);
+
+    const reload = h('button', {
+      class: 'btn btn--ghost',
+      onclick: (event) => {
+        event.preventDefault();
+        refresh();
+      },
+    }, [icon('refresh'), 'Reload']);
+
+    const element = h('div', { class: 'field' }, [
+      h('label', { text: 'Plugins' }),
+      h('span', {
+        class: 'note',
+        text: 'A plugin is a description of a panel, not code: a name, a command, and the '
+          + 'shape of its output. LuwanTerm runs the command on the server you are connected '
+          + 'to and draws the result as a table. It can do nothing you could not do by typing '
+          + 'the command yourself, which is why plugins are safe to share as a single file.',
+      }),
+      h('div', { class: 'about__links' }, [add, folder, reload]),
+      list,
+      status,
+    ]);
+
+    refresh();
+    return { element, refresh };
   }
 
   function buildAbout() {

@@ -44,6 +44,7 @@
     <symbol id="i-bug" viewBox="0 0 24 24"><rect x="8" y="8" width="8" height="12" rx="4"/><path d="M9 8a3 3 0 0 1 6 0M4 12h4M16 12h4M5 7l2 2M19 7l-2 2M5 18l2.5-1.5M19 18l-2.5-1.5"/></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 12a7 7 0 0 1-7 7H8l-4 3v-4.2A7 7 0 0 1 4 12a7 7 0 0 1 7-7h2a7 7 0 0 1 7 7z"/><path d="M9 11.5h.01M15 11.5h.01"/></symbol>
     <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="12" r="4"/><path d="M12 12h9M17 12v3M20 12v2"/></symbol>
+    <symbol id="i-plug" viewBox="0 0 24 24"><path d="M9 3v5M15 3v5"/><path d="M6 8h12v3.5a6 6 0 0 1-12 0z"/><path d="M12 17.5V21"/></symbol>
   </svg>
 
   <div class="backdrop" id="backdrop"></div>
@@ -101,6 +102,7 @@
           <button class="seg" data-dock="files" title="SFTP browser"><svg><use href="#i-folder"/></svg>Files</button>
           <button class="seg" data-dock="tunnels" title="Port forwarding"><svg><use href="#i-link"/></svg>Tunnels</button>
           <button class="seg" data-dock="stats" title="Server CPU, memory and network"><svg><use href="#i-activity"/></svg>Stats</button>
+          <button class="seg" data-dock="plugins" title="Panels you have added"><svg><use href="#i-plug"/></svg>Plugins</button>
         </div>
       </div>
 
@@ -126,6 +128,7 @@
             <div class="dock__view" id="dock-files" hidden></div>
             <div class="dock__view" id="dock-tunnels" hidden></div>
             <div class="dock__view" id="dock-stats" hidden></div>
+            <div class="dock__view" id="dock-plugins" hidden></div>
           </div>
         </aside>
       </div>
@@ -152,6 +155,7 @@
   <script src="js/files.js"></script>
   <script src="js/tunnels.js"></script>
   <script src="js/stats.js"></script>
+  <script src="js/plugins.js"></script>
   <script src="js/afk.js"></script>
   <script src="js/beta-notice.js"></script>
   <script src="js/support-prompt.js"></script>

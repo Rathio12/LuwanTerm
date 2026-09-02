@@ -1,0 +1,10 @@
+{
+  "name": "Disk use",
+  "description": "Real filesystems only, in human sizes",
+  "icon": "folder",
+  "command": "df -h -x tmpfs -x devtmpfs",
+  "columns": ["filesystem", "size", "used", "free", "use%", "mounted on"],
+  "split": "whitespace",
+  "skipLines": 1,
+  "every": 60
+}

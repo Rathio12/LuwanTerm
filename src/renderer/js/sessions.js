@@ -83,6 +83,7 @@
       term: null,
       files: null,
       tunnels: null,
+      plugins: null,
       dock: null,
       cwd: host.defaultPath || '.',
       attempts: options.attempts || 0,
@@ -158,6 +159,7 @@
 
     await window.term.ssh.disconnect(key).catch(() => {});
     entry.stats?.stop();
+    entry.plugins?.stop();
     entry.term?.dispose();
     state.sessions.delete(key);
     pending.delete(key);
@@ -237,14 +239,16 @@
     }
     if (!mode) return;
 
-    const titles = { files: 'Files', tunnels: 'Tunnels', stats: 'Stats' };
+    const titles = { files: 'Files', tunnels: 'Tunnels', stats: 'Stats', plugins: 'Plugins' };
     qs('#dock-title').textContent = titles[mode] || 'Files';
     qs('#dock-files').hidden = mode !== 'files';
     qs('#dock-tunnels').hidden = mode !== 'tunnels';
     qs('#dock-stats').hidden = mode !== 'stats';
+    qs('#dock-plugins').hidden = mode !== 'plugins';
 
     // Polling a server costs it something, so it only runs while you are looking.
     if (entry.stats && mode !== 'stats') entry.stats.stop();
+    if (entry.plugins && mode !== 'plugins') entry.plugins.stop();
 
     if (mode === 'files') {
       if (!entry.files) entry.files = App.files.create(entry.key, entry.cwd);
@@ -253,6 +257,10 @@
       if (!entry.tunnels) entry.tunnels = App.tunnels.create(entry.key);
       qs('#dock-tunnels').replaceChildren(entry.tunnels.element);
       entry.tunnels.refresh();
+    } else if (mode === 'plugins') {
+      if (!entry.plugins) entry.plugins = App.plugins.create(() => entry.key);
+      qs('#dock-plugins').replaceChildren(entry.plugins.element);
+      entry.plugins.start();
     } else {
       if (!entry.stats) entry.stats = App.stats.create(() => entry.key);
       qs('#dock-stats').replaceChildren(entry.stats.element);

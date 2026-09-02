@@ -6,10 +6,12 @@ see where it is going.
 
 ## 2.0 - plugins, and a Settings window that can hold them
 
-Two things that belong together: Settings needs restructuring, and the thing it
-most needs room for does not exist yet.
+Two things that belong together. **Plugins are built** - the loader, the panel,
+the policy switch and the audit entries are all in, and
+[the guide](plugins.md) is the reference. Settings still needs the
+restructuring that gives them a proper home.
 
-### Settings, restructured
+### Settings, restructured - still to do
 
 Settings is one long scrolling dialog. It has grown terminal appearance, the
 background image, idle behaviour, Discord, updates, beta builds, known hosts and
@@ -20,7 +22,7 @@ setting can be found rather than scrolled past.
 Moving controls people have learned the position of is worth doing once, at a
 version boundary, rather than drifting a little at a time.
 
-### Plugins
+### Plugins - built
 
 A plugin is a **description of a panel**, not code:
 
@@ -37,7 +39,8 @@ A plugin is a **description of a panel**, not code:
 The app runs the command on the connected server over the exec channel it
 already uses for the Stats panel, parses the output into a table, and shows it
 beside Files and Tunnels. `docker ps`, `systemctl --failed`, `df -h`, `who` -
-the useful ones are all a command and a shape.
+the useful ones are all a command and a shape. [The guide](plugins.md) has the
+format, four worked examples and what is bounded.
 
 **Plugins will not be executable code, and this is the whole design.** LuwanTerm
 holds private keys, passphrases and live connections to production machines.
@@ -49,17 +52,19 @@ malicious.
 A declarative plugin can do nothing its user could not do by typing the command
 themselves. That is the point, and it is what makes the rest safe:
 
-- the command is shown before installation, in full
-- `allowMonitoring` in [policy](enterprise.md) already governs this class of
-  thing, so an administrator can forbid plugins outright
-- every run can be recorded in the audit log
+- the command is shown before it is switched on, in full, and again under the
+  table every time the panel is open
+- `allowMonitoring` in [policy](enterprise.md) governs this class of thing, so an
+  administrator can forbid plugins outright
+- runs reach the audit log as `plugin.run`, with the command and the interval
 - a plugin is one small file, so it can be read, checksummed and shared
 
-The Stats panel becomes the first built-in plugin, which is the proof the shape
-is right rather than a claim that it is.
+Installing them lives in Settings: a folder on disk and a file picker. Fetching
+published ones from somewhere is still not there, and will only arrive if it can
+be done without turning a file you can read into a download you cannot.
 
-Installing them lives in Settings: a folder on disk, a file picker, and later -
-carefully, if at all - a place to fetch published ones.
+**Still to do here:** the Stats panel becoming the first built-in plugin, which
+would be the proof the shape is right rather than a claim that it is.
 
 ## Given away rather than sold
 

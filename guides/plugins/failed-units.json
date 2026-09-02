@@ -1,0 +1,9 @@
+{
+  "name": "Failed units",
+  "description": "systemd units that gave up",
+  "icon": "bug",
+  "command": "systemctl --failed --no-legend --plain",
+  "columns": ["unit", "load", "active", "sub", "description"],
+  "split": "whitespace",
+  "every": 30
+}

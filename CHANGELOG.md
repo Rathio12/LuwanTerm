@@ -1,5 +1,67 @@
 # Changelog
 
+## 2.0.0
+
+**Plugins.** A panel you describe in a small JSON file - a name, a command, and
+the shape of its output. LuwanTerm runs the command on the server you are
+connected to, over the channel the Stats panel already uses, and draws the
+answer as a table beside Files, Tunnels and Stats.
+
+```json
+{
+  "name": "Recent logins",
+  "icon": "server",
+  "command": "last -n 20",
+  "columns": ["user", "from", "when"],
+  "every": 60
+}
+```
+
+**A plugin is data, never code, and that is the whole design.** This app holds
+private keys, passphrases and live connections to production machines.
+Third-party JavaScript inside that process would undo the policy files, the
+audit log and every check in the attack suite in one step. A declarative plugin
+can do nothing you could not do by typing the command yourself, which is what
+makes the rest of it safe to offer.
+
+So the command is shown in full in Settings before you switch a plugin on, and
+printed under the table every time the panel is open. `allowMonitoring` in a
+[policy file](guides/enterprise.md) turns the whole class of thing off for a
+fleet, refused in the main process rather than hidden in the interface. Runs
+reach the audit log as `plugin.run`, with the command and the interval - once
+per plugin per session rather than once per refresh, so a panel reloading every
+two seconds does not become the only thing in the log.
+
+**Three ways to cut output up**, because server output comes in three shapes:
+`whitespace` for plain fields, `columns` for output aligned in columns where a
+field can hold a single space, and `lines` for output that is not a table at
+all. The last declared column keeps whatever is left of the line, so the date at
+the end of `last -n 20` survives, and short lines are padded rather than left
+ragged. `skipLines` drops a header the command printed itself.
+
+**Everything the server sends is treated as hostile.** Escape sequences and
+control characters are stripped before anything is drawn, so a server cannot
+repaint the panel, forge a row with a carriage return or smuggle a colour code
+into a cell. One run reads at most 256 KB, draws at most 500 rows, allows 300
+characters to a cell and gives up after twenty seconds. A panel only runs while
+you are looking at it.
+
+Manifests are files somebody else may have written, so the loader is a parser: a
+broken one is listed in Settings with the reason in plain English rather than
+being ignored, and one broken file never stops the others loading or the app
+starting. [The guide](guides/plugins.md) has the format, four worked examples
+you can install as they are, and the limits in a table.
+
+### Also in this release
+
+**A session that ended left its monitor behind.** The hook that tells the rest
+of the app a session is gone was assigned and never called, so a watched session
+kept its stats channel after it closed. It is called now, and both the stats
+watcher and the plugin log-keeper listen on it.
+
+**A stray closing brace at the end of the stylesheet**, harmless where it sat,
+but every rule added after it would have fallen outside the sheet.
+
 ## 1.9.7
 
 **A malformed policy file stopped the app starting.** A `policy.json`
