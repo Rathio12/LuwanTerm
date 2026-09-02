@@ -81,7 +81,8 @@ function fakeDiscord({ silent = false } = {}) {
 
 (async () => {
   const discord = require(path.join(root, 'src', 'main', 'discord'));
-  check('a client id is baked in', Boolean(discord.CLIENT_ID), discord.CLIENT_ID || '(none)');
+  check('a client id is baked in', Boolean(discord.CLIENT_ID),
+    discord.CLIENT_ID || 'run npm run bake first - without one the client refuses to start');
 
   const server = fakeDiscord();
   await server.listen();
@@ -92,7 +93,7 @@ function fakeDiscord({ silent = false } = {}) {
 
   check('it connects and handshakes', discord.isConnected());
   check('and sends the presence', server.activities.length === 1, `${server.activities.length} sent`);
-  check('with the details it was given', server.activities[0].details === '2 sessions');
+  check('with the details it was given', (server.activities[0] || {}).details === '2 sessions');
 
   server.drop();
   await wait(300);
@@ -102,7 +103,7 @@ function fakeDiscord({ silent = false } = {}) {
   check('it reconnects on its own', discord.isConnected());
   check('and re-sends the presence without being asked', server.activities.length >= 2,
     `${server.activities.length} sent`);
-  check('which is still the last thing it was told', server.activities[1].details === '2 sessions');
+  check('which is still the last thing it was told', (server.activities[1] || {}).details === '2 sessions');
 
   const before = server.activities.length;
   await wait(1600);
