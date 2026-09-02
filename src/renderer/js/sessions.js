@@ -157,6 +157,7 @@
     }
 
     await window.term.ssh.disconnect(key).catch(() => {});
+    entry.stats?.stop();
     entry.term?.dispose();
     state.sessions.delete(key);
     pending.delete(key);
@@ -236,17 +237,26 @@
     }
     if (!mode) return;
 
-    qs('#dock-title').textContent = mode === 'files' ? 'Files' : 'Tunnels';
+    const titles = { files: 'Files', tunnels: 'Tunnels', stats: 'Stats' };
+    qs('#dock-title').textContent = titles[mode] || 'Files';
     qs('#dock-files').hidden = mode !== 'files';
     qs('#dock-tunnels').hidden = mode !== 'tunnels';
+    qs('#dock-stats').hidden = mode !== 'stats';
+
+    // Polling a server costs it something, so it only runs while you are looking.
+    if (entry.stats && mode !== 'stats') entry.stats.stop();
 
     if (mode === 'files') {
       if (!entry.files) entry.files = App.files.create(entry.key, entry.cwd);
       qs('#dock-files').replaceChildren(entry.files.element);
-    } else {
+    } else if (mode === 'tunnels') {
       if (!entry.tunnels) entry.tunnels = App.tunnels.create(entry.key);
       qs('#dock-tunnels').replaceChildren(entry.tunnels.element);
       entry.tunnels.refresh();
+    } else {
+      if (!entry.stats) entry.stats = App.stats.create(entry.key);
+      qs('#dock-stats').replaceChildren(entry.stats.element);
+      entry.stats.start();
     }
   }
 

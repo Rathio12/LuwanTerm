@@ -33,6 +33,7 @@ const ACCESSORS = {
   allowAgentAuth: ["allows('allowAgentAuth')"],
   allowSftp: ["allows('allowSftp')"],
   allowTunnels: ["allows('allowTunnels')"],
+  allowMonitoring: ["allows('allowMonitoring')"],
   requireKnownHost: ["requires('requireKnownHost')"],
   requireSessionLogging: ["requires('requireSessionLogging')"],
   auditEnabled: ['auditEnabled'],

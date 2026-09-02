@@ -38,6 +38,7 @@ function register(hooks = {}) {
   handle('app:info', () => ({
     version: app.getVersion(),
     platform: process.platform,
+    packaged: app.isPackaged,
     secretsAvailable: vault.available(),
     links: config.links,
 

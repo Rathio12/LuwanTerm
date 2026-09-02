@@ -8,6 +8,7 @@ const vault = require('../store/vault');
 const keys = require('../store/keys');
 const policy = require('../policy');
 const audit = require('../audit');
+const stats = require('./stats');
 
 const PROMPT_TIMEOUT_MS = 180000;
 
@@ -325,6 +326,7 @@ class SessionManager {
         sessionId: event.sessionId,
         host: closing && closing.profile ? closing.profile.host : '',
       });
+      stats.forget(event.sessionId);
       this.sessions.delete(event.sessionId);
       this.send('ssh:event', { type: 'status', sessionId: event.sessionId, status: 'closed' });
       this.notifyChange();

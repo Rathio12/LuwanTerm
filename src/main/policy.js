@@ -12,6 +12,7 @@ const DEFAULTS = {
   allowAgentAuth: true,
   allowSftp: true,
   allowTunnels: true,
+  allowMonitoring: true,
   requireSessionLogging: false,
   idleTimeoutMinutes: 0,
   allowedHosts: [],
@@ -23,7 +24,7 @@ const DEFAULTS = {
 
 const BOOLEANS = new Set([
   'requireKnownHost', 'allowPasswordAuth', 'allowKeyboardInteractive', 'allowAgentAuth',
-  'allowSftp', 'allowTunnels', 'requireSessionLogging', 'auditEnabled',
+  'allowSftp', 'allowTunnels', 'allowMonitoring', 'requireSessionLogging', 'auditEnabled',
 ]);
 const NUMBERS = { idleTimeoutMinutes: [0, 1440], auditRetentionDays: [0, 3650] };
 const LISTS = new Set(['allowedHosts', 'blockedHosts', 'allowedKeyTypes']);
