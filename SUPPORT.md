@@ -61,6 +61,13 @@ Never in a public issue, and never in a discussion. This is an SSH client — a
 vulnerability here reaches other people's servers. [SECURITY.md](SECURITY.md)
 sets out what is in scope and what to expect.
 
+## If you want to say thanks
+
+**[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)** - optional, and it
+buys you nothing. The [licence](guides/licence.md) forbids selling LuwanTerm but
+says plainly that donations are not selling, which is the whole reason this link
+can exist without contradicting it.
+
 ## What this is not
 
 LuwanTerm is one person's project, published under a

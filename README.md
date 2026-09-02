@@ -62,6 +62,16 @@ Or grab a build:
 npm run dist     # installer + portable exe in dist/
 ```
 
+## Supporting it
+
+LuwanTerm is free and always will be - the [licence](LICENSE) forbids selling
+it, and that is deliberate. What it does not forbid is a coffee.
+
+**[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)**
+
+Entirely optional. Nothing is gated, nothing is nagged, and no feature waits
+behind it. A star on the repository is worth just as much.
+
 ## Getting help
 
 Questions go to **[Discussions](https://github.com/Rathio12/LuwanTerm/discussions)**,

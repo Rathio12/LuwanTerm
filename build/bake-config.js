@@ -15,6 +15,7 @@ const KEYS = {
   LINK_GITHUB: 'github',
   LINK_ISSUES: 'issues',
   LINK_WEBSITE: 'website',
+  LINK_DONATE: 'donate',
   LINK_DISCORD: 'discord',
 };
 

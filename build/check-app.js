@@ -186,6 +186,7 @@ async function main() {
   check('it is off by default', !beta.checked);
   check('and it warns what beta means', beta.warned);
   check('the GitHub button is still there', about.buttons.includes('Source on GitHub'));
+  check('a donate link is offered', about.buttons.includes('Buy me a coffee'), about.buttons.join(', '));
   check('the website link is the Pages site',
     about.links.website === 'https://rathio12.github.io/LuwanTerm/', about.links.website);
 
