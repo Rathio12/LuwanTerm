@@ -80,6 +80,12 @@ jobs:
       - name: Project checks
         run: node build/check-project.js
 
+      # npm run dist bakes the config, but that happens after this, and the
+      # suites need it: an empty client id makes the Discord client refuse to
+      # start, so the tests would cover a configuration no release ever has.
+      - name: Bake the build config
+        run: npm run bake
+
       # A release that fails its own suites should never reach anyone.
       - name: Tests
         run: npm test
