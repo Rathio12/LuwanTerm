@@ -1,7 +1,9 @@
 'use strict';
 
 const path = require('path');
-const { parseKey } = require('ssh2').utils;
+const ssh2 = require('ssh2');
+const { parseKey } = ssh2.utils;
+const { mangleEd25519 } = require('./helpers/ppk-fixtures');
 const { suite, check, throws, done } = require('./helpers/harness');
 const keygen = require(path.join(__dirname, '..', 'src', 'main', 'ssh', 'keygen'));
 
@@ -57,6 +59,45 @@ throws('an impossible rsa size is rejected', () => keygen.generate({ type: 'rsa'
   const passthrough = keygen.loadForAuth(openssh.privateKey, undefined);
   check('an openssh key passes through untouched', passthrough.privateKey === openssh.privateKey);
   check('and carries no passphrase', passthrough.passphrase === undefined);
+}
+
+{
+  const real = ssh2.utils.generateKeyPairSync;
+  const keygenPath = require.resolve(path.join(__dirname, '..', 'src', 'main', 'ssh', 'keygen'));
+
+  const hand = (badFirst) => {
+    let calls = 0;
+    ssh2.utils.generateKeyPairSync = (type, options) => {
+      calls += 1;
+      const pair = real(type, options);
+      if (calls <= badFirst) pair.private = mangleEd25519(pair.private);
+      return pair;
+    };
+    delete require.cache[keygenPath];
+    return { attempts: () => calls, keygen: require(keygenPath) };
+  };
+
+  const sample = mangleEd25519(real('ed25519', { comment: 'shape' }).private);
+  check('the shape ssh2 sometimes emits really is unreadable', parseKey(sample) instanceof Error,
+    String(parseKey(sample).message));
+
+  const recovering = hand(2);
+  const key = recovering.keygen.generate({ type: 'ed25519', comment: 'retry' });
+  check('a malformed key from the generator never reaches the caller', key.type === 'ssh-ed25519');
+  check('it kept generating until one was usable', recovering.attempts() === 3,
+    `${recovering.attempts()} attempts`);
+  check('and what it returned parses', !(parseKey(key.privateKey) instanceof Error));
+
+  const hopeless = hand(Infinity);
+  throws(
+    'a generator that only ever returns rubbish gives up rather than handing it over',
+    () => hopeless.keygen.generate({ type: 'ed25519', comment: 'never' }),
+    (err) => /not a usable private key/i.test(err.message)
+  );
+  check('it did not try forever', hopeless.attempts() === 8, `${hopeless.attempts()} attempts`);
+
+  ssh2.utils.generateKeyPairSync = real;
+  delete require.cache[keygenPath];
 }
 
 done();

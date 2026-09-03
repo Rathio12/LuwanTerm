@@ -1,9 +1,9 @@
 'use strict';
 
 const path = require('path');
-const { generateKeyPairSync, parseKey } = require('ssh2').utils;
+const { parseKey } = require('ssh2').utils;
 const { suite, check, done } = require('./helpers/harness');
-const { decodeOpenSsh, writePpk } = require('./helpers/ppk-fixtures');
+const { writePpk, generateUsable } = require('./helpers/ppk-fixtures');
 
 const root = path.join(__dirname, '..', 'src', 'main', 'ssh');
 const ppk = require(path.join(root, 'ppk'));
@@ -20,9 +20,8 @@ const TYPES = [
 ];
 
 for (const [type, options] of TYPES) {
-  const original = generateKeyPairSync(type, options);
+  const { pair: original, parts } = generateUsable(type, options);
   const truth = parseKey(original.private);
-  const parts = decodeOpenSsh(original.private);
 
   for (const version of [2, 3]) {
     for (const passphrase of ['', 'hunter2']) {
@@ -60,9 +59,8 @@ for (const [type, options] of TYPES) {
 }
 
 {
-  const original = generateKeyPairSync('rsa', { bits: 2048, comment: 'anchor' });
+  const { pair: original, parts } = generateUsable('rsa', { bits: 2048, comment: 'anchor' });
   const truth = parseKey(original.private);
-  const parts = decodeOpenSsh(original.private);
 
   for (const passphrase of ['', 'hunter2']) {
     const file = writePpk({
@@ -82,7 +80,7 @@ for (const [type, options] of TYPES) {
 }
 
 {
-  const parts = decodeOpenSsh(generateKeyPairSync('ed25519', { comment: 'neg' }).private);
+  const { parts } = generateUsable('ed25519', { comment: 'neg' });
   const common = { algorithm: parts.algorithm, comment: 'neg', publicBlob: parts.publicBlob, privateBlob: parts.privateBlob };
   const encrypted = writePpk({ ...common, version: 3, passphrase: 'right' });
   const plain = writePpk({ ...common, version: 3 });
@@ -115,7 +113,7 @@ for (const [type, options] of TYPES) {
 
 {
   const crypto = require('crypto');
-  const parts = decodeOpenSsh(generateKeyPairSync('ed25519', { comment: 'argon' }).private);
+  const { parts } = generateUsable('ed25519', { comment: 'argon' });
   const encrypted = writePpk({
     version: 3,
     algorithm: parts.algorithm,

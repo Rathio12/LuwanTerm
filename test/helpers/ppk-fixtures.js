@@ -2,6 +2,7 @@
 
 const crypto = require('crypto');
 const path = require('path');
+const { generateKeyPairSync } = require('ssh2').utils;
 const { Reader, Writer } = require(path.join(__dirname, '..', '..', 'src', 'main', 'ssh', 'wire'));
 
 const MAC_SALT = 'putty-private-key-file-mac-key';
@@ -145,4 +146,83 @@ function writePpk(spec) {
   return lines.join('\r\n') + '\r\n';
 }
 
-module.exports = { decodeOpenSsh, writePpk };
+const CANONICAL = {
+  'ssh-ed25519': (parts) => parts.publicBlob.length === 51 && parts.privateBlob.length === 36,
+};
+
+function generateUsable(type, options, attempts = 8) {
+  let last = null;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const pair = generateKeyPairSync(type, options);
+    let parts;
+
+    try {
+      parts = decodeOpenSsh(pair.private);
+    } catch (err) {
+      last = err;
+      continue;
+    }
+
+    const canonical = CANONICAL[parts.algorithm];
+    if (!canonical || canonical(parts)) return { pair, parts };
+    last = new Error(`the generator returned a ${parts.publicBlob.length}-byte public blob`);
+  }
+
+  throw last || new Error(`could not generate a usable ${type} key in ${attempts} attempts`);
+}
+
+const MAGIC = Buffer.from('openssh-key-v1' + String.fromCharCode(0), 'binary');
+
+function mangleEd25519(pem) {
+  const body = pem.replace(/-----[^-]+-----/g, '').replace(/\s+/g, '');
+  const reader = new Reader(Buffer.from(body, 'base64'));
+  reader.offset = 15;
+
+  const cipher = reader.text();
+  const kdf = reader.text();
+  const kdfOptions = reader.string();
+  const count = reader.uint32();
+  reader.string();
+  const section = new Reader(reader.string());
+
+  if (cipher !== 'none') throw new Error('mangleEd25519 only handles unencrypted keys');
+
+  const checkA = section.uint32();
+  const checkB = section.uint32();
+  const algorithm = section.text();
+  section.string();
+  const secret = section.string();
+  const comment = section.text();
+
+  const seed = secret.subarray(0, 32);
+  const short = secret.subarray(33);
+
+  const inner = new Writer()
+    .uint32(checkA)
+    .uint32(checkB)
+    .string(algorithm)
+    .string(short)
+    .string(Buffer.concat([seed, short]))
+    .string(comment)
+    .done();
+
+  const padding = [];
+  for (let i = 1; (inner.length + padding.length) % 8 !== 0; i += 1) padding.push(i);
+
+  const out = new Writer()
+    .raw(MAGIC)
+    .string(cipher)
+    .string(kdf)
+    .string(kdfOptions)
+    .uint32(count)
+    .string(new Writer().string(algorithm).string(short).done())
+    .string(Buffer.concat([inner, Buffer.from(padding)]))
+    .done()
+    .toString('base64');
+
+  const lines = out.match(/.{1,70}/g) || [''];
+  return `-----BEGIN OPENSSH PRIVATE KEY-----\n${lines.join('\n')}\n-----END OPENSSH PRIVATE KEY-----\n`;
+}
+
+module.exports = { decodeOpenSsh, writePpk, generateUsable, mangleEd25519 };
