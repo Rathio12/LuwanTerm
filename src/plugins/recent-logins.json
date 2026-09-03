@@ -1,0 +1,14 @@
+{
+  "name": "Recent logins",
+  "description": "Who has been on this box, and from where",
+  "icon": "key",
+  "command": "last -n 20",
+  "columns": [
+    "user",
+    "tty",
+    "from",
+    "when"
+  ],
+  "split": "whitespace",
+  "every": 120
+}

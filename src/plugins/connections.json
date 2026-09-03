@@ -1,0 +1,15 @@
+{
+  "name": "Open connections",
+  "description": "Established TCP sessions, local and remote ends",
+  "icon": "link",
+  "command": "ss -tn state established",
+  "columns": [
+    "recv",
+    "send",
+    "local",
+    "peer"
+  ],
+  "split": "whitespace",
+  "skipLines": 1,
+  "every": 15
+}

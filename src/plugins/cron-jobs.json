@@ -1,0 +1,7 @@
+{
+  "name": "Scheduled jobs",
+  "description": "This user crontab, comments and all",
+  "icon": "refresh",
+  "command": "crontab -l",
+  "split": "lines"
+}

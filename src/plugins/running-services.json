@@ -1,0 +1,15 @@
+{
+  "name": "Running services",
+  "description": "Every service systemd currently has up",
+  "icon": "cog",
+  "command": "systemctl list-units --type=service --state=running --no-legend --plain",
+  "columns": [
+    "unit",
+    "load",
+    "active",
+    "sub",
+    "description"
+  ],
+  "split": "whitespace",
+  "every": 60
+}

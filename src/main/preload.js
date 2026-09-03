@@ -84,6 +84,8 @@ contextBridge.exposeInMainWorld('term', {
     install: () => call('plugins:install'),
     remove: (id) => call('plugins:remove', id),
     openFolder: () => call('plugins:open-folder'),
+    starters: () => call('plugins:starters'),
+    addStarters: () => call('plugins:add-starters'),
   },
 
   ssh: {

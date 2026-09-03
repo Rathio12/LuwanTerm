@@ -3,7 +3,11 @@
   "description": "What is running, and whether it is happy",
   "icon": "server",
   "command": "docker ps --format 'table {{.Names}}\\t{{.Status}}\\t{{.Image}}'",
-  "columns": ["name", "status", "image"],
+  "columns": [
+    "name",
+    "status",
+    "image"
+  ],
   "split": "columns",
   "skipLines": 1,
   "every": 15

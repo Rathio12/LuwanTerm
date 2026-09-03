@@ -14,7 +14,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 ![PuTTY](https://img.shields.io/badge/PuTTY%20.ppk-v2%20%2B%20v3-5865F2?style=flat-square)
 ![Sessions](https://img.shields.io/badge/sessions-unlimited-2B2D31?style=flat-square)
 [![Licence](https://img.shields.io/badge/licence-source--available%2C%20not%20for%20sale-f2a33c?style=flat-square)](https://github.com/Rathio12/LuwanTerm/blob/main/LICENSE)
-[![Tests](https://img.shields.io/badge/tests-568%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
+[![Tests](https://img.shields.io/badge/tests-595%20passing-22c55e?style=flat-square)](https://github.com/Rathio12/LuwanTerm/tree/main/test)
 [![Lines of Code](https://img.shields.io/endpoint?url=https%3A%2F%2Fghloc.vercel.app%2Fapi%2FRathio12%2FLuwanTerm%2Fbadge&style=flat-square&color=7c5cff)](https://github.com/Rathio12/LuwanTerm)
 [![Release](https://img.shields.io/github/v/release/Rathio12/LuwanTerm?style=flat-square&label=release&color=3ea8ff)](https://github.com/Rathio12/LuwanTerm/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/Rathio12/LuwanTerm/total?style=flat-square&color=f2a33c)](https://github.com/Rathio12/LuwanTerm/releases)

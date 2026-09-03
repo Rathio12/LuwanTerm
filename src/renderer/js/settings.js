@@ -557,7 +557,36 @@
       status.textContent = listing.allowed
         ? listing.folder
         : 'Plugins are disabled by policy on this machine, so none of these will run.';
+
+      let missing = [];
+      try {
+        missing = (await window.term.plugins.starters()).filter((starter) => !starter.installed);
+      } catch {
+        missing = [];
+      }
+      pack.hidden = missing.length === 0;
+      packLabel.textContent = `Add ${missing.length} ready-made plugins`;
     }
+
+    const packLabel = h('span', { text: 'Add the starter pack' });
+
+    const pack = h('button', {
+      class: 'btn btn--ghost',
+      hidden: true,
+      onclick: async (event) => {
+        event.preventDefault();
+        try {
+          const added = await window.term.plugins.addStarters();
+          App.toast.ok(added.length
+            ? `${added.length} plugins added. Tick the ones you want.`
+            : 'They are all here already.');
+          state.emit('plugins:changed');
+          refresh();
+        } catch (err) {
+          App.toast.error(err.message);
+        }
+      },
+    }, [icon('plus'), packLabel]);
 
     const add = h('button', {
       class: 'btn btn--ghost',
@@ -604,7 +633,7 @@
           + 'to and draws the result as a table. It can do nothing you could not do by typing '
           + 'the command yourself, which is why plugins are safe to share as a single file.',
       }),
-      h('div', { class: 'about__links' }, [add, folder, reload]),
+      h('div', { class: 'about__links' }, [pack, add, folder, reload]),
       list,
       status,
     ]);

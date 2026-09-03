@@ -1,0 +1,13 @@
+{
+  "name": "Pending updates",
+  "description": "Packages with a newer version waiting",
+  "icon": "download",
+  "command": "apt list --upgradable 2>/dev/null | tail -n +2",
+  "columns": [
+    "package",
+    "version",
+    "arch",
+    "from"
+  ],
+  "split": "whitespace"
+}

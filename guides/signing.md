@@ -74,12 +74,20 @@ The real routes:
 | Route | Cost | Catch |
 | --- | --- | --- |
 | **Certum open source** | ~€30/yr | Works for individuals including in the EU. Requires ID verification |
-| **Azure Trusted Signing** | cheap, monthly | Individual accounts are US/Canada only; elsewhere needs a registered company |
+| **Azure Artifact Signing** | ~$10/month | Formerly Trusted Signing. Individual accounts are US/Canada only; organisations cover the US, Canada, EU and UK, so elsewhere it needs a registered company |
 | **SignPath Foundation** | free | Open-source projects only, certificate issued to SignPath |
-| **Microsoft Store (MSIX)** | free | Microsoft signs it. Requires Store onboarding and review |
+| **Microsoft Store** | free | Accounts are free now, and it takes a plain `.exe`, not only MSIX. But a Win32 installer has to be signed by a trusted CA before it is accepted, so it stacks on one of the rows above rather than replacing it |
 
 Even with a real OV certificate, SmartScreen may warn until that certificate
-builds up reputation across enough downloads.
+builds up reputation across enough downloads. **An EV certificate no longer
+skips that queue** - Microsoft retired the behaviour, and its
+[own guidance](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation)
+now says paying the premium for that reason alone is not justified. What does
+skip it is the Store, which re-signs the app with a Microsoft certificate.
+
+One thing worth knowing either way: on Windows 11, Smart App Control blocks
+unsigned executables outright, with no way past it in the dialog. Reputation
+does not help there. A signature is the only thing that does.
 
 ## Dropping in a real certificate
 

@@ -178,18 +178,33 @@ check('undefined output is an empty table too', plugins.table(undefined, {}).row
 
 /* ---------- The examples the guide ships ---------- */
 
-const examples = path.join(root, 'guides', 'plugins');
+const examples = path.join(root, 'src', 'plugins');
 const shipped = fs.readdirSync(examples).filter((name) => name.endsWith('.json'));
 const guide = fs.readFileSync(path.join(root, 'guides', 'plugins.md'), 'utf8');
 
-check('the guide ships examples', shipped.length >= 4, shipped.join(', '));
+check('the app ships a starter pack', shipped.length >= 12, `${shipped.length} manifests`);
 
 for (const name of shipped) {
   const parsed = plugins.validate(JSON.parse(fs.readFileSync(path.join(examples, name), 'utf8')), name);
   check(`the ${name} example is a plugin`, Boolean(parsed.plugin),
     parsed.problems && parsed.problems.join('; '));
-  check(`and the guide links to ${name}`, guide.includes(`plugins/${name}`));
+  check(`and the guide links to ${name}`, guide.includes(`../src/plugins/${name}`));
 }
+
+/* ---------- The pack the app can install for you ---------- */
+
+const packBefore = plugins.starters();
+check('the starter pack is readable through the loader', packBefore.length >= 12, `${packBefore.length} shipped`);
+check('every one of them carries a command', packBefore.every((starter) => Boolean(starter.command)));
+check('one already in the folder is marked as installed',
+  packBefore.find((starter) => starter.id === 'recent-logins').installed === true);
+
+const added = plugins.addStarters();
+check('adding the pack copies in the ones that are missing', added.length === packBefore.length - 1,
+  `${added.length} added`);
+check('afterwards every starter reads as installed', plugins.starters().every((starter) => starter.installed));
+check('pressing it again adds nothing', plugins.addStarters().length === 0);
+check('and none of them arrive switched on', plugins.enabled([]).length === 0);
 
 /* ---------- Running one ---------- */
 

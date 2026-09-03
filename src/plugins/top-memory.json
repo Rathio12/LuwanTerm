@@ -1,0 +1,16 @@
+{
+  "name": "Memory hogs",
+  "description": "The fifteen processes holding the most memory",
+  "icon": "activity",
+  "command": "ps -eo user,pid,pcpu,pmem,comm --sort=-pmem | head -n 16",
+  "columns": [
+    "user",
+    "pid",
+    "cpu%",
+    "mem%",
+    "command"
+  ],
+  "split": "whitespace",
+  "skipLines": 1,
+  "every": 10
+}

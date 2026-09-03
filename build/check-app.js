@@ -101,7 +101,7 @@ async function main() {
 
   const pluginFolder = path.join(profile, 'plugins');
   fs.mkdirSync(pluginFolder, { recursive: true });
-  fs.copyFileSync(path.join(root, 'guides', 'plugins', 'disk-use.json'),
+  fs.copyFileSync(path.join(root, 'src', 'plugins', 'disk-use.json'),
     path.join(pluginFolder, 'disk-use.json'));
   fs.writeFileSync(path.join(pluginFolder, 'broken.json'), '{"name":"No command here"}');
 
@@ -496,6 +496,32 @@ async function main() {
     plugged.settingsCommands.some((text) => text.includes('df -h')), plugged.settingsCommands.join(' | '));
   check('and the broken one explained in words',
     plugged.settingsProblems.some((text) => /command/i.test(text)), plugged.settingsProblems.join(' | '));
+
+  const packed = await client.evaluate(`(async () => {
+    const shipped = await window.term.plugins.starters();
+    const missing = shipped.filter((starter) => !starter.installed).length;
+    const added = await window.term.plugins.addStarters();
+    const after = await window.term.plugins.list();
+    return {
+      shipped: shipped.length,
+      missing,
+      added: added.length,
+      again: (await window.term.plugins.addStarters()).length,
+      installed: after.plugins.length,
+      broken: after.broken.length,
+      enabled: after.enabled.length,
+      sample: added.slice(0, 3).map((starter) => starter.name),
+    };
+  })()`);
+
+  check('the app ships a pack of ready-made plugins', packed.shipped >= 12, `${packed.shipped} shipped`);
+  check('the one already in the folder is not offered again', packed.missing === packed.shipped - 1,
+    `${packed.missing} missing of ${packed.shipped}`);
+  check('adding the pack writes them into the user folder', packed.added === packed.missing, packed.sample.join(', '));
+  check('they all load', packed.installed >= packed.shipped && packed.broken === 1,
+    `${packed.installed} loaded, ${packed.broken} broken`);
+  check('pressing it twice adds nothing the second time', packed.again === 0);
+  check('and not one of them arrives switched on', packed.enabled === 0, `${packed.enabled} enabled`);
 
   // The beta notice: only for a beta version, only once per version.
   const notice = await client.evaluate(`(async () => {

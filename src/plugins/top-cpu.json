@@ -1,0 +1,16 @@
+{
+  "name": "CPU hogs",
+  "description": "The fifteen processes working the hardest",
+  "icon": "activity",
+  "command": "ps -eo user,pid,pcpu,pmem,comm --sort=-pcpu | head -n 16",
+  "columns": [
+    "user",
+    "pid",
+    "cpu%",
+    "mem%",
+    "command"
+  ],
+  "split": "whitespace",
+  "skipLines": 1,
+  "every": 10
+}
