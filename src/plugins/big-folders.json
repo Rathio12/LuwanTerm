@@ -1,0 +1,11 @@
+{
+  "name": "Where the disk went",
+  "description": "The largest folders under /var, biggest first",
+  "icon": "search",
+  "command": "du -h --max-depth=1 /var 2>/dev/null | sort -rh | head -n 15",
+  "columns": [
+    "size",
+    "folder"
+  ],
+  "split": "whitespace"
+}

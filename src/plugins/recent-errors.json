@@ -1,0 +1,14 @@
+{
+  "name": "Recent errors",
+  "description": "The last errors the journal recorded",
+  "icon": "bug",
+  "command": "journalctl -p err -n 25 --no-pager -o short-iso",
+  "columns": [
+    "when",
+    "host",
+    "unit",
+    "message"
+  ],
+  "split": "whitespace",
+  "every": 30
+}

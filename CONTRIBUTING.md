@@ -3,7 +3,7 @@
 ![CLA](https://img.shields.io/badge/CLA-none%20required-22c55e?style=flat-square)
 ![Copyright](https://img.shields.io/badge/copyright-stays%20yours-22c55e?style=flat-square)
 ![Node](https://img.shields.io/badge/node-24+-339933?style=flat-square&logo=nodedotjs&logoColor=white)
-[![PRs](https://img.shields.io/badge/pull%20requests-welcome-7c5cff?style=flat-square)](https://github.com/Rathio12/LuwanTerm/pulls) <!-- tests -->![Tests](https://img.shields.io/badge/tests-562%20passing-22c55e?style=flat-square)<!-- /tests -->
+[![PRs](https://img.shields.io/badge/pull%20requests-welcome-7c5cff?style=flat-square)](https://github.com/Rathio12/LuwanTerm/pulls) <!-- tests -->![Tests](https://img.shields.io/badge/tests-595%20passing-22c55e?style=flat-square)<!-- /tests -->
 
 Pull requests are welcome. So are bug reports, and so is telling me something is
 badly designed.

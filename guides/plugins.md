@@ -28,6 +28,7 @@ Settings has a **Plugins** section with three buttons:
 
 | Button | What it does |
 | --- | --- |
+| **Add ready-made plugins** | Copies the ones shipped with the app into your folder, switched off. See [the ready-made ones](#the-ready-made-ones). |
 | **Add from file** | Pick a `.json` manifest. It is checked before it is copied in, so a file that could never load is refused while you can still see which one you picked. |
 | **Open folder** | Opens `%APPDATA%\LuwanTerm\plugins\`. Copying files in by hand works exactly as well. |
 | **Reload** | Reads the folder again, for when you have just edited a file. |
@@ -91,12 +92,34 @@ Two rules make the common cases behave:
 - **Short lines are padded, not left ragged**, so every row is the same width
   and the table stays a table.
 
-## Worked examples
+## The ready-made ones
 
-Four that cover most of what people want. Each is a file in
-[guides/plugins](plugins/) you can add straight away.
+Fourteen ship with the app. Settings has a button that copies the ones you do
+not already have into your plugins folder in one click — they arrive switched
+**off**, so nothing runs until you tick it and read the command.
 
-**[Containers](plugins/docker.json)** - `docker ps`, minus its own header:
+| Plugin | What it runs |
+| --- | --- |
+| [Disk use](../src/plugins/disk-use.json) | `df -h -x tmpfs -x devtmpfs` |
+| [Containers](../src/plugins/containers.json) | `docker ps` as a table |
+| [Failed units](../src/plugins/failed-units.json) | `systemctl --failed` |
+| [Running services](../src/plugins/running-services.json) | `systemctl list-units --type=service --state=running` |
+| [Who is on](../src/plugins/who-is-on.json) | `who` |
+| [Recent logins](../src/plugins/recent-logins.json) | `last -n 20` |
+| [Listening ports](../src/plugins/listening-ports.json) | `ss -tulpn` |
+| [Open connections](../src/plugins/connections.json) | `ss -tn state established` |
+| [Memory hogs](../src/plugins/top-memory.json) | `ps -eo user,pid,pcpu,pmem,comm --sort=-pmem` |
+| [CPU hogs](../src/plugins/top-cpu.json) | `ps -eo user,pid,pcpu,pmem,comm --sort=-pcpu` |
+| [Recent errors](../src/plugins/recent-errors.json) | `journalctl -p err -n 25` |
+| [Where the disk went](../src/plugins/big-folders.json) | `du -h --max-depth=1 /var \| sort -rh` |
+| [Pending updates](../src/plugins/pending-updates.json) | `apt list --upgradable` |
+| [Scheduled jobs](../src/plugins/cron-jobs.json) | `crontab -l` |
+
+They are ordinary manifests with nothing special about them — read any of the
+files, change it, or delete it. Two are worth looking at as worked examples.
+
+**Containers**, because `docker ps` prints its own header and pads its fields
+with spaces:
 
 ```json
 {
@@ -110,50 +133,32 @@ Four that cover most of what people want. Each is a file in
 }
 ```
 
-**[Failed units](plugins/failed-units.json)** - the one that matters at three in
-the morning:
+`"split": "columns"` because a status reads `Up 3 days` and splitting on every
+space would break it into three. `"skipLines": 1` because the first line docker
+prints is its own `NAMES STATUS IMAGE`, and the manifest already names the
+columns.
+
+**Memory hogs**, because the obvious command is the wrong one:
 
 ```json
 {
-  "name": "Failed units",
-  "icon": "bug",
-  "command": "systemctl --failed --no-legend --plain",
-  "columns": ["unit", "load", "active", "sub", "description"],
-  "split": "whitespace",
-  "every": 30
-}
-```
-
-**[Disk use](plugins/disk-use.json)** - `df -h` without the header line:
-
-```json
-{
-  "name": "Disk use",
-  "icon": "folder",
-  "command": "df -h -x tmpfs -x devtmpfs",
-  "columns": ["filesystem", "size", "used", "free", "use%", "mounted on"],
+  "name": "Memory hogs",
+  "icon": "activity",
+  "command": "ps -eo user,pid,pcpu,pmem,comm --sort=-pmem | head -n 16",
+  "columns": ["user", "pid", "cpu%", "mem%", "command"],
   "split": "whitespace",
   "skipLines": 1,
-  "every": 60
+  "every": 10
 }
 ```
 
-**[Who is on](plugins/who.json)** - the shortest useful one there is:
+`ps aux` prints eleven columns and puts the command last, so five declared
+columns would fold seven fields into the last one. Asking `ps` for the five
+fields you actually want is shorter and lines up exactly.
 
-```json
-{
-  "name": "Who is on",
-  "icon": "chat",
-  "command": "who",
-  "columns": ["user", "tty", "since"],
-  "every": 30
-}
-```
-
-Others worth a minute: `ss -tulpn` for listening ports, `ps aux --sort=-%mem |
-head -n 15` for what is eating the memory, `journalctl -p err -n 20 --no-pager`
-for recent errors, `git -C /srv/app log -n 10 --format='%h %an %s'` for what is
-deployed.
+Others worth a minute of your own: `nginx -t` for a config check,
+`git -C /srv/app log -n 10 --format='%h %an %s'` for what is deployed,
+`fail2ban-client status sshd` for what is being blocked.
 
 ## Why they are not code
 

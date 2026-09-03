@@ -310,6 +310,43 @@ module.exports = {
     return { ...result.plugin, id: idFrom(name), file: name };
   },
 
+  starters() {
+    const folder = paths.startersDir();
+    const here = new Set(load().plugins.map((plugin) => plugin.file.toLowerCase()));
+
+    let names;
+    try {
+      names = fs.readdirSync(folder).filter((name) => name.toLowerCase().endsWith('.json')).sort();
+    } catch {
+      return [];
+    }
+
+    const out = [];
+    for (const name of names) {
+      try {
+        const result = validate(JSON.parse(fs.readFileSync(path.join(folder, name), 'utf8')), idFrom(name));
+        if (result.plugin) out.push({ ...result.plugin, file: name, installed: here.has(name.toLowerCase()) });
+      } catch {
+        continue;
+      }
+    }
+    return out;
+  },
+
+  addStarters() {
+    const folder = paths.pluginsDir();
+    const from = paths.startersDir();
+    fs.mkdirSync(folder, { recursive: true });
+
+    const added = [];
+    for (const starter of module.exports.starters()) {
+      if (starter.installed) continue;
+      fs.copyFileSync(path.join(from, starter.file), path.join(folder, starter.file));
+      added.push(starter);
+    }
+    return added;
+  },
+
   remove(id) {
     const file = fileFor(String(id || ''));
     if (!file) return false;

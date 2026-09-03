@@ -24,6 +24,23 @@ To run it anyway: **More info**, then **Run anyway**. Before you do, it is
 reasonable to check the download is the one that was published - see
 [Check it yourself](#check-it-yourself) below.
 
+## Blue, red, or blocked
+
+Windows has three different reactions and they mean different things. Which one
+people report matters, because the fix is different in each case.
+
+| What they see | What it means | What fixes it |
+| --- | --- | --- |
+| **Blue** "Windows protected your PC", with **More info → Run anyway** | Unrecognised. No verdict either way — SmartScreen has no reputation for this file. | Signing, plus downloads over time. |
+| **Red** "…was blocked because it could harm your device", usually in the browser at download time | A verdict. Defender has decided the file is malicious, rightly or wrongly. | Get the verdict reversed. See [Reporting a false positive](#reporting-a-false-positive). |
+| **Blocked with no way past**, often phrased as blocked by your administrator | Smart App Control, or an enterprise policy. Smart App Control is on by default on clean Windows 11 installs and blocks **unsigned** executables outright, reputation or not. | Only a real signature. Nothing else moves it. |
+
+The blue box is the one this project has always had, and it is the one the rest
+of this page is about. **Red is a different problem** — it is not the reputation
+gap, it is a scanner saying the file is bad. If you are seeing red, the useful
+thing to do is capture exactly what it says and check the file on VirusTotal;
+one ML engine at "moderate" is noise, several engines naming a family is not.
+
 ## The current picture
 
 A recent build on VirusTotal: **1 of 67 engines**, Trapmine, reporting
@@ -55,10 +72,24 @@ cautious model to raise its score.
 
 ## What would actually fix it
 
-**An OV or EV code-signing certificate**, from a certificate authority Windows
-already trusts, costing a few hundred a year and requiring identity
-verification. That is the only reliable answer. An EV certificate additionally
-gets SmartScreen reputation immediately rather than earning it.
+**A code-signing certificate from an authority Windows already trusts.** That
+is the only thing that moves any of the three states above, and it is what this
+project does not yet have.
+
+Be careful what it is sold as buying. Microsoft now states plainly that
+[EV certificates no longer bypass SmartScreen](https://learn.microsoft.com/en-us/windows/apps/package-and-deploy/smartscreen-reputation) -
+that behaviour was retired, and paying the EV premium for that reason alone is
+no longer justified. An OV certificate accrues the same reputation for a lot
+less, and [Azure Artifact Signing](signing.md), formerly Trusted Signing, is
+about ten dollars a month with no hardware token and a CI integration.
+
+**Publishing through the Microsoft Store** is the one route that removes the
+warning rather than softening it: Store apps are re-signed by Microsoft and
+never get a SmartScreen prompt at all. Developer accounts are now free for
+individuals and companies, and the Store takes a plain `.exe` installer, not
+only MSIX. The catch is that a Win32 installer must already be signed by a
+trusted CA before it is accepted, so the Store stacks on top of a certificate
+rather than replacing the need for one.
 
 The self-signed certificate this project can generate does **not** help here.
 It makes Windows say "unknown publisher" instead of "unknown publisher", and no

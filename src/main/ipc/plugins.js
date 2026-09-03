@@ -89,6 +89,21 @@ function register(manager) {
     return installed;
   });
 
+  handle('plugins:starters', () => plugins.starters());
+
+  handle('plugins:add-starters', () => {
+    const added = plugins.addStarters();
+    for (const starter of added) {
+      audit.record('plugin.install', {
+        plugin: starter.id,
+        name: starter.name,
+        command: starter.command,
+        from: 'the starter pack',
+      });
+    }
+    return added;
+  });
+
   handle('plugins:remove', (id) => {
     const wanted = String(id || '');
     const gone = plugins.remove(wanted);

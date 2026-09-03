@@ -1,5 +1,72 @@
 # Changelog
 
+## 2.1.0
+
+**Fourteen plugins ship with the app.** 2.0 gave you a panel you could describe
+in a JSON file, and then left the folder empty - a feature nobody finds. Settings
+now has a button that copies a ready-made set into your plugins folder:
+
+| | |
+| --- | --- |
+| Disk use | `df -h`, real filesystems only |
+| Containers | `docker ps` as a table |
+| Failed units / Running services | what systemd gave up on, and what it has up |
+| Who is on / Recent logins | `who` and `last -n 20` |
+| Listening ports / Open connections | `ss -tulpn` and established TCP |
+| Memory hogs / CPU hogs | the fifteen heaviest processes, either way round |
+| Recent errors | the last 25 errors in the journal |
+| Where the disk went | the largest folders under `/var` |
+| Pending updates | packages with a newer version waiting |
+| Scheduled jobs | `crontab -l` |
+
+**They arrive switched off.** Nothing runs until you tick it, and the command is
+printed beside each one before you do - which is the bargain the whole feature
+makes. Deleting one is deleting a file.
+
+Two of them are worked examples in [the guide](guides/plugins.md), because the
+obvious command is not always the right one. `docker ps` pads its columns with
+spaces and prints its own header, so it needs `"split": "columns"` and
+`"skipLines": 1`. And `ps aux` prints eleven columns with the command last, so
+five declared columns would fold seven fields into the last one - asking `ps`
+for the five fields you want lines up exactly.
+
+### Windows, and what it is actually doing
+
+**The guides were pointing at the wrong purchase.** They said an EV certificate
+buys SmartScreen reputation immediately. Microsoft retired that behaviour and
+now says in as many words that paying the premium for that reason alone is not
+justified. That was a few hundred pounds of advice in the wrong direction.
+
+Corrected, along with the part that was missing: **blue, red and blocked are
+three different states.** Blue is no verdict at all - SmartScreen has never seen
+the file. Red is Defender saying the file is bad, which is a false positive to
+report rather than a reputation to build. And Smart App Control, on by default
+on clean Windows 11 installs, blocks unsigned binaries outright with no way past
+in the dialog, however many people have downloaded them.
+
+The Store is the only route that removes the prompt rather than softening it,
+and developer accounts are free now - but a Win32 installer still has to be
+signed by a trusted authority before it is accepted, so it stacks on a
+certificate rather than replacing one.
+
+**The website said these builds are signed with a self-signed certificate.**
+They are not signed at all. It says so now, and tells people the two clicks that
+get them past the dialog - next to the download button, rather than only in a
+guide they reach afterwards.
+
+### Also in this release
+
+**A test that failed roughly one CI run in a hundred and fifty.** ssh2 writes an
+Ed25519 public key as a big integer, so a key whose public half begins with a
+zero byte loses it and comes back 31 bytes - a file ssh2 itself then refuses to
+read. Measured here at 4 keys in 3000.
+
+The app already survived it: key generation inspects what it made and throws it
+away if it will not parse, up to eight times. The test fixtures did not, so four
+checks failed at random. They retry now, and the retry in the app - which had
+only a statistical test behind it - has four deterministic ones, including a
+generator that only ever returns rubbish and has to be given up on.
+
 ## 2.0.0
 
 **Plugins.** A panel you describe in a small JSON file - a name, a command, and
