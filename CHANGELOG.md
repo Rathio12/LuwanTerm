@@ -1,5 +1,65 @@
 # Changelog
 
+## 2.2.0
+
+**The app is called Luwan Shell now.** The name changed everywhere a person
+reads it - title bar, splash screen, installer, Start Menu entry, website and
+release files - and nowhere a machine does. The app id is still `io.luwan.term`,
+the data folder is still `luwan-term`, and the repository is still `LuwanTerm`,
+so this installs over what you have and opens with your hosts, keys, background
+image and settings exactly where they were.
+
+**The mark is new as well.** A dark rounded tile with a gradient chevron, a bar
+and a dot, kept as vectors in `assets/images/icon.svg` and rendered from a
+single generator at 16, 24, 32, 48, 64, 128 and 256 pixels. The taskbar, the
+installer, the splash screen and the website carry the same artwork now, rather
+than one screenshot scaled down until it was mush.
+
+### Discord Rich Presence
+
+**A fresh install leaves it off, and yours is kept as it was.** Turning it on
+puts a card on your Discord profile for as long as a session is connected.
+It clears when the last session closes, when you quit, and behind the away
+screen - the last one is a tick box if you would rather it stayed up. One
+update every fifteen seconds at most, and only when something actually changed,
+so the timer counts your connection rather than your network.
+
+**What it sends is a short list.** The activity type - `SSH`, or `SFTP` /
+`Tunnel` while the focused tab is on Files or Tunnels - a label you have opted
+in for that host, a session count if you tick it, how long you have been
+connected, and two buttons to the repository and the website. What it never
+sends: the address, the user name, the port, the path, the command, or the
+profile of a host you did not switch on.
+
+**The label is chosen per host.** Each host has its own *Show in Discord*
+switch, off until you turn it on, and the label comes from a provider - Hetzner,
+AWS, DigitalOcean, Google Cloud, Azure, OVH, Vultr, Linode, Contabo, Home server
+or wording of your own - or from the profile name, which gets a warning first
+because your Discord profile will show it. The check runs in the main process,
+and anything that looks like an address is refused there rather than trusted
+because the form allowed it.
+
+**Settings says where it stands.** The Discord section now reports whether the
+app is connected and how many sessions Discord can see, instead of leaving you
+to find out from Discord.
+
+### Also in this release
+
+**The installers are named after the program.** `LuwanShell-2.2.0-setup.exe`
+and `LuwanShell-2.2.0-portable.exe` - no spaces in a file name to quote in a
+shell, which is what the old naming handed everyone. The Start Menu entry reads
+*Luwan Shell*, the executable is `LuwanShell.exe`, and the application id and
+data folder are untouched.
+
+**The website follows the name.** Title, headings and copy, with the new mark as
+the favicon and the image Discord loads. The screenshots on the page are still
+the old interface. The licence keeps its legal title, *LuwanTerm Licence 1.0* -
+only the name of the product changed.
+
+**659 checks in 26 suites**, including a new one that fails if a screen still
+says LuwanTerm, if the data folder moves, or if a release file name grows a
+space.
+
 ## 2.1.0
 
 **Fourteen plugins ship with the app.** 2.0 gave you a panel you could describe
