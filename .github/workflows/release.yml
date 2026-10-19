@@ -117,7 +117,7 @@ jobs:
 
       - uses: actions/upload-artifact@v7
         with:
-          name: LuwanTerm-windows
+          name: LuwanShell-windows
           path: |
             dist/*.exe
             dist/latest.yml
@@ -157,7 +157,7 @@ jobs:
               gh release delete-asset "$TAG" "$stale" --yes
             done
           else
-            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "LuwanTerm $TAG" --notes-file release-notes.md --latest
+            gh release create "$TAG" "${assets[@]}" --target "$GITHUB_SHA" --title "Luwan Shell $TAG" --notes-file release-notes.md --latest
           fi
 
           gh release view "$TAG" --json name,assets --jq '"published \(.name) with \(.assets | length) assets"'
@@ -258,7 +258,7 @@ jobs:
 
           gh release create "$TAG" "${assets[@]}" \
             --target "$GITHUB_SHA" \
-            --title "LuwanTerm $TAG" \
+            --title "Luwan Shell $TAG" \
             --notes-file release-notes.md \
             --prerelease
 

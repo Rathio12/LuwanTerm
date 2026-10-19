@@ -20,6 +20,15 @@
     }
     const current = state.settings;
 
+    let info = state.info;
+    try {
+      info = await window.term.app.info();
+      state.info = info;
+    } catch {
+      info = state.info;
+    }
+    const discordInfo = (info && info.discord) || {};
+
     const fields = {
       fontFamily: form.input({ value: current.fontFamily, class: 'input input--mono' }),
       fontSize: form.input({ type: 'number', min: '9', max: '28', value: current.fontSize }),
@@ -31,8 +40,18 @@
       idleLockMinutes: form.input({ type: 'number', min: '0', max: '240', value: current.idleLockMinutes }),
       idleDisconnectMinutes: form.input({ type: 'number', min: '0', max: '1440', value: current.idleDisconnectMinutes }),
       webgl: form.check('GPU accelerated rendering (needs a restart)', current.webgl),
-      discordEnabled: form.check('Show LuwanTerm on your Discord profile', current.discordEnabled),
-      discordShowHost: form.check('Include the host name in what Discord shows', current.discordShowHost),
+      discordEnabled: form.check('Show Luwan Shell on your Discord profile', current.discordEnabled),
+      discordLabel: form.select(
+        [
+          { value: 'provider', label: 'Provider' },
+          { value: 'name', label: 'Profile name' },
+          { value: 'none', label: 'Nothing' },
+        ],
+        { value: current.discordLabel }
+      ),
+      discordTimer: form.check('Show how long you have been connected', current.discordTimer),
+      discordShowCount: form.check('Show how many sessions are open', current.discordShowCount),
+      discordClearOnAway: form.check('Hide it while the away screen is up', current.discordClearOnAway),
     };
 
     const appearance = buildAppearance(current);
@@ -40,6 +59,32 @@
     const updates = buildUpdates();
     const pluginList = buildPlugins();
     const trusted = await loadKnownHosts();
+    const labelNote = h('span', { class: 'note', hidden: true });
+    const syncLabelNote = () => {
+      const named = fields.discordLabel.value === 'name';
+      labelNote.hidden = !named;
+      if (named) labelNote.textContent = 'Profile names will be visible on your Discord profile.';
+    };
+    fields.discordLabel.addEventListener('change', syncLabelNote);
+    syncLabelNote();
+
+    const discordStatus = h('span', { class: 'note' });
+    const syncDiscordStatus = () => {
+      const sessions = Number(discordInfo.sessions) || 0;
+      let text;
+      if (!fields.discordEnabled.input.checked) {
+        text = 'Rich Presence is off.';
+      } else if (!discordInfo.connected) {
+        text = 'Not connected to Discord. Discord has to be running for this to switch on.';
+      } else if (!sessions) {
+        text = 'Connected to Discord. Nothing shows until a session is connected.';
+      } else {
+        text = `Connected to Discord with ${sessions} session${sessions === 1 ? '' : 's'} open.`;
+      }
+      discordStatus.textContent = text;
+    };
+    fields.discordEnabled.input.addEventListener('change', syncDiscordStatus);
+    syncDiscordStatus();
 
     const shown = App.modal.show({
       title: 'Settings',
@@ -78,11 +123,19 @@
         h('div', { class: 'field' }, [
           h('label', { text: 'Discord Rich Presence' }),
           fields.discordEnabled,
-          fields.discordShowHost,
+          discordStatus,
+          form.field('What Discord shows', fields.discordLabel),
+          fields.discordTimer,
+          fields.discordShowCount,
+          fields.discordClearOnAway,
           h('span', {
             class: 'note',
-            text: 'Shows a session count only, unless you tick the box above - anyone who can see your profile can see whatever it displays.',
+            text: 'Addresses, user names, ports, paths and commands are never sent - only the '
+              + 'activity type, an optional label for a host you have switched on in its own '
+              + 'settings, and a session count if you tick it. A host only appears at all when '
+              + 'you turn on Show in Discord on that host.',
           }),
+          labelNote,
         ]),
         pluginList.element,
         updates.element,
@@ -115,7 +168,10 @@
           confirmOnClose: fields.confirmOnClose.input.checked,
           webgl: fields.webgl.input.checked,
           discordEnabled: fields.discordEnabled.input.checked,
-          discordShowHost: fields.discordShowHost.input.checked,
+          discordLabel: fields.discordLabel.value,
+          discordTimer: fields.discordTimer.input.checked,
+          discordShowCount: fields.discordShowCount.input.checked,
+          discordClearOnAway: fields.discordClearOnAway.input.checked,
           ...appearance.value(),
           ...background.value(),
         });
@@ -629,7 +685,7 @@
       h('span', {
         class: 'note',
         text: 'A plugin is a description of a panel, not code: a name, a command, and the '
-          + 'shape of its output. LuwanTerm runs the command on the server you are connected '
+          + 'shape of its output. Luwan Shell runs the command on the server you are connected '
           + 'to and draws the result as a table. It can do nothing you could not do by typing '
           + 'the command yourself, which is why plugins are safe to share as a single file.',
       }),
@@ -665,7 +721,7 @@
     ].filter(Boolean);
 
     return h('div', { class: 'field' }, [
-      h('label', { text: `About - LuwanTerm ${state.info.version}` }),
+      h('label', { text: `About - Luwan Shell ${state.info.version}` }),
       h('div', { class: 'about__links' }, buttons),
       h('span', {
         class: 'note',

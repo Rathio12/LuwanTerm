@@ -21,7 +21,7 @@ const REFRESH_MS = ms('LUWAN_DISCORD_REFRESH_MS', 150000);
 let socket = null;
 let ready = false;
 let config = {};
-let pending = null;
+let pending;
 let reconnectTimer = null;
 let handshakeTimer = null;
 let refreshTimer = null;
@@ -138,7 +138,7 @@ function handleFrame(op, body) {
     clearTimeout(handshakeTimer);
     handshakeTimer = null;
     startRefresh();
-    if (pending) push(pending);
+    flushPending();
   }
 }
 
@@ -167,26 +167,35 @@ function startRefresh() {
   if (refreshTimer.unref) refreshTimer.unref();
 }
 
-function push(presence) {
-  const activity = {
-    details: presence.details || undefined,
-    state: presence.state || undefined,
-    timestamps: { start: startedAt },
-    instance: false,
-  };
+function buildActivity(presence, options = {}) {
+  const activity = { instance: false };
 
-  if (config.largeImage) {
-    activity.assets = { large_image: config.largeImage };
-    if (config.largeText) activity.assets.large_text = config.largeText;
+  if (presence) {
+    if (presence.details) activity.details = String(presence.details).slice(0, 128);
+    if (presence.state) activity.state = String(presence.state).slice(0, 128);
   }
 
-  const buttons = (config.buttons || [])
+  if (options.showTimer !== false) {
+    const start = Number(options.startedAt);
+    activity.timestamps = { start: Number.isFinite(start) && start > 0 ? start : startedAt };
+  }
+
+  if (options.largeImage) {
+    activity.assets = { large_image: options.largeImage };
+    if (options.largeText) activity.assets.large_text = String(options.largeText).slice(0, 128);
+  }
+
+  const buttons = (options.buttons || [])
     .filter((button) => button && button.label && /^https?:\/\//i.test(button.url || ''))
     .slice(0, 2)
     .map((button) => ({ label: String(button.label).slice(0, 31), url: button.url }));
 
   if (buttons.length) activity.buttons = buttons;
 
+  return activity;
+}
+
+function dispatch(activity) {
   const written = send(OP.FRAME, {
     cmd: 'SET_ACTIVITY',
     args: { pid: process.pid, activity },
@@ -199,8 +208,19 @@ function push(presence) {
   }
 }
 
+function push(presence) {
+  dispatch(buildActivity(presence, config));
+}
+
+function flushPending() {
+  if (!ready || pending === undefined) return;
+  if (pending) push(pending);
+  else dispatch(null);
+}
+
 module.exports = {
   CLIENT_ID,
+  buildActivity,
 
   start(options = {}) {
     this.stop();
@@ -212,7 +232,7 @@ module.exports = {
 
   setPresence(presence) {
     pending = presence || null;
-    if (ready && pending) push(pending);
+    flushPending();
   },
 
   isConnected() {
@@ -222,7 +242,7 @@ module.exports = {
   stop() {
     stopped = true;
     ready = false;
-    pending = null;
+    pending = undefined;
     clearTimeout(reconnectTimer);
     reconnectTimer = null;
     clearTimeout(handshakeTimer);

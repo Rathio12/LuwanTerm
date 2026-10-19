@@ -178,7 +178,7 @@
     });
     const bits = form.select([], {});
     const comment = form.input({
-      value: `${state.info.platform === 'win32' ? 'windows' : 'local'}@luwanterm`,
+      value: `${state.info.platform === 'win32' ? 'windows' : 'local'}@Luwan Shell`,
       class: 'input input--mono',
     });
     const passphrase = form.input({ type: 'password', placeholder: 'Optional but recommended' });
@@ -372,7 +372,7 @@
       { disabled: !state.info.secretsAvailable || !passphrase }
     );
 
-    const copyIn = form.check('Copy the key into LuwanTerm', false);
+    const copyIn = form.check('Copy the key into Luwan Shell', false);
 
     const result = await App.modal.show({
       title: 'Add key',

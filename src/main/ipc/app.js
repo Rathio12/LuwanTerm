@@ -9,6 +9,8 @@ const settings = require('../store/settings');
 const snippets = require('../store/snippets');
 const knownHosts = require('../store/known-hosts');
 const config = require('../config');
+const brand = require('../brand');
+const hostStore = require('../store/hosts');
 const updater = require('../updater');
 const discord = require('../discord');
 const provenance = require('../provenance');
@@ -35,17 +37,28 @@ function register(hooks = {}) {
     else if (action === 'close') win.close();
   });
 
+  ipcMain.on('app:activity', (event, info) => {
+    if (hooks.onActivity) hooks.onActivity(info);
+  });
+
+  ipcMain.on('app:away', (event, away) => {
+    if (hooks.onAway) hooks.onAway(Boolean(away));
+  });
+
   handle('app:info', () => ({
+    name: brand.productName,
     version: app.getVersion(),
     platform: process.platform,
     packaged: app.isPackaged,
     secretsAvailable: vault.available(),
     links: config.links,
+    providers: hostStore.PROVIDERS,
 
     discord: {
       configured: Boolean(discord.CLIENT_ID),
       enabled: settings.get().discordEnabled,
       connected: discord.isConnected(),
+      sessions: hooks.sessionCount ? hooks.sessionCount() : 0,
     },
     provenance: {
       stamped: provenance.stamped,

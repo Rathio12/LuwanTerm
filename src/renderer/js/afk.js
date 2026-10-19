@@ -70,6 +70,7 @@
 
     awaySince = Date.now();
     overlay.element.hidden = false;
+    window.term.app.away(true);
 
     const tick = () => {
       const now = new Date();
@@ -98,6 +99,7 @@
     clock = null;
     if (overlay && !overlay.element.hidden) {
       overlay.element.hidden = true;
+      window.term.app.away(false);
       App.state?.active?.()?.term?.focus();
     }
   }

@@ -19,3 +19,10 @@ NOTES.md
 scratch/
 *.local.*
 test/results.json
+
+# Agent working files - not part of this project
+.opencode/
+opencode.json
+AGENTS.md
+.claude/
+*.agent.log

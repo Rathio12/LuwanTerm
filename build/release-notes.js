@@ -65,9 +65,9 @@ function build(version) {
   const downloads = [
     '**Download**',
     '',
-    `- [LuwanTerm-${version}-setup.exe](https://github.com/${REPO}/releases/download/v${version}/LuwanTerm-${version}-setup.exe)` +
+    `- [LuwanShell-${version}-setup.exe](https://github.com/${REPO}/releases/download/v${version}/LuwanShell-${version}-setup.exe)` +
       ' - installer, adds a Start Menu entry and updates itself',
-    `- [LuwanTerm-${version}-portable.exe](https://github.com/${REPO}/releases/download/v${version}/LuwanTerm-${version}-portable.exe)` +
+    `- [LuwanShell-${version}-portable.exe](https://github.com/${REPO}/releases/download/v${version}/LuwanShell-${version}-portable.exe)` +
       ' - single file, nothing installed',
   ];
   parts.push(downloads.join('\n'));
@@ -81,7 +81,7 @@ function build(version) {
       ...sums.map((entry) => `${entry.hash}  ${entry.name}`),
       '```',
       '',
-      'On Windows: `Get-FileHash .' + String.fromCharCode(92) + 'LuwanTerm-' + version + '-setup.exe -Algorithm SHA256`',
+      'On Windows: `Get-FileHash .' + String.fromCharCode(92) + 'LuwanShell-' + version + '-setup.exe -Algorithm SHA256`',
     ].join(String.fromCharCode(10)));
   }
 

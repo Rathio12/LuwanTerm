@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta http-equiv="Content-Security-Policy"
         content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'" />
-  <title>LuwanTerm</title>
+  <title>Luwan Shell</title>
   <link rel="stylesheet" href="../../node_modules/@xterm/xterm/css/xterm.css" />
   <link rel="stylesheet" href="styles/tokens.css" />
   <link rel="stylesheet" href="styles/base.css" />
@@ -12,6 +12,8 @@
 </head>
 <body>
   <svg class="sprite" aria-hidden="true">
+    <defs><linearGradient id="lw-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#3ea8ff"/></linearGradient></defs>
+    <symbol id="i-brand" viewBox="0 0 128 128"><rect width="128" height="128" rx="30" fill="#14161c"/><path d="M38 42 L68 64 L38 86" fill="none" stroke="url(#lw-grad)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><rect x="76" y="82" width="26" height="11" rx="5.5" fill="url(#lw-grad)" stroke="none"/><circle cx="98" cy="36" r="5" fill="#3ea8ff" stroke="none"/></symbol>
     <symbol id="i-server" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="7" rx="2"/><rect x="3" y="13" width="18" height="7" rx="2"/><path d="M7 7.5h.01M7 16.5h.01"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
@@ -51,8 +53,8 @@
 
   <header class="titlebar">
     <div class="titlebar__brand">
-      <span class="brand-mark"><svg><use href="#i-terminal"/></svg></span>
-      <span class="brand-name">LuwanTerm</span>
+      <span class="brand-mark"><svg><use href="#i-brand"/></svg></span>
+      <span class="brand-name">Luwan Shell</span>
       <span class="brand-version" id="app-version"></span>
     </div>
     <div class="titlebar__drag"></div>

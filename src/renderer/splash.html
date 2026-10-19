@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'self'" />
-  <title>Starting LuwanTerm</title>
+  <title>Starting Luwan Shell</title>
   <style>
     :root {
       --accent: #7c5cff;
@@ -42,11 +42,14 @@
       width: 52px;
       height: 52px;
       border-radius: 16px;
-      background: linear-gradient(140deg, var(--accent), #4b7cff);
-      box-shadow: 0 10px 30px rgba(124, 92, 255, 0.45);
       animation: breathe 2.4s ease-in-out infinite;
     }
-    .mark svg { width: 25px; height: 25px; fill: none; stroke: #fff; stroke-width: 2.1; stroke-linecap: round; stroke-linejoin: round; }
+    .mark svg {
+      width: 52px;
+      height: 52px;
+      border-radius: 15px;
+      box-shadow: 0 10px 30px rgba(124, 92, 255, 0.35);
+    }
     @keyframes breathe { 50% { transform: translateY(-3px); } }
 
     .name { font-size: 15px; font-weight: 600; letter-spacing: 0.3px; }
@@ -74,8 +77,8 @@
 </head>
 <body>
   <div class="card" id="card">
-    <span class="mark"><svg viewBox="0 0 24 24"><path d="m5 7 4 4-4 4M12 16h7"/></svg></span>
-    <span class="name">LuwanTerm</span>
+    <span class="mark"><svg viewBox="0 0 128 128"><defs><linearGradient id="lw-grad" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#3ea8ff"/></linearGradient></defs><rect width="128" height="128" rx="30" fill="#14161c"/><path d="M38 42 L68 64 L38 86" fill="none" stroke="url(#lw-grad)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/><rect x="76" y="82" width="26" height="11" rx="5.5" fill="url(#lw-grad)" stroke="none"/><circle cx="98" cy="36" r="5" fill="#3ea8ff" stroke="none"/></svg></span>
+    <span class="name">Luwan Shell</span>
 
     <span class="track"><span class="fill" id="fill"></span></span>
     <span class="status" id="status">Starting up</span>

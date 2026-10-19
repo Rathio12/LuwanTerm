@@ -19,10 +19,13 @@
   height: 24px;
   border-radius: 7px;
   color: #fff;
-  background: linear-gradient(140deg, var(--accent), #4b7cff);
+}
+.brand-mark svg {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
   box-shadow: 0 3px 12px rgba(124, 92, 255, 0.45);
 }
-.brand-mark svg { width: 14px; height: 14px; stroke-width: 2.1; }
 
 .brand-name { font-weight: 600; letter-spacing: 0.2px; }
 .brand-version { color: var(--ink-faint); font-size: 11px; }

@@ -1,7 +1,7 @@
 {
   "name": "luwan-term",
   "version": "2.1.0",
-  "description": "LuwanTerm - a clean SSH client with tabbed terminals, SFTP and tunnel management.",
+  "description": "Luwan Shell - a clean SSH client with tabbed terminals, SFTP and tunnel management.",
   "author": "LuwanIO",
   "license": "SEE LICENSE IN LICENSE",
   "main": "src/main/main.js",
@@ -27,7 +27,7 @@
   },
   "build": {
     "appId": "io.luwan.term",
-    "productName": "LuwanTerm",
+    "productName": "Luwan Shell",
     "directories": {
       "output": "dist",
       "buildResources": "build"
@@ -52,7 +52,8 @@
           ]
         }
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "executableName": "LuwanShell"
     },
     "nsis": {
       "license": "build/license.txt",
@@ -61,13 +62,13 @@
       "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "LuwanTerm",
-      "artifactName": "${productName}-${version}-setup.${ext}",
+      "shortcutName": "Luwan Shell",
+      "artifactName": "LuwanShell-${version}-setup.${ext}",
       "deleteAppDataOnUninstall": false,
       "runAfterFinish": true
     },
     "portable": {
-      "artifactName": "${productName}-${version}-portable.${ext}"
+      "artifactName": "LuwanShell-${version}-portable.${ext}"
     },
     "publish": [
       {

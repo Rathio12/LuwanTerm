@@ -33,15 +33,15 @@ const version = require(path.join(root, 'package.json')).version;
 const notes = build(version);
 
 check('the notes carry this version\'s changelog', notes.includes(sectionFor(changelog, version).split('\n')[0]));
-check('they link the installer', notes.includes(`LuwanTerm-${version}-setup.exe`));
-check('and the portable build', notes.includes(`LuwanTerm-${version}-portable.exe`));
+check('they link the installer', notes.includes(`LuwanShell-${version}-setup.exe`));
+check('and the portable build', notes.includes(`LuwanShell-${version}-portable.exe`));
 check('they do not offer the blockmap', !notes.includes('blockmap'));
 check('they link a comparison against the previous tag', /compare\/v\d+\.\d+\.\d+\.\.\.v/.test(notes));
 check('every download link points at this tag', (notes.match(new RegExp(`download/v${version.replace(/\./g, '\.')}/`, 'g')) || []).length === 2);
 
 const unknown = build('99.0.0');
 check('an unreleased version still produces notes', unknown.includes('No changelog entry for 99.0.0'));
-check('and still links its downloads', unknown.includes('LuwanTerm-99.0.0-setup.exe'));
+check('and still links its downloads', unknown.includes('LuwanShell-99.0.0-setup.exe'));
 
 check('every version in the changelog can be rendered',
   [...changelog.matchAll(/^## (\d+\.\d+\.\d+)$/gm)].every((m) => build(m[1]).length > 100),

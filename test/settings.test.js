@@ -19,6 +19,7 @@ fs.writeFileSync(
     scrollback: 12000,
     copyOnSelect: false,
     webgl: true,
+    discordShowHost: true,
     discordClientId: '111111111111',
   })
 );
@@ -54,5 +55,20 @@ check('a list survives being written and read back',
 
 check('reset restores the defaults', settings.reset().fontSize === 14);
 check('and empties the list again', settings.get().enabledPlugins.length === 0);
+
+check('the host toggle of an older build is dropped', !('discordShowHost' in settings.get()));
+check('rich presence is off until you turn it on', settings.get().discordEnabled === false);
+check('the label source defaults to the provider', settings.get().discordLabel === 'provider');
+check('the connection timer is on by default', settings.get().discordTimer === true);
+check('the session count is off by default', settings.get().discordShowCount === false);
+check('presence hides behind the away screen by default', settings.get().discordClearOnAway === true);
+
+const labelBefore = settings.get().discordLabel;
+check('an unknown label source is ignored',
+  settings.set({ discordLabel: 'address' }).discordLabel === labelBefore);
+check('a label source round-trips',
+  settings.set({ discordLabel: 'name' }).discordLabel === 'name');
+check('a label source is written back',
+  JSON.parse(fs.readFileSync(path.join(dir, 'settings.json'), 'utf8')).discordLabel === 'name');
 
 done();

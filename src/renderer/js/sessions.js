@@ -60,6 +60,7 @@
     if (!entry) return;
 
     state.activeId = key;
+    reportActivity(entry);
     for (const other of state.sessions.values()) {
       other.term?.element.classList.toggle('is-active', other.key === key);
     }
@@ -168,7 +169,10 @@
       const next = [...state.sessions.keys()].pop() || null;
       state.activeId = next;
       if (next) activate(next);
-      else setDock(null);
+      else {
+        setDock(null);
+        reportActivity(null);
+      }
     }
     renderTabs();
   }
@@ -272,8 +276,16 @@
     const entry = state.active();
     if (!entry) return;
     entry.dock = entry.dock === mode ? null : mode;
+    reportActivity(entry);
     syncDock(entry);
     requestAnimationFrame(() => entry.term?.fit());
+  }
+
+  function reportActivity(entry) {
+    window.term.app.activity({
+      sessionId: entry ? entry.key : '',
+      view: entry && entry.dock ? entry.dock : '',
+    });
   }
 
   function sendToActive(text, execute) {

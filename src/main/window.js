@@ -75,7 +75,7 @@ function createWindow() {
     frame: false,
     show: false,
     backgroundColor: '#0a0b12',
-    title: 'LuwanTerm',
+    title: 'Luwan Shell',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       contextIsolation: true,

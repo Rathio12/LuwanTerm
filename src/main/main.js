@@ -1,6 +1,11 @@
 'use strict';
 
+const path = require('path');
 const { app, BrowserWindow, ipcMain } = require('electron');
+
+const brand = require('./brand');
+
+app.setPath('userData', path.join(app.getPath('appData'), brand.userDataFolder));
 
 const { createWindow, createSplash, createUpdatePrompt } = require('./window');
 const { SessionManager } = require('./ssh/manager');
@@ -9,6 +14,7 @@ const settings = require('./store/settings');
 const hosts = require('./store/hosts');
 const keys = require('./store/keys');
 const discord = require('./discord');
+const presence = require('./presence');
 const config = require('./config');
 const updater = require('./updater');
 const audit = require('./audit');
@@ -35,6 +41,12 @@ const SPLASH_TIMEOUT_MS = 8000;
 
 const manager = new SessionManager();
 let mainWindow = null;
+let focus = null;
+let away = false;
+
+const scheduler = presence.createScheduler({
+  send: (payload) => discord.setPresence(payload),
+});
 
 if (!app.requestSingleInstanceLock()) {
   app.quit();
@@ -46,7 +58,23 @@ if (!app.requestSingleInstanceLock()) {
   });
 
   app.whenReady().then(async () => {
-    registerAll(manager, { onSettingsChanged: applyDiscord });
+    registerAll(manager, {
+      onSettingsChanged: applyDiscord,
+      onActivity: (info) => {
+        focus = info && typeof info === 'object'
+          ? {
+              sessionId: String(info.sessionId || ''),
+              view: String(info.view || ''),
+            }
+          : null;
+        updatePresence();
+      },
+      onAway: (value) => {
+        away = Boolean(value);
+        updatePresence();
+      },
+      sessionCount: () => manager.list().length,
+    });
     manager.onChange = updatePresence;
 
     audit.prune();
@@ -244,42 +272,50 @@ async function runBootSequence(splash, rendererReady) {
 
 function applyDiscord(current = settings.get()) {
   if (!current.discordEnabled) {
+    scheduler.stop();
+    discord.setPresence(null);
     discord.stop();
     return;
   }
+
   discord.start({
     largeImage: config.discordLargeImage,
-    largeText: 'LuwanTerm',
-
+    largeText: brand.productName,
+    showTimer: current.discordTimer,
     buttons: [
-      { label: 'See GitHub', url: config.links.github },
-      { label: 'View page', url: config.links.website },
-      { label: 'Discord', url: config.links.discord },
+      { label: 'View on GitHub', url: config.links.github },
+      { label: 'Website', url: config.links.website },
     ],
   });
-  updatePresence();
+  updatePresence({ force: true });
 }
 
-function updatePresence() {
+function updatePresence(options = {}) {
   const current = settings.get();
   if (!current.discordEnabled) return;
 
-  const sessions = manager.list();
-  const count = sessions.length;
-
-  const details = count === 0 ? 'Idle' : count === 1 ? '1 session' : `${count} sessions`;
-
-  let state;
-  if (count && current.discordShowHost) {
-    const active = sessions[sessions.length - 1];
-    state = count > 1 ? `${active.name} and ${count - 1} more` : `On ${active.name}`;
+  let payload = null;
+  if (!(away && current.discordClearOnAway)) {
+    payload = presence.buildPresence({
+      sessions: manager.list(),
+      hostOf: (hostId) => hosts.get(hostId),
+      settings: current,
+      focus,
+    });
   }
 
-  discord.setPresence({ details, state });
+  if (options.force) {
+    scheduler.stop();
+    discord.setPresence(payload);
+    return;
+  }
+  scheduler.push(payload);
 }
 
 app.on('before-quit', () => {
   updater.stopWatching();
+  scheduler.stop();
+  discord.setPresence(null);
   discord.stop();
   manager.closeAll();
 });

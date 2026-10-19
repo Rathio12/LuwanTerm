@@ -1,8 +1,8 @@
 <div align="center">
 
-<img src="guides/images/icon.png" width="88" alt="LuwanTerm">
+<img src="guides/images/icon.png" width="88" alt="Luwan Shell">
 
-# LuwanTerm
+# Luwan Shell
 
 A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding in one window.
 
@@ -25,7 +25,7 @@ A clean SSH client for Windows — tabbed terminals, SFTP, and port forwarding i
 </div>
 
 <div align="center">
-  <img src="guides/images/app.png" width="820" alt="LuwanTerm main window">
+  <img src="guides/images/app.png" width="820" alt="Luwan Shell main window">
 </div>
 
 ## What it does
@@ -118,7 +118,7 @@ update itself - download a newer one when you want it.
 </table>
 
 > [!TIP]
-> Every release lists a SHA-256 for both files. `Get-FileHash .\LuwanTerm-setup.exe -Algorithm SHA256`
+> Every release lists a SHA-256 for both files. `Get-FileHash .\LuwanShell-<version>-setup.exe -Algorithm SHA256`
 > tells you whether what you downloaded is what was published.
 
 ### Running from source
@@ -163,12 +163,12 @@ and [the full explanation](guides/antivirus.md) does not pretend otherwise -
 including why obfuscating the binary to dodge detection is not on the table.
 
 Meanwhile you can check what you downloaded is what was published: the SHA-256
-is in the release notes, and `LuwanTerm.exe --provenance` names the exact commit
+is in the release notes, and `LuwanShell.exe --provenance` names the exact commit
 the binary was built from.
 
 ## Supporting it
 
-LuwanTerm is free and always will be - the [licence](LICENSE) forbids selling
+Luwan Shell is free and always will be - the [licence](LICENSE) forbids selling
 it, and that is deliberate.
 
 **[ko-fi.com/derechtealec](https://ko-fi.com/derechtealec)**
@@ -283,9 +283,9 @@ sale. In short:
 | Sell it, or a paid product, service or support built on it | **No** |
 | Use it to break into systems, surveil or harass people | **No** |
 
-Being paid for your own work is fine — a consultant using LuwanTerm on a
-client's servers is paid for the setup, not for LuwanTerm. Charging that client
-*for LuwanTerm* is what the licence forbids.
+Being paid for your own work is fine — a consultant using Luwan Shell on a
+client's servers is paid for the setup, not for Luwan Shell. Charging that client
+*for Luwan Shell* is what the licence forbids.
 
 This is deliberately **source-available rather than OSI open source**: an
 OSI-approved licence cannot restrict what you use the software for, and these

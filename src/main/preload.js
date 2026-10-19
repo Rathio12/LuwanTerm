@@ -27,6 +27,8 @@ contextBridge.exposeInMainWorld('term', {
     pickBackground: () => call('app:pick-background'),
     background: (preview) => call('app:background', preview),
     onMaximized: (cb) => subscribe('app:maximized', cb),
+    activity: (info) => ipcRenderer.send('app:activity', info),
+    away: (isAway) => ipcRenderer.send('app:away', Boolean(isAway)),
     ready: () => ipcRenderer.send('app:ready'),
   },
 

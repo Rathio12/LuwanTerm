@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128" role="img" aria-label="Luwan Shell">
+  <defs>
+    <linearGradient id="lw-grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c5cff"/>
+      <stop offset="1" stop-color="#3ea8ff"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="128" height="128" rx="30" fill="#14161c"/>
+  <path d="M38 42 L68 64 L38 86" fill="none" stroke="url(#lw-grad)" stroke-width="11" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="76" y="82" width="26" height="11" rx="5.5" fill="url(#lw-grad)"/>
+  <circle cx="98" cy="36" r="5" fill="#3ea8ff"/>
+</svg>

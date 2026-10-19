@@ -30,10 +30,16 @@ const DEFAULTS = {
   starPromptState: 'pending',
   starPromptSessions: 0,
   starPromptFirstRunAt: 0,
-  discordEnabled: true,
-
-  discordShowHost: false,
+  discordEnabled: false,
+  discordLabel: 'provider',
+  discordTimer: true,
+  discordShowCount: false,
+  discordClearOnAway: true,
   enabledPlugins: [],
+};
+
+const OPTIONS = {
+  discordLabel: ['provider', 'name', 'none'],
 };
 
 /* A list setting holds ids, so it is capped in both directions: how many, and
@@ -62,7 +68,12 @@ function coerce(patch) {
     // object through the prototype chain, so `in` waves them straight past.
     if (!Object.prototype.hasOwnProperty.call(DEFAULTS, key)) continue;
     if (value === undefined || value === null) continue;
-    if (Array.isArray(DEFAULTS[key])) {
+    if (Object.prototype.hasOwnProperty.call(OPTIONS, key)) {
+      const allowed = OPTIONS[key];
+      const chosen = String(value);
+      if (!allowed.includes(chosen)) continue;
+      out[key] = chosen;
+    } else if (Array.isArray(DEFAULTS[key])) {
       if (!Array.isArray(value)) continue;
       out[key] = [...new Set(value.map((item) => String(item).slice(0, MAX_LIST_ITEM)).filter(Boolean))]
         .slice(0, MAX_LIST);

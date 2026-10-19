@@ -191,7 +191,7 @@ class SshConnection extends EventEmitter {
           keepaliveCountMax: 3,
           tryKeyboard: policy.allows('allowKeyboardInteractive'),
           hostVerifier: (keyBlob, cb) => this.hostVerifier(keyBlob, cb),
-          ident: `LuwanTerm (${os.platform()})`,
+          ident: `Luwan Shell (${os.platform()})`,
           ...(sock ? { sock } : {}),
           ...auth,
         });

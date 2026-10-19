@@ -69,10 +69,10 @@ function checkTree(root = path.join(__dirname, '..')) {
 }
 
 function line() {
-  if (!record) return 'LuwanTerm (unstamped build)';
+  if (!record) return 'Luwan Shell (unstamped build)';
   const { state } = verify();
   const dirty = record.clean ? '' : '+dirty';
-  return `LuwanTerm ${record.version} ${record.commitShort}${dirty} build ${record.buildId} [${state}] from ${record.origin}`;
+  return `Luwan Shell ${record.version} ${record.commitShort}${dirty} build ${record.buildId} [${state}] from ${record.origin}`;
 }
 
 module.exports = {

@@ -3,12 +3,33 @@
 const crypto = require('crypto');
 const { JsonStore } = require('./json-store');
 const paths = require('../paths');
+const { looksLikeAddress, clean } = require('../presence');
 
 const store = new JsonStore(paths.hostsFile, { hosts: [] });
 
 const ACCENTS = ['#7c5cff', '#3ea8ff', '#22c58b', '#f2a33c', '#ff5c8a', '#8b5cf6'];
 
+const PROVIDERS = [
+  'Hetzner',
+  'AWS',
+  'DigitalOcean',
+  'Google Cloud',
+  'Azure',
+  'OVH',
+  'Vultr',
+  'Linode',
+  'Contabo',
+  'Home server',
+];
+
 const newId = () => `h_${crypto.randomBytes(6).toString('hex')}`;
+
+function providerLabel(value) {
+  const label = clean(value);
+  if (!label) return '';
+  if (looksLikeAddress(label)) throw new Error('Use a provider name, not an address.');
+  return label;
+}
 
 function normalize(input, existing = {}) {
   const port = Number.parseInt(input.port, 10);
@@ -34,6 +55,11 @@ function normalize(input, existing = {}) {
     privateKeyPath: String(input.privateKeyPath || '').trim(),
     group: String(input.group || '').trim(),
     color: ACCENTS.includes(input.color) ? input.color : existing.color || ACCENTS[0],
+    provider:
+      input.provider === undefined
+        ? String(existing.provider || '')
+        : providerLabel(input.provider),
+    discordShow: Boolean(input.discordShow ?? existing.discordShow),
     keepaliveSeconds: Number.isInteger(keepalive) && keepalive >= 0 ? keepalive : 30,
     initialCommand: String(input.initialCommand || ''),
     defaultPath: String(input.defaultPath || '').trim(),
@@ -44,6 +70,7 @@ function normalize(input, existing = {}) {
 
 module.exports = {
   ACCENTS,
+  PROVIDERS,
 
   list() {
     return store.read().hosts;

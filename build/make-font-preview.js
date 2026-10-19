@@ -32,7 +32,7 @@ const rows = [...groups.entries()]
 
 const html = `<!doctype html>
 <meta charset="utf-8">
-<title>LuwanTerm font catalogue</title>
+<title>Luwan Shell font catalogue</title>
 <style>
   :root { color-scheme: dark; }
   body {
@@ -56,8 +56,8 @@ const html = `<!doctype html>
   .tag { font-size: 10px; text-align: right; color: #22c58b; }
   li.missing .tag { color: #6d7392; }
 </style>
-<h1>LuwanTerm font catalogue</h1>
-<p class="lede">Every family LuwanTerm detects and offers in Settings. Fonts you have
+<h1>Luwan Shell font catalogue</h1>
+<p class="lede">Every family Luwan Shell detects and offers in Settings. Fonts you have
 installed render below in their own face; the rest are dimmed. Nothing here is
 bundled with the app.</p>
 <p class="lede"><span class="count" id="installed">checking…</span></p>
@@ -105,7 +105,7 @@ const tables = [...groups.entries()]
 
 const readme = `# Fonts
 
-The families LuwanTerm knows about: **${catalogue.fonts.length}** across
+The families Luwan Shell knows about: **${catalogue.fonts.length}** across
 ${groups.size} groups. Settings shows the ones you actually have installed, each
 rendered in its own face so you can judge it before picking.
 
@@ -114,7 +114,7 @@ rendered in its own face so you can judge it before picking.
 This folder holds a **catalogue, not binaries**. Shipping the fonts themselves
 would mean redistributing work under licences that mostly do not allow it, and
 would add hundreds of megabytes to a terminal app. Install the ones you want and
-LuwanTerm will find them.
+Luwan Shell will find them.
 
 Most of the open source ones are on [Google Fonts](https://fonts.google.com/?classification=Monospace),
 [Nerd Fonts](https://www.nerdfonts.com/font-downloads) or the project's own site.

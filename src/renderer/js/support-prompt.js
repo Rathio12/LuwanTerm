@@ -57,7 +57,7 @@
     };
 
     const choice = await App.modal.show({
-      title: 'Enjoying LuwanTerm?',
+      title: 'Enjoying Luwan Shell?',
       iconName: 'terminal',
       content: h('div', { class: 'row' }, [
         h('p', {

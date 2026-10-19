@@ -114,7 +114,7 @@ if (before !== null) fs.writeFileSync(generated, before);
 delete require.cache[require.resolve(path.join(root, 'src', 'main', 'provenance'))];
 const provenance = require(path.join(root, 'src', 'main', 'provenance'));
 check('the app reads the stamp', provenance.stamped === true);
-check('and describes itself in one line', /^LuwanTerm .* from https:/.test(String(provenance)));
+check('and describes itself in one line', /^Luwan Shell .* from https:/.test(String(provenance)));
 
 const crypto = require('crypto');
 const { publicKey, privateKey } = crypto.generateKeyPairSync('ed25519');

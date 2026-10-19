@@ -134,6 +134,7 @@
     const model = host || {
       name: '', host: '', port: 22, username: '', auth: 'password', keyId: '', privateKeyPath: '',
       group: '', color: ACCENTS[0], keepaliveSeconds: 30, initialCommand: '', defaultPath: '',
+      provider: '', discordShow: false,
     };
 
     const fields = {
@@ -156,6 +157,39 @@
       defaultPath: form.input({ value: model.defaultPath, placeholder: '/var/www (optional)', class: 'input input--mono' }),
       initialCommand: form.input({ value: model.initialCommand, placeholder: 'tmux attach (optional)', class: 'input input--mono' }),
     };
+
+    const PROVIDER_CUSTOM = '__custom__';
+    const providers = (state.info && state.info.providers) || [];
+    const providerKnown = providers.includes(model.provider);
+    const providerText = form.input({
+      value: providerKnown ? '' : model.provider || '',
+      placeholder: 'Hetzner, AWS, Home server',
+      maxlength: 32,
+    });
+    fields.provider = form.select(
+      [
+        { value: '', label: 'Not set' },
+        ...providers.map((value) => ({ value, label: value })),
+        { value: PROVIDER_CUSTOM, label: 'Custom...' },
+      ],
+      { value: providerKnown ? model.provider : model.provider ? PROVIDER_CUSTOM : '' }
+    );
+
+    const discordShow = form.check('Show this host on Discord', Boolean(model.discordShow));
+    const providerBlock = h('div', { class: 'field' }, [
+      h('label', { text: 'Provider' }),
+      fields.provider,
+      providerText,
+      h('span', {
+        class: 'note',
+        text: 'A label for Discord instead of the address. It is only ever sent for a host you switch on here.',
+      }),
+    ]);
+    const syncProvider = () => {
+      providerText.hidden = fields.provider.value !== PROVIDER_CUSTOM;
+    };
+    fields.provider.addEventListener('change', syncProvider);
+    syncProvider();
 
     let color = model.color;
     const swatches = h(
@@ -251,6 +285,18 @@
             form.field('Default SFTP path', fields.defaultPath),
             form.field('Run on connect', fields.initialCommand),
           ]),
+          h('div', { class: 'row' }, [
+            providerBlock,
+            h('div', { class: 'field' }, [
+              h('label', { text: 'Discord' }),
+              discordShow,
+              h('span', {
+                class: 'note',
+                text: 'Off means this host is invisible on Discord. Turning it on shares only the '
+                  + 'label above - never the address, user name or port.',
+              }),
+            ]),
+          ]),
           secretRow,
         ]),
         buttons: [
@@ -272,6 +318,8 @@
             keepaliveSeconds: fields.keepalive.value,
             defaultPath: fields.defaultPath.value,
             initialCommand: fields.initialCommand.value,
+            provider: fields.provider.value === PROVIDER_CUSTOM ? providerText.value : fields.provider.value,
+            discordShow: discordShow.input.checked,
           });
           return true;
         },

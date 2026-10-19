@@ -4,7 +4,7 @@
   const listeners = new Map();
 
   const state = {
-    info: { version: '', platform: '', secretsAvailable: false },
+    info: { name: '', version: '', platform: '', secretsAvailable: false },
     settings: {
       fontFamily: 'JetBrains Mono, Cascadia Code, Consolas, monospace',
       fontSize: 14,
