@@ -1,0 +1,15 @@
+{
+  "name": "Digital Rain",
+  "description": "Green glyphs falling behind a dark terminal.",
+  "settings": {
+    "terminalTheme": "luwan",
+    "accentColor": "#22c55e",
+    "uiCorners": "subtle",
+    "backgroundEffect": "rain",
+    "effectDensity": 80,
+    "effectSpeed": 45,
+    "effectNodeGlow": 55,
+    "effectGrid": false,
+    "effectGlow": true
+  }
+}

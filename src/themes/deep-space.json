@@ -1,0 +1,14 @@
+{
+  "name": "Deep Space",
+  "description": "Tokyo Night colours with particles drifting on a slow current.",
+  "settings": {
+    "terminalTheme": "tokyo-night",
+    "accentColor": "#7aa2f7",
+    "backgroundEffect": "flow",
+    "effectDensity": 90,
+    "effectSpeed": 30,
+    "effectNodeGlow": 70,
+    "effectGrid": false,
+    "effectGlow": false
+  }
+}

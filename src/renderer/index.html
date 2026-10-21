@@ -112,11 +112,33 @@
         <div class="terminals" id="terminals"></div>
 
         <div class="empty" id="empty-state">
-          <div class="empty__card glass">
-            <span class="empty__mark"><svg><use href="#i-terminal"/></svg></span>
-            <h1>No active session</h1>
-            <p>Pick a host on the left to open a terminal, or create your first one.</p>
-            <button class="btn btn--primary" id="empty-new-host"><svg><use href="#i-plus"/></svg>New host</button>
+          <div class="empty__layout">
+            <div class="empty__clock" id="empty-clock">
+              <div class="empty__time" id="empty-time"></div>
+              <div class="empty__date" id="empty-date"></div>
+            </div>
+            <header class="empty__brand">
+              <span class="empty__logo"><svg><use href="#i-brand"/></svg></span>
+              <div>
+                <div class="empty__title">Luwan Shell</div>
+                <div class="empty__tag">SSH, SFTP and tunnels in one window</div>
+              </div>
+            </header>
+            <div class="empty__body">
+              <section class="recent glass" id="recent" hidden>
+                <div class="recent__head">
+                  <h2>Last session</h2>
+                  <button class="iconbtn" id="recent-clear" title="Clear history"><svg><use href="#i-trash"/></svg></button>
+                </div>
+                <div class="recent__list" id="recent-list"></div>
+              </section>
+              <div class="empty__card glass">
+                <span class="empty__mark"><svg><use href="#i-terminal"/></svg></span>
+                <h1>No active session</h1>
+                <p>Pick a host on the left to open a terminal, or create your first one.</p>
+                <button class="btn btn--primary" id="empty-new-host"><svg><use href="#i-plus"/></svg>New host</button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -165,6 +187,9 @@
   <script src="js/keys.js"></script>
   <script src="js/hosts.js"></script>
   <script src="js/snippets.js"></script>
+  <script src="js/effect.js"></script>
+  <script src="js/clock.js"></script>
+  <script src="js/recent.js"></script>
   <script src="js/settings.js"></script>
   <script src="js/app.js"></script>
 </body>

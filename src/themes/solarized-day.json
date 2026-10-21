@@ -1,0 +1,10 @@
+{
+  "name": "Solarized Day",
+  "description": "A light terminal for bright rooms, with nothing moving.",
+  "settings": {
+    "terminalTheme": "solarized-light",
+    "accentColor": "#268bd2",
+    "backgroundEffect": "none",
+    "uiCorners": "subtle"
+  }
+}

@@ -11,6 +11,7 @@ Start here. Each guide stands on its own — read the one you need.
 | [SFTP](sftp.md) | Browsing, uploading, downloading folders, cancelling a transfer |
 | [Tunnels](tunnels.md) | Local, remote and SOCKS5 forwarding, with worked examples |
 | [Plugins](plugins.md) | Panels you describe in a JSON file, and why they are not code |
+| [Themes](themes.md) | One file that sets colours, corners and the animated background - and how to make your own |
 | [Discord presence](discord.md) | Turning it on and what it reveals |
 | [Configuration](configuration.md) | `.env` build settings versus user settings |
 | [Deploying to a fleet](enterprise.md) | Policy files, the audit log, and what they do not cover |

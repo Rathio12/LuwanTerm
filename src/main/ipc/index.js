@@ -7,6 +7,7 @@ const sftpIpc = require('./sftp');
 const tunnelsIpc = require('./tunnels');
 const keysIpc = require('./keys');
 const pluginsIpc = require('./plugins');
+const themesIpc = require('./themes');
 
 function registerAll(manager, hooks = {}) {
   appIpc.register(hooks);
@@ -15,6 +16,7 @@ function registerAll(manager, hooks = {}) {
   sftpIpc.register(manager);
   tunnelsIpc.register(manager);
   keysIpc.register(manager);
+  themesIpc.register();
 
   const plugins = pluginsIpc.register(manager);
   const earlier = manager.onSessionGone;

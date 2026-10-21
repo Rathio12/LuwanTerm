@@ -1,0 +1,12 @@
+{
+  "name": "Minimal",
+  "description": "Square corners, a quiet grey accent and no effects at all.",
+  "settings": {
+    "terminalTheme": "one-dark",
+    "accentColor": "#8b93a8",
+    "backgroundEffect": "none",
+    "uiCorners": "square",
+    "cursorBlink": false,
+    "cursorStyle": "block"
+  }
+}

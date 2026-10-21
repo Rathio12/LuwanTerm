@@ -1,0 +1,15 @@
+{
+  "name": "Synthwave",
+  "description": "Dracula colours, hot pink accent and a neon grid under a setting sun.",
+  "settings": {
+    "terminalTheme": "dracula",
+    "accentColor": "#ff5c8a",
+    "backgroundEffect": "horizon",
+    "effectDensity": 90,
+    "effectSpeed": 35,
+    "effectNodeGlow": 85,
+    "effectLineWidth": 9,
+    "uiCorners": "round",
+    "effectGrid": false
+  }
+}

@@ -145,8 +145,8 @@ function register(hooks = {}) {
     if (hooks.onSettingsChanged) hooks.onSettingsChanged(next);
     return next;
   });
-  handle('settings:reset', () => {
-    const next = settings.reset();
+  handle('settings:reset', (keys) => {
+    const next = settings.reset(Array.isArray(keys) ? keys.map(String) : undefined);
     if (hooks.onSettingsChanged) hooks.onSettingsChanged(next);
     return next;
   });

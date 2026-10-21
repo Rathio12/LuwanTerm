@@ -7,6 +7,15 @@ const policy = require('../policy');
 const DEFAULTS = {
   fontFamily: 'JetBrains Mono, Cascadia Code, Consolas, monospace',
   fontSize: 14,
+  fontWeight: 'normal',
+  lineHeight: 100,
+  letterSpacing: 0,
+  terminalTheme: 'luwan',
+  terminalPadding: 12,
+  scrollSensitivity: 1,
+  ctrlWheelZoom: true,
+  rightClick: 'paste',
+  bell: 'none',
   cursorBlink: true,
   cursorStyle: 'bar',
   scrollback: 5000,
@@ -16,8 +25,34 @@ const DEFAULTS = {
   backgroundImage: '',
   backgroundOpacity: 60,
   backgroundBlur: 0,
+  backgroundEffect: 'none',
+  effectDensity: 90,
+  effectSpeed: 30,
+  effectLinks: 130,
+  effectGrid: true,
+  effectGlow: true,
+  effectAccent: true,
+  effectMouse: true,
+  effectMouseForce: 'none',
+  effectNodeGlow: 60,
+  effectPulse: true,
+  effectNodeSize: 100,
+  effectLineWidth: 7,
+  effectLineOpacity: 70,
+  effectGridSize: 64,
+  effectColor: '#4a7cff',
+  effectOpacity: 100,
   terminalOpacity: 100,
   accentColor: '#7c5cff',
+  uiScale: 100,
+  uiFontFamily: '',
+  uiCorners: 'default',
+  sidebarWidth: 268,
+  reduceMotion: false,
+  recentSessions: true,
+  startClock: true,
+  clockSeconds: false,
+  clock12h: false,
   sessionLogging: false,
   sessionLogKeepAnsi: false,
   autoReconnect: false,
@@ -33,6 +68,7 @@ const DEFAULTS = {
   discordEnabled: false,
   discordLabel: 'provider',
   discordTimer: true,
+  discordShowIdle: true,
   discordShowCount: false,
   discordClearOnAway: true,
   enabledPlugins: [],
@@ -40,7 +76,27 @@ const DEFAULTS = {
 
 const OPTIONS = {
   discordLabel: ['provider', 'name', 'none'],
+  cursorStyle: ['bar', 'block', 'underline'],
+  fontWeight: ['300', 'normal', '500', '600', 'bold'],
+  terminalTheme: [
+    'luwan', 'dracula', 'nord', 'gruvbox', 'one-dark', 'tokyo-night',
+    'catppuccin', 'solarized-dark', 'solarized-light', 'github-light',
+  ],
+  rightClick: ['paste', 'copy-paste', 'none'],
+  bell: ['none', 'flash'],
+  uiCorners: ['square', 'subtle', 'default', 'round'],
+  backgroundEffect: ['none', 'constellation', 'flow', 'rain', 'dots', 'horizon'],
+  effectMouseForce: ['none', 'repel', 'attract'],
 };
+
+const MAX_TEXT = 400;
+
+const COLOURS = new Set(['accentColor', 'effectColor']);
+
+const RENAMED = {
+  backgroundEffect: { starfield: 'flow', aurora: 'horizon', waves: 'dots' },
+};
+const HEX = new RegExp('^#[0-9a-f]{6}$', 'i');
 
 /* A list setting holds ids, so it is capped in both directions: how many, and
    how long each one may be. The renderer sends this array back verbatim. */
@@ -51,9 +107,24 @@ const store = new JsonStore(paths.settingsFile, DEFAULTS);
 
 const CLAMP = {
   fontSize: [9, 28],
+  lineHeight: [100, 200],
+  letterSpacing: [0, 6],
+  terminalPadding: [0, 40],
+  scrollSensitivity: [1, 10],
+  uiScale: [75, 150],
+  sidebarWidth: [200, 440],
   scrollback: [200, 200000],
   backgroundOpacity: [0, 100],
   backgroundBlur: [0, 40],
+  effectDensity: [10, 220],
+  effectSpeed: [0, 100],
+  effectLinks: [60, 240],
+  effectNodeGlow: [0, 100],
+  effectNodeSize: [50, 250],
+  effectLineWidth: [3, 20],
+  effectLineOpacity: [0, 100],
+  effectGridSize: [24, 160],
+  effectOpacity: [10, 100],
   terminalOpacity: [20, 100],
   autoReconnectAttempts: [1, 20],
   autoReconnectDelaySeconds: [1, 300],
@@ -70,7 +141,8 @@ function coerce(patch) {
     if (value === undefined || value === null) continue;
     if (Object.prototype.hasOwnProperty.call(OPTIONS, key)) {
       const allowed = OPTIONS[key];
-      const chosen = String(value);
+      const renamed = RENAMED[key] && Object.prototype.hasOwnProperty.call(RENAMED[key], String(value));
+      const chosen = renamed ? RENAMED[key][String(value)] : String(value);
       if (!allowed.includes(chosen)) continue;
       out[key] = chosen;
     } else if (Array.isArray(DEFAULTS[key])) {
@@ -84,8 +156,12 @@ function coerce(patch) {
       if (!Number.isFinite(num)) continue;
       const [min, max] = Object.prototype.hasOwnProperty.call(CLAMP, key) ? CLAMP[key] : [-Infinity, Infinity];
       out[key] = Math.min(max, Math.max(min, Math.round(num)));
+    } else if (COLOURS.has(key)) {
+      const colour = String(value).trim();
+      if (!HEX.test(colour)) continue;
+      out[key] = colour.toLowerCase();
     } else {
-      out[key] = String(value);
+      out[key] = String(value).slice(0, MAX_TEXT);
     }
   }
   return out;
@@ -114,6 +190,9 @@ function enforce(current) {
 
 module.exports = {
   DEFAULTS,
+  OPTIONS,
+  CLAMP,
+  clean: coerce,
 
   get() {
     if (!migrated) {
@@ -127,7 +206,12 @@ module.exports = {
     return store.update((data) => Object.assign(data, coerce(patch)));
   },
 
-  reset() {
-    return store.write(structuredClone(DEFAULTS));
+  reset(keys) {
+    if (!Array.isArray(keys)) return store.write(structuredClone(DEFAULTS));
+    const chosen = keys.filter((key) => Object.prototype.hasOwnProperty.call(DEFAULTS, key));
+    return store.update((data) => {
+      for (const key of chosen) data[key] = structuredClone(DEFAULTS[key]);
+      return data;
+    });
   },
 };

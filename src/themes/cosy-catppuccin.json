@@ -1,0 +1,17 @@
+{
+  "name": "Cosy Catppuccin",
+  "description": "Soft pastels and a sparse, twinkling constellation.",
+  "settings": {
+    "terminalTheme": "catppuccin",
+    "accentColor": "#cba6f7",
+    "backgroundEffect": "constellation",
+    "effectDensity": 45,
+    "effectSpeed": 18,
+    "effectNodeGlow": 85,
+    "effectNodeSize": 140,
+    "effectLinks": 170,
+    "effectPulse": true,
+    "effectGrid": false,
+    "uiCorners": "round"
+  }
+}

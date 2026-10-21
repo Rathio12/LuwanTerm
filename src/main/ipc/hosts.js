@@ -3,6 +3,7 @@
 const { handle } = require('./helpers');
 const hosts = require('../store/hosts');
 const vault = require('../store/vault');
+const recent = require('../store/recent');
 
 function decorate(host) {
   return {
@@ -25,6 +26,8 @@ function register() {
 
   handle('hosts:forget-secret', (id) => vault.clearPrefix(`host:${id}:`));
   handle('hosts:accents', () => hosts.ACCENTS);
+  handle('recent:list', () => recent.list());
+  handle('recent:clear', () => recent.clear());
 }
 
 module.exports = { register };

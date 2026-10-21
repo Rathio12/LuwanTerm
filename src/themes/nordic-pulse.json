@@ -1,0 +1,15 @@
+{
+  "name": "Nordic Pulse",
+  "description": "Nord colours over a softly rippling grid of light.",
+  "settings": {
+    "terminalTheme": "nord",
+    "accentColor": "#88c0d0",
+    "backgroundEffect": "dots",
+    "effectSpeed": 25,
+    "effectNodeGlow": 70,
+    "effectNodeSize": 100,
+    "effectGrid": false,
+    "uiCorners": "round",
+    "effectDensity": 110
+  }
+}

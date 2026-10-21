@@ -24,7 +24,7 @@ function killTree(child) {
     }
   }
   try {
-    killTree(child);
+    child.kill();
   } catch {
     // Already gone.
   }
@@ -234,16 +234,19 @@ async function main() {
   // Connecting to Discord is a socket handshake, not something that finishes at
   // a fixed moment. Wait for it rather than guessing how long it takes.
   const presence = await client.evaluate(`(async () => {
+    const initial = (await window.term.app.info()).discord;
+    await window.term.settings.set({ discordEnabled: true });
     const until = Date.now() + 8000;
     let state = (await window.term.app.info()).discord;
     while (!state.connected && Date.now() < until) {
       await new Promise((r) => setTimeout(r, 250));
       state = (await window.term.app.info()).discord;
     }
-    return state;
+    return { ...state, initiallyEnabled: initial.enabled };
   })()`);
   check('this build carries a Discord application id', presence.configured);
-  check('Rich Presence is enabled', presence.enabled);
+  check('Rich Presence is off on a fresh profile', !presence.initiallyEnabled);
+  check('and switching it on takes effect', presence.enabled);
 
   const SEP = String.fromCharCode(92);
   const pipePath = (index) => `${SEP}${SEP}.${SEP}pipe${SEP}discord-ipc-${index}`;

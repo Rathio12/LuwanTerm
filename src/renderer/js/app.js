@@ -93,6 +93,31 @@
     root.style.setProperty('--bg-wash-a', App.dom.withAlpha(color, 0.18));
   }
 
+  const CORNERS = { square: 0, subtle: 0.5, default: 1, round: 1.45 };
+  const RADII = { '--r-sm': 8, '--r-md': 11, '--r-lg': 16, '--r-xl': 22 };
+
+  function applyInterface(settings) {
+    const root = document.documentElement;
+
+    window.term.app.setZoom((Number(settings.uiScale) || 100) / 100);
+
+    const width = Number(settings.sidebarWidth);
+    if (Number.isFinite(width) && width > 0) root.style.setProperty('--sidebar-w', `${width}px`);
+
+    const font = String(settings.uiFontFamily || '').trim();
+    if (font) root.style.setProperty('--font-ui', `${font}, "Segoe UI", system-ui, sans-serif`);
+    else root.style.removeProperty('--font-ui');
+
+    const scale = CORNERS[settings.uiCorners] ?? 1;
+    for (const [name, size] of Object.entries(RADII)) {
+      root.style.setProperty(name, `${Math.round(size * scale)}px`);
+    }
+
+    document.body.classList.toggle('reduce-motion', Boolean(settings.reduceMotion));
+
+    state.active()?.term?.fit();
+  }
+
   /**
    * `preview` paints an image that has not been saved yet, so choosing one in
    * Settings shows immediately rather than after a round trip through Save.
@@ -241,6 +266,7 @@
     wireDock();
     wireShortcuts();
     App.prompts.register();
+    App.recent.wire();
 
     window.term.ssh.onEvent(routeEvent);
     window.term.sftp.onProgress(onProgress);
@@ -253,8 +279,12 @@
 
       await Promise.all([App.hosts.reload(), App.keys.reload(), App.snippets.reload()]);
       applyAccent(state.settings.accentColor);
+      applyInterface(state.settings);
+      App.effect.apply(state.settings);
+      App.clock.apply(state.settings);
       App.afk?.apply(state.settings);
       App.betaNotice?.maybeWarn(state.info);
+      App.recent.refresh();
       applyBackground();
     } catch (err) {
       App.toast.error(`Startup failed: ${err.message}`);
@@ -269,6 +299,7 @@
 
   App.applyBackground = applyBackground;
   App.applyAccent = applyAccent;
+  App.applyInterface = applyInterface;
 
   document.addEventListener('DOMContentLoaded', boot);
 })(window.App);

@@ -1,0 +1,10 @@
+{
+  "name": "Luwan Night",
+  "description": "The house look, with a glowing constellation drifting behind it.",
+  "settings": {
+    "terminalTheme": "luwan",
+    "accentColor": "#7c5cff",
+    "backgroundEffect": "constellation",
+    "effectNodeGlow": 60
+  }
+}

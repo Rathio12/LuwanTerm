@@ -120,8 +120,10 @@ function fakeDiscord({ silent = false } = {}) {
     { id: 's2', hostId: 'h2' },
   ];
 
-  check('with no sessions there is nothing to send',
-    presence.buildPresence({ sessions: [], hostOf, settings: {} }) === null);
+  const idle = presence.buildPresence({ sessions: [], hostOf, settings: {} });
+  check('with no sessions it shows the app as idle', idle && idle.details === 'Idle' && idle.state === undefined);
+  check('and idle can be switched off',
+    presence.buildPresence({ sessions: [], hostOf, settings: { discordShowIdle: false } }) === null);
 
   const quiet = presence.buildPresence({ sessions: two, hostOf, settings: {} });
   const wire = JSON.stringify(quiet);
@@ -172,6 +174,11 @@ function fakeDiscord({ silent = false } = {}) {
 
   check('the brand is what hovering the image says', card.assets.large_text === 'Luwan Shell');
   check('the image key is an uploaded asset, not a URL', card.assets.large_image === 'luwan_logo');
+  check('an image URL carries the version, so Discord fetches a new mark after a release',
+    presence.imageFor('https://example.com/icon.png', '2.2.0') === 'https://example.com/icon.png?v=2.2.0');
+  check('a URL that already has a version gets the current one',
+    presence.imageFor('https://example.com/icon.png?v=1.0.0', '2.2.0') === 'https://example.com/icon.png?v=2.2.0');
+  check('an uploaded asset key is left alone', presence.imageFor('luwan_logo', '2.2.0') === 'luwan_logo');
   check('exactly two buttons are sent', card.buttons.length === 2, `${card.buttons.length}`);
   check('and they are the project and the site',
     card.buttons[0].label === 'View on GitHub' && card.buttons[1].label === 'Website');

@@ -10,6 +10,7 @@ const policy = require('../policy');
 const audit = require('../audit');
 const stats = require('./stats');
 const settings = require('../store/settings');
+const recent = require('../store/recent');
 
 const PROMPT_TIMEOUT_MS = 180000;
 
@@ -206,6 +207,7 @@ class SessionManager {
           auth: profile.auth,
           jumpHost: profile.jumpHost || '',
         });
+        recent.opened(id, profile.id);
         this.persistSecret(profile, credentials);
         this.notifyChange();
         return info;
@@ -343,6 +345,7 @@ class SessionManager {
         sessionId: event.sessionId,
         host: closing && closing.profile ? closing.profile.host : '',
       });
+      recent.closed(event.sessionId);
       stats.forget(event.sessionId);
       if (this.onSessionGone) {
         try {

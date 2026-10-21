@@ -5,7 +5,9 @@ const { app, BrowserWindow, ipcMain } = require('electron');
 
 const brand = require('./brand');
 
-app.setPath('userData', path.join(app.getPath('appData'), brand.userDataFolder));
+if (!app.commandLine.hasSwitch('user-data-dir')) {
+  app.setPath('userData', path.join(app.getPath('appData'), brand.userDataFolder));
+}
 
 const { createWindow, createSplash, createUpdatePrompt } = require('./window');
 const { SessionManager } = require('./ssh/manager');
@@ -279,7 +281,7 @@ function applyDiscord(current = settings.get()) {
   }
 
   discord.start({
-    largeImage: config.discordLargeImage,
+    largeImage: presence.imageFor(config.discordLargeImage, brand.version),
     largeText: brand.productName,
     showTimer: current.discordTimer,
     buttons: [

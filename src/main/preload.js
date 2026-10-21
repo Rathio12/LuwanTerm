@@ -1,6 +1,6 @@
 'use strict';
 
-const { contextBridge, ipcRenderer } = require('electron');
+const { contextBridge, ipcRenderer, webFrame } = require('electron');
 
 async function call(channel, ...args) {
   const result = await ipcRenderer.invoke(channel, ...args);
@@ -30,6 +30,10 @@ contextBridge.exposeInMainWorld('term', {
     activity: (info) => ipcRenderer.send('app:activity', info),
     away: (isAway) => ipcRenderer.send('app:away', Boolean(isAway)),
     ready: () => ipcRenderer.send('app:ready'),
+    setZoom: (factor) => {
+      const value = Number(factor);
+      if (Number.isFinite(value)) webFrame.setZoomFactor(Math.min(1.5, Math.max(0.75, value)));
+    },
   },
 
   updates: {
@@ -48,7 +52,7 @@ contextBridge.exposeInMainWorld('term', {
   settings: {
     get: () => call('settings:get'),
     set: (patch) => call('settings:set', patch),
-    reset: () => call('settings:reset'),
+    reset: (keys) => call('settings:reset', keys),
   },
 
   hosts: {
@@ -59,6 +63,19 @@ contextBridge.exposeInMainWorld('term', {
     forgetSecret: (id) => call('hosts:forget-secret', id),
     accents: () => call('hosts:accents'),
     pickKey: () => call('dialog:pick-key'),
+  },
+
+  themes: {
+    list: () => call('themes:list'),
+    save: (input) => call('themes:save', input),
+    install: () => call('themes:install'),
+    remove: (id) => call('themes:remove', id),
+    openFolder: () => call('themes:open-folder'),
+  },
+
+  recent: {
+    list: () => call('recent:list'),
+    clear: () => call('recent:clear'),
   },
 
   knownHosts: {

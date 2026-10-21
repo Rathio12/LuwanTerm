@@ -16,6 +16,9 @@ check('the product has one name, and it is Luwan Shell', brand.productName === '
 check('the build config agrees with it', pkg.build.productName === brand.productName);
 check('the data folder keeps its old name, so an upgrade finds its data',
   brand.userDataFolder === 'luwan-term' && brand.userDataFolder === pkg.name);
+const main = read('src/main/main.js');
+check('pinning the data folder still lets --user-data-dir choose another',
+  /if \(!app\.commandLine\.hasSwitch\('user-data-dir'\)\) \{\s*app\.setPath\('userData'/.test(main));
 check('the app id is unchanged, so auto-update still matches this install',
   brand.appId === 'io.luwan.term' && pkg.build.appId === brand.appId);
 check('the repository it publishes to is unchanged',

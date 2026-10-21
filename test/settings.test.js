@@ -71,4 +71,46 @@ check('a label source round-trips',
 check('a label source is written back',
   JSON.parse(fs.readFileSync(path.join(dir, 'settings.json'), 'utf8')).discordLabel === 'name');
 
+const fresh = settings.reset();
+check('a new install looks exactly as before',
+  fresh.terminalTheme === 'luwan' && fresh.lineHeight === 100 && fresh.letterSpacing === 0
+  && fresh.terminalPadding === 12 && fresh.uiScale === 100 && fresh.sidebarWidth === 268
+  && fresh.uiCorners === 'default' && fresh.rightClick === 'paste' && fresh.bell === 'none'
+  && fresh.fontWeight === 'normal' && fresh.uiFontFamily === '' && fresh.reduceMotion === false);
+
+check('a colour scheme round-trips', settings.set({ terminalTheme: 'nord' }).terminalTheme === 'nord');
+check('an unknown colour scheme is ignored', settings.set({ terminalTheme: 'matrix' }).terminalTheme === 'nord');
+check('an unknown right-click action is ignored', settings.set({ rightClick: 'format-disk' }).rightClick === 'paste');
+check('an unknown font weight is ignored', settings.set({ fontWeight: '950' }).fontWeight === 'normal');
+check('interface scale is clamped up', settings.set({ uiScale: 10 }).uiScale === 75);
+check('and down', settings.set({ uiScale: 900 }).uiScale === 150);
+check('line height is clamped', settings.set({ lineHeight: 500 }).lineHeight === 200);
+check('sidebar width is clamped', settings.set({ sidebarWidth: 5 }).sidebarWidth === 200);
+check('a free-text setting is capped in length',
+  settings.set({ uiFontFamily: 'x'.repeat(5000) }).uiFontFamily.length === 400);
+
+check('the animated background is off for a new install', settings.get().backgroundEffect === 'none');
+check('the constellation can be chosen', settings.set({ backgroundEffect: 'constellation' }).backgroundEffect === 'constellation');
+check('an old effect name moves to its replacement', settings.set({ backgroundEffect: 'aurora' }).backgroundEffect === 'horizon');
+check('as do the others', settings.set({ backgroundEffect: 'starfield' }).backgroundEffect === 'flow'
+  && settings.set({ backgroundEffect: 'waves' }).backgroundEffect === 'dots');
+settings.set({ backgroundEffect: 'constellation' });
+check('an unknown effect is ignored', settings.set({ backgroundEffect: 'fireworks' }).backgroundEffect === 'constellation');
+check('effect density is clamped', settings.set({ effectDensity: 9999 }).effectDensity === 220);
+check('effect speed can be zero', settings.set({ effectSpeed: 0 }).effectSpeed === 0);
+check('link distance is clamped', settings.set({ effectLinks: 1 }).effectLinks === 60);
+check('nodes glow out of the box', settings.get().effectNodeGlow === 60 && settings.get().effectPulse === true);
+check('glow is clamped', settings.set({ effectNodeGlow: 500 }).effectNodeGlow === 100);
+check('node size is clamped', settings.set({ effectNodeSize: 1 }).effectNodeSize === 50);
+check('an unknown mouse force is ignored', settings.set({ effectMouseForce: 'explode' }).effectMouseForce === 'none');
+check('the mouse can push nodes away', settings.set({ effectMouseForce: 'repel' }).effectMouseForce === 'repel');
+settings.set({ backgroundEffect: 'none', effectDensity: 90, effectSpeed: 30, effectLinks: 130,
+  effectNodeGlow: 60, effectNodeSize: 100, effectMouseForce: 'none' });
+
+settings.set({ enabledPlugins: ['disk'], betaUpdates: true, terminalTheme: 'dracula', uiScale: 120 });
+const partial = settings.reset(['terminalTheme', 'uiScale', 'notASetting']);
+check('a partial reset restores the keys it names', partial.terminalTheme === 'luwan' && partial.uiScale === 100);
+check('and leaves the rest alone', partial.enabledPlugins.join() === 'disk' && partial.betaUpdates === true);
+check('and cannot invent a key', !('notASetting' in partial));
+
 done();

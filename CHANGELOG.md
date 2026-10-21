@@ -1,5 +1,105 @@
 # Changelog
 
+## 3.0.0
+
+**Make it yours.** This release is about choice. Almost everything about how
+Luwan Shell looks and behaves can now be changed in Settings, every change
+previews as you make it, and Cancel puts things back exactly as they were.
+Nothing here changes how you connect, and your hosts, keys, snippets and plugins
+are untouched.
+
+### Themes
+
+**One click changes the whole look.** A theme sets the terminal colours, the
+accent, the corners and the animated background together. Eight ship with the
+app - Luwan Night, Digital Rain, Deep Space, Nordic Pulse, Synthwave, Cosy
+Catppuccin, Solarized Day and Minimal. Clicking one previews it across the whole
+window; nothing is kept until you press Save.
+
+**Make your own without writing anything.** Tune Settings until you like what you
+see, press *Save current look as a theme*, and give it a name. It becomes a small
+`.json` file in your themes folder - with your background image copied in beside
+it - ready to edit or send to someone. *Add from file* installs one you were
+sent. The new [themes guide](https://github.com/Rathio12/LuwanTerm/blob/main/guides/themes.md) lists every setting a theme can
+change, its range and its default.
+
+**A theme is data, not code.** It can only change what the Settings window can,
+it cannot read a file outside its own folder, and it never touches your hosts,
+keys, Discord settings or update channel. A theme with a mistake is still
+listed, in red, with what is wrong in plain words.
+
+### Animated backgrounds
+
+Five, under **Settings → Background**, each drawn live behind everything:
+
+- **Constellation** - drifting nodes that link up when they come close
+- **Flow** - thousands of particles riding a smooth current, leaving silky trails
+- **Digital rain** - columns of glyphs falling down the window
+- **Dot matrix** - a grid of dots rippling like a slow wave
+- **Horizon** - a neon grid rolling toward you under a striped, glowing sun
+
+Each one reacts to the mouse - pulling, swirling, rippling or leaning toward it -
+and has its own controls: density, speed, glow, size, line width and opacity, a
+custom colour or your accent, a faint corner grid and a corner glow. They redraw
+at most forty times a second, stop while the window is minimised, and hold still
+when *Reduce motion* is on.
+
+### The terminal
+
+- **Ten colour schemes** - Luwan, Dracula, Nord, Gruvbox, One Dark, Tokyo Night,
+  Catppuccin, Solarized Dark and Light, and GitHub Light - picked from cards drawn
+  in their own colours.
+- **Font weight, line height, letter spacing and padding.**
+- **Scroll speed**, and **Ctrl + mouse wheel** to zoom one terminal without
+  changing the rest.
+- **Right click** can paste as before, copy a selection and paste otherwise, or do
+  nothing.
+- **A visual bell** that flashes the terminal, if you want one.
+- *Copy on select* now applies to sessions that are already open.
+
+### The window
+
+- **Interface scale** from 75% to 150%, **sidebar width**, **interface font**, and
+  **corners** from square to extra round.
+- **Reduce motion** turns off fades and slides.
+- **Settings is in sections** - Themes, Terminal, Interface, Background, Behaviour,
+  Discord, Plugins, Updates, Security - with buttons along the top to jump
+  between them, and **Restore defaults** for everything on the page.
+
+### The start screen
+
+**A live clock** with the date sits above the logo - with seconds or 12-hour time
+if you prefer, or switched off.
+
+**Your last session, ready to reopen.** The host you last used is on the left
+with a *Reconnect* button, how long ago it was, how long it lasted and how many
+times you have connected; the hosts before it are listed underneath. The history
+is filled in from your existing audit log the first time you open this version,
+so it starts with what you have already done. It stores host ids and times, never
+addresses, can be cleared in one click, and can be switched off.
+
+### Discord
+
+**Presence starts when the app does.** With no session open, your profile shows
+*Luwan Shell - Idle* with a timer and the two buttons, instead of nothing. A new
+tick box goes back to the old behaviour if you would rather it only appeared
+while connected.
+
+**The card shows the new mark.** Discord kept serving the old icon because the
+image address had not changed; the address now carries the version, so Discord
+fetches the current one after every release.
+
+### Fixes
+
+- **The developer check harness used your real profile.** Pinning the data folder
+  to `luwan-term` in 2.2.0 also overrode `--user-data-dir`, so the window check
+  ran against - and wrote to - your own settings. An explicit `--user-data-dir`
+  wins again.
+- **Settings could open twice** if the gear was clicked twice quickly, stacking
+  two windows.
+- **A colour that is not `#rrggbb` is refused**, and so is a cursor style that does
+  not exist, instead of being stored and quietly breaking the accent.
+
 ## 2.2.0
 
 **The app is called Luwan Shell now.** The name changed everywhere a person

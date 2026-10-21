@@ -1,6 +1,7 @@
 'use strict';
 
 const DEFAULT_TYPE = 'SSH';
+const IDLE = 'Idle';
 const VIEW_TYPE = { files: 'SFTP', tunnels: 'Tunnel' };
 const LABEL_MAX = 32;
 const MIN_INTERVAL_MS = 15000;
@@ -36,7 +37,7 @@ function labelFor(host, settings) {
 
 function buildPresence({ sessions = [], hostOf = () => null, settings = {}, focus = null } = {}) {
   const count = sessions.length;
-  if (!count) return null;
+  if (!count) return settings.discordShowIdle === false ? null : { details: IDLE };
 
   const focused =
     focus && focus.sessionId ? sessions.find((session) => session.id === focus.sessionId) : null;
@@ -52,6 +53,18 @@ function buildPresence({ sessions = [], hostOf = () => null, settings = {}, focu
     : undefined;
 
   return { details, state };
+}
+
+function imageFor(image, version) {
+  const value = String(image || '').trim();
+  if (!/^https?:\/\//i.test(value) || !version) return value;
+  try {
+    const url = new URL(value);
+    url.searchParams.set('v', String(version));
+    return url.toString();
+  } catch {
+    return value;
+  }
 }
 
 function createScheduler(options = {}) {
@@ -104,4 +117,4 @@ function createScheduler(options = {}) {
   };
 }
 
-module.exports = { buildPresence, labelFor, looksLikeAddress, clean, createScheduler, DEFAULT_TYPE };
+module.exports = { buildPresence, imageFor, labelFor, looksLikeAddress, clean, createScheduler, DEFAULT_TYPE, IDLE };
