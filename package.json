@@ -89,8 +89,8 @@
     "ssh2": "^1.17.0"
   },
   "devDependencies": {
-    "electron": "^44.3.0",
-    "electron-builder": "^26.0.12"
+    "electron": "^45.0.0",
+    "electron-builder": "^26.18.0"
   },
   "engines": {
     "node": ">=24"
